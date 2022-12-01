@@ -5,20 +5,14 @@ import "forge-std/Test.sol";
 import "../src/Cre8ors.sol";
 
 contract CounterTest is Test {
-    Cre8ors public counter;
+    Cre8ors public c;
 
     function setUp() public {
-        counter = new Cre8ors();
-        counter.setNumber(0);
+        c = new Cre8ors();
     }
 
-    function testIncrement() public {
-        counter.increment();
-        assertEq(counter.number(), 1);
-    }
-
-    function testSetNumber(uint256 x) public {
-        counter.setNumber(x);
-        assertEq(counter.number(), x);
+    function testErc721() public {
+        assertEq("CRE8ORS", c.name());
+        assertEq("CRE8", c.symbol());
     }
 }
