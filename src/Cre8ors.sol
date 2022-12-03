@@ -235,6 +235,12 @@ contract Cre8ors is
         } while (quantity > 0);
     }
 
+    /// @param tokenId Token ID to burn
+    /// @notice User burn function for token id
+    function burn(uint256 tokenId) public {
+        _burn(tokenId, true);
+    }
+
     /// @notice Sale details
     /// @return IERC721Drop.SaleDetails sale information details
     function saleDetails()
