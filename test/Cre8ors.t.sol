@@ -72,4 +72,50 @@ contract CounterTest is Test {
         );
         assertEq(address(cre8orsNFTBase).balance, amount);
     }
+
+    function test_PurchaseTime() public setupCre8orsNFTBase(10) {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: 0,
+            presaleStart: 0,
+            presaleEnd: 0,
+            publicSalePrice: 0.1 ether,
+            maxSalePurchasePerAddress: 2,
+            presaleMerkleRoot: bytes32(0)
+        });
+
+        assertTrue(!cre8orsNFTBase.saleDetails().publicSaleActive);
+
+        vm.deal(address(456), 1 ether);
+        vm.prank(address(456));
+        vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
+        cre8orsNFTBase.purchase{value: 0.1 ether}(1);
+
+        assertEq(cre8orsNFTBase.saleDetails().maxSupply, 10);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 9 * 3600,
+            publicSaleEnd: 11 * 3600,
+            presaleStart: 0,
+            presaleEnd: 0,
+            maxSalePurchasePerAddress: 20,
+            publicSalePrice: 0.1 ether,
+            presaleMerkleRoot: bytes32(0)
+        });
+
+        assertTrue(!cre8orsNFTBase.saleDetails().publicSaleActive);
+        // jan 1st 1980
+        vm.warp(10 * 3600);
+        assertTrue(cre8orsNFTBase.saleDetails().publicSaleActive);
+        assertTrue(!cre8orsNFTBase.saleDetails().presaleActive);
+
+        vm.prank(address(456));
+        cre8orsNFTBase.purchase{value: 0.1 ether}(1);
+
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
+        assertEq(cre8orsNFTBase.ownerOf(1), address(456));
+    }
 }
