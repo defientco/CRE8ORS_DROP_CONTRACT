@@ -49,7 +49,8 @@ contract Cre8ors is
         uint16 _royaltyBPS,
         SalesConfiguration memory _salesConfig,
         IMetadataRenderer _metadataRenderer,
-        bytes memory _metadataRendererInit
+        string memory _metadataURIBase,
+        string memory _metadataContractURI
     ) ERC721A(_contractName, _contractSymbol) ReentrancyGuard() {
         // Setup the owner role
         _setupRole(DEFAULT_ADMIN_ROLE, _initialOwner);
@@ -62,6 +63,10 @@ contract Cre8ors is
         config.metadataRenderer = _metadataRenderer;
         config.royaltyBPS = _royaltyBPS;
         config.fundsRecipient = _fundsRecipient;
+        bytes memory _metadataRendererInit = abi.encode(
+            _metadataURIBase,
+            _metadataContractURI
+        );
         _metadataRenderer.initializeWithData(_metadataRendererInit);
     }
 
