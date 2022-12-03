@@ -14,4 +14,4 @@ jobs:
       - uses: onbjerg/foundry-toolchain@v1
         with:
           version: nightly
-      - run: forge test
+      - run: forge test -vvv
