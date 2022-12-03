@@ -1,0 +1,64 @@
+{
+    "version": "0.1",
+    "mimeType": "image/png",
+    "name": "CRE8ORS",
+    "title": "CRE8ORS",
+    "artist": "chillpill",
+    "attributes": {
+      "type": "engineer",
+      "music": "drums"
+    },
+    "description": "coming soon",
+    "external_url": "https://cre8ors.defient.co/",
+    "locationCreated": "The WhereHouse",
+    "artwork": {
+      "mimeType": "image/png",
+      "uri": "ipfs://bafkreiduplpu75kivn4tuxsisq2yrdsbm6pg6x46bt33vnq3hq47kljfw4"
+    },
+    "originalReleaseDate": "20220819T000000Z",
+    "recordLabel": "ChillRx",
+    "publisher": "ChillRx",
+    "project": {
+      "title": "CRE8ORS",
+      "artwork": {
+        "mimeType": "image/png",
+        "uri": "ipfs://bafkreiduplpu75kivn4tuxsisq2yrdsbm6pg6x46bt33vnq3hq47kljfw4"
+      },
+      "description": "coming soon.",
+      "type": "EXPERIMENTAL",
+      "originalReleaseDate": "20220729T000000-0400",
+      "recordLabel": "ChillRx",
+      "publisher": "ChillRx"
+    },
+    "image": "ipfs://bafkreiduplpu75kivn4tuxsisq2yrdsbm6pg6x46bt33vnq3hq47kljfw4",
+    "animation_url": "ipfs://bafybeiceg4rcsftq7blksbdblcbkayyezu7oxp6ehxb2w32hu4mtheev6y",
+    "losslessAudio": "ipfs://bafybeid3su3rqfwj7ydk52coz3xinku5vc7uu557t7rdkxx5dswcbxolda",
+    "credits": [
+        {
+            "name": "chillpill",
+            "collaboratorType": "Creator"
+        },
+        
+        {
+            "name": "Artemis",
+            "collaboratorType": "Art Director"
+        },
+        {
+            "name": "sweetman.eth",
+            "collaboratorType": "the music nft engineer"
+        },
+        {
+            "name": "Sidney Swift",
+            "collaboratorType": "CoFounder"
+        },
+        {
+            "name": "Katee Swift",
+            "collaboratorType": "Operations"
+        },
+        {
+            "name": "Joe Day",
+            "collaboratorType": "Community"
+        }
+    ],
+    "tags": ["CRE8ORS", "chillpill"]
+  }
