@@ -27,7 +27,8 @@ contract CounterTest is Test {
             _editionSize: editionSize,
             _royaltyBPS: 808,
             _metadataRenderer: dummyRenderer,
-            _metadataRendererInit: "",
+            _metadataURIBase: "",
+            _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
                 publicSaleEnd: 0,
