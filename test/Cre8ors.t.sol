@@ -340,4 +340,23 @@ contract CounterTest is Test {
         vm.expectRevert(IERC721A.TransferCallerNotOwnerNorApproved.selector);
         cre8orsNFTBase.burn(1);
     }
+
+    function test_TokenURI() public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: type(uint64).max,
+            presaleStart: 0,
+            presaleEnd: 0,
+            publicSalePrice: 1,
+            maxSalePurchasePerAddress: 2,
+            presaleMerkleRoot: bytes32(0)
+        });
+
+        vm.deal(address(456), uint256(1) * 2);
+        vm.prank(address(456));
+        cre8orsNFTBase.purchase{value: 1}(1);
+
+        assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
+    }
 }

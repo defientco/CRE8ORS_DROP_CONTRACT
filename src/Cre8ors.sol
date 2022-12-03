@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
+import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
@@ -491,5 +492,21 @@ contract Cre8ors is
     /// @notice Start token ID for minting (1-100 vs 0-99)
     function _startTokenId() internal pure override returns (uint256) {
         return 1;
+    }
+
+    /// @notice Token URI Getter, proxies to metadataRenderer
+    /// @param tokenId id of token to get URI for
+    /// @return Token URI
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        if (!_exists(tokenId)) {
+            revert IERC721A.URIQueryForNonexistentToken();
+        }
+
+        return config.metadataRenderer.tokenURI(tokenId);
     }
 }
