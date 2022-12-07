@@ -50,6 +50,10 @@ interface IERC721Drop {
     /// @notice Unable to finalize an edition not marked as open (size set to uint64_max_value)
     error Admin_UnableToFinalizeNotOpenEdition();
 
+    // CRE8ING errors
+    /// @notice Cre8ing Closed
+    error Cre8ing_Cre8ingClosed();
+
     /// @notice Event emitted for each sale
     /// @param to address sale was made to
     /// @param quantity quantity of the minted nfts

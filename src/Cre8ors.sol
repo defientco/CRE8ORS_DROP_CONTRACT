@@ -12,6 +12,7 @@ import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
+import {Cre8ing} from "./Cre8ing.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -24,9 +25,9 @@ import {IOwnable} from "./interfaces/IOwnable.sol";
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8ors is
     ERC721A,
+    Cre8ing,
     IERC2981,
     ReentrancyGuard,
-    AccessControl,
     IERC721Drop,
     OwnableSkeleton,
     ERC721DropStorageV1
@@ -36,10 +37,6 @@ contract Cre8ors is
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
-
-    /// @notice Access control roles
-    bytes32 public immutable MINTER_ROLE = keccak256("MINTER");
-    bytes32 public immutable SALES_MANAGER_ROLE = keccak256("SALES_MANAGER");
 
     constructor(
         string memory _contractName,
@@ -52,9 +49,11 @@ contract Cre8ors is
         IMetadataRenderer _metadataRenderer,
         string memory _metadataURIBase,
         string memory _metadataContractURI
-    ) ERC721A(_contractName, _contractSymbol) ReentrancyGuard() {
-        // Setup the owner role
-        _setupRole(DEFAULT_ADMIN_ROLE, _initialOwner);
+    )
+        ERC721A(_contractName, _contractSymbol)
+        ReentrancyGuard()
+        Cre8ing(_initialOwner)
+    {
         // Set ownership to original sender of contract call
         _setOwner(_initialOwner);
         // Update salesConfig
@@ -384,6 +383,40 @@ contract Cre8ors is
     }
 
     /////////////////////////////////////////////////
+    /// CRE8ING
+    /////////////////////////////////////////////////
+
+    /// @notice Changes the Moonbirds' nesting statuss (what's the plural of status?
+    ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
+    ///     plural of status).
+    /// @dev Changes the Moonbirds' nesting sheep (see @notice).
+    function toggleCre8ing(uint256[] calldata tokenIds) external {
+        uint256 n = tokenIds.length;
+        for (uint256 i = 0; i < n; ++i) {
+            toggleCre8ing(tokenIds[i]);
+        }
+    }
+
+    /// @notice Changes the CRE8OR's cre8ing status.
+    function toggleCre8ing(uint256 tokenId)
+        internal
+        onlyApprovedOrOwner(tokenId)
+    {
+        uint256 start = cre8ingStarted[tokenId];
+        if (start == 0) {
+            if (!cre8ingOpen) {
+                revert Cre8ing_Cre8ingClosed();
+            }
+            cre8ingStarted[tokenId] = block.timestamp;
+            emit Cre8ed(tokenId);
+        } else {
+            cre8ingTotal[tokenId] += block.timestamp - start;
+            cre8ingStarted[tokenId] = 0;
+            emit Uncre8ed(tokenId);
+        }
+    }
+
+    /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
     /////////////////////////////////////////////////
 
@@ -410,25 +443,22 @@ contract Cre8ors is
     /// MODIFIERS
     /////////////////////////////////////////////////
 
-    /// @notice Only a given role has access or admin
-    /// @param role role to check for alongside the admin role
-    modifier onlyRoleOrAdmin(bytes32 role) {
-        if (
-            !hasRole(DEFAULT_ADMIN_ROLE, msg.sender) &&
-            !hasRole(role, msg.sender)
-        ) {
-            revert Access_MissingRoleOrAdmin(role);
-        }
-
-        _;
-    }
-
     /// @notice Only allow for users with admin access
     modifier onlyAdmin() {
         if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             revert Access_OnlyAdmin();
         }
 
+        _;
+    }
+
+    /// @notice Requires that msg.sender owns or is approved for the token.
+    modifier onlyApprovedOrOwner(uint256 tokenId) {
+        require(
+            _ownershipOf(tokenId).addr == _msgSender() ||
+                getApproved(tokenId) == _msgSender(),
+            "CRE8ORS: Not approved nor owner"
+        );
         _;
     }
 

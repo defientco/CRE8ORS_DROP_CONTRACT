@@ -1,17 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
-import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
-import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
-import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
-import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
-import {MerkleProof} from "lib/openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.sol";
-import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
-import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
-import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
-import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
-import {IOwnable} from "./interfaces/IOwnable.sol";
+import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -22,11 +12,20 @@ import {IOwnable} from "./interfaces/IOwnable.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
-contract Cre8ing {
+contract Cre8ing is Cre8iveAdmin {
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
-    mapping(uint256 => uint256) private cre8ingStarted;
+    mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
-    mapping(uint256 => uint256) private cre8ingTotal;
+    mapping(uint256 => uint256) internal cre8ingTotal;
+
+    /// @dev Emitted when a CRE8OR begins cre8ing.
+    event Cre8ed(uint256 indexed tokenId);
+
+    /// @dev Emitted when a CRE8OR stops cre8ing; either through standard means or
+    ///     by expulsion.
+    event Uncre8ed(uint256 indexed tokenId);
+
+    constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
     /// @notice Whether nesting is currently allowed.
     /// @dev If false then nesting is blocked, but unnesting is always allowed.
@@ -56,5 +55,13 @@ contract Cre8ing {
             current = block.timestamp - start;
         }
         total = current + cre8ingTotal[tokenId];
+    }
+
+    /// @notice Toggles the `nestingOpen` flag.
+    function setCre8ingOpen(bool open)
+        external
+        onlyRoleOrAdmin(SALES_MANAGER_ROLE)
+    {
+        cre8ingOpen = open;
     }
 }
