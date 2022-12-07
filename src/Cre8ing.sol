@@ -28,6 +28,10 @@ contract Cre8ing {
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(uint256 => uint256) private cre8ingTotal;
 
+    /// @notice Whether nesting is currently allowed.
+    /// @dev If false then nesting is blocked, but unnesting is always allowed.
+    bool public cre8ingOpen = false;
+
     /// @notice Returns the length of time, in seconds, that the CRE8OR has cre8ed.
     /// @dev Cre8ing is tied to a specific CRE8OR, not to the owner, so it doesn't
     ///     reset upon sale.
