@@ -13,6 +13,7 @@ contract CounterTest is Test {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
 
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
+    address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
 
     function setUp() public {
         cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
@@ -121,5 +122,25 @@ contract CounterTest is Test {
         assertEq(cre8ing, true);
         assertEq(current, 0);
         assertEq(total, 0);
+    }
+
+    function test_blockCre8ingTransfer() public setupCre8orsNFTBase {
+        uint256 _tokenId = 1;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.purchase(1);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        vm.expectRevert();
+        cre8orsNFTBase.safeTransferFrom(
+            DEFAULT_CRE8OR_ADDRESS,
+            DEFAULT_OWNER_ADDRESS,
+            _tokenId
+        );
     }
 }

@@ -17,6 +17,9 @@ contract Cre8ing is Cre8iveAdmin {
     mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(uint256 => uint256) internal cre8ingTotal;
+    /// @dev MUST only be modified by safeTransferWhileNesting(); if set to 2 then
+    ///     the _beforeTokenTransfer() block while nesting is disabled.
+    uint256 internal cre8ingTransfer = 1;
 
     /// @dev Emitted when a CRE8OR begins cre8ing.
     event Cre8ed(uint256 indexed tokenId);

@@ -439,6 +439,21 @@ contract Cre8ors is
             salesConfig.presaleEnd > block.timestamp;
     }
 
+    /// @dev Block transfers while nesting.
+    function _beforeTokenTransfers(
+        address,
+        address,
+        uint256 startTokenId,
+        uint256 quantity
+    ) internal view override {
+        uint256 tokenId = startTokenId;
+        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
+            if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
+                revert Cre8ing_Cre8ing();
+            }
+        }
+    }
+
     /////////////////////////////////////////////////
     /// MODIFIERS
     /////////////////////////////////////////////////
@@ -454,11 +469,13 @@ contract Cre8ors is
 
     /// @notice Requires that msg.sender owns or is approved for the token.
     modifier onlyApprovedOrOwner(uint256 tokenId) {
-        require(
-            _ownershipOf(tokenId).addr == _msgSender() ||
-                getApproved(tokenId) == _msgSender(),
-            "CRE8ORS: Not approved nor owner"
-        );
+        if (
+            _ownershipOf(tokenId).addr != _msgSender() &&
+            getApproved(tokenId) != _msgSender()
+        ) {
+            revert Access_MissingOwnerOrApproved();
+        }
+
         _;
     }
 
