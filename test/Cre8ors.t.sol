@@ -9,7 +9,7 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 
-contract CounterTest is Test {
+contract Cre8orTest is Test {
     Cre8ors public cre8orsNFTBase;
 
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();

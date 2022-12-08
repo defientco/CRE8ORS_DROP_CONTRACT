@@ -7,7 +7,7 @@ import {Cre8ors} from "../src/Cre8ors.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 
-contract CounterTest is Test {
+contract Cre8ingTest is Test {
     Cre8ing public cre8ingBase;
     Cre8ors public cre8orsNFTBase;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
