@@ -17,8 +17,8 @@ contract Cre8ing is Cre8iveAdmin {
     mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(uint256 => uint256) internal cre8ingTotal;
-    /// @dev MUST only be modified by safeTransferWhileNesting(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while nesting is disabled.
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 internal cre8ingTransfer = 1;
 
     /// @dev Emitted when a CRE8OR begins cre8ing.
@@ -31,10 +31,13 @@ contract Cre8ing is Cre8iveAdmin {
     /// @dev Emitted when a CRE8OR is expelled from the Warehouse.
     event Expelled(uint256 indexed tokenId);
 
+    /// @notice Missing cre8ing status
+    error CRE8ING_NotCre8ing(uint256 tokenId);
+
     constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
-    /// @notice Whether nesting is currently allowed.
-    /// @dev If false then nesting is blocked, but unnesting is always allowed.
+    /// @notice Whether cre8ing is currently allowed.
+    /// @dev If false then cre8ing is blocked, but uncre8ing is always allowed.
     bool public cre8ingOpen = false;
 
     /// @notice Returns the length of time, in seconds, that the CRE8OR has cre8ed.
@@ -63,7 +66,7 @@ contract Cre8ing is Cre8iveAdmin {
         total = current + cre8ingTotal[tokenId];
     }
 
-    /// @notice Toggles the `nestingOpen` flag.
+    /// @notice Toggles the `cre8ingOpen` flag.
     function setCre8ingOpen(bool open)
         external
         onlyRoleOrAdmin(SALES_MANAGER_ROLE)
@@ -71,20 +74,22 @@ contract Cre8ing is Cre8iveAdmin {
         cre8ingOpen = open;
     }
 
-    /// @notice Admin-only ability to expel a Moonbird from the nest.
+    /// @notice Admin-only ability to expel a CRE8OR from the Warehouse.
     /// @dev As most sales listings use off-chain signatures it's impossible to
-    ///     detect someone who has nested and then deliberately undercuts the floor
+    ///     detect someone who has cre8ed and then deliberately undercuts the floor
     ///     price in the knowledge that the sale can't proceed. This function allows for
     ///     monitoring of such practices and expulsion if abuse is detected, allowing
-    ///     the undercutting bird to be sold on the open market. Since OpenSea uses
+    ///     the undercutting CRE8OR to be sold on the open market. Since OpenSea uses
     ///     isApprovedForAll() in its pre-listing checks, we can't block by that means
-    ///     because nesting would then be all-or-nothing for all of a particular owner's
-    ///     Moonbirds.
+    ///     because cre8ing would then be all-or-nothing for all of a particular owner's
+    ///     CRE8OR.
     function expelFromWarehouse(uint256 tokenId)
         external
         onlyRole(EXPULSION_ROLE)
     {
-        require(cre8ingStarted[tokenId] != 0, "Moonbirds: not nested");
+        if (cre8ingStarted[tokenId] == 0) {
+            revert CRE8ING_NotCre8ing(tokenId);
+        }
         cre8ingTotal[tokenId] += block.timestamp - cre8ingStarted[tokenId];
         cre8ingStarted[tokenId] = 0;
         emit Uncre8ed(tokenId);

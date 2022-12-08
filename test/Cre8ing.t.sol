@@ -203,6 +203,26 @@ contract Cre8ingTest is Test {
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
     }
 
+    function test_expelFromWarehouseRevert_uncre8ed()
+        public
+        setupCre8orsNFTBase
+    {
+        uint256 _tokenId = 1;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.purchase(1);
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        bytes32 role = cre8ingBase.EXPULSION_ROLE();
+        cre8orsNFTBase.grantRole(role, DEFAULT_OWNER_ADDRESS);
+        vm.expectRevert(
+            abi.encodeWithSignature("CRE8ING_NotCre8ing(uint256)", _tokenId)
+        );
+        cre8orsNFTBase.expelFromWarehouse(_tokenId);
+    }
+
     function test_expelFromWarehouseRevert_AccessControl()
         public
         setupCre8orsNFTBase
