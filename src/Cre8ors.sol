@@ -386,10 +386,10 @@ contract Cre8ors is
     /// CRE8ING
     /////////////////////////////////////////////////
 
-    /// @notice Changes the Moonbirds' nesting statuss (what's the plural of status?
+    /// @notice Changes the CRE8ORs' cre8ing statuss (what's the plural of status?
     ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
     ///     plural of status).
-    /// @dev Changes the Moonbirds' nesting sheep (see @notice).
+    /// @dev Changes the CRE8ORs' cre8ing sheep (see @notice).
     function toggleCre8ing(uint256[] calldata tokenIds) external {
         uint256 n = tokenIds.length;
         for (uint256 i = 0; i < n; ++i) {
@@ -416,8 +416,8 @@ contract Cre8ors is
         }
     }
 
-    /// @notice Transfer a token between addresses while the Moonbird is minting,
-    ///     thus not resetting the nesting period.
+    /// @notice Transfer a token between addresses while the CRE8OR is minting,
+    ///     thus not resetting the cre8ing period.
     function safeTransferWhileCre8ing(
         address from,
         address to,
@@ -454,7 +454,7 @@ contract Cre8ors is
             salesConfig.presaleEnd > block.timestamp;
     }
 
-    /// @dev Block transfers while nesting.
+    /// @dev Block transfers while cre8ing.
     function _beforeTokenTransfers(
         address,
         address,
