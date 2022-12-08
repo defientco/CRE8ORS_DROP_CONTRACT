@@ -60,7 +60,13 @@ contract CounterTest is Test {
         public
     {
         assertEq(cre8ingBase.cre8ingOpen(), false);
-        vm.expectRevert();
+        bytes32 role = cre8ingBase.SALES_MANAGER_ROLE();
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                role
+            )
+        );
         cre8ingBase.setCre8ingOpen(_isOpen);
         assertEq(cre8ingBase.cre8ingOpen(), false);
     }
@@ -82,7 +88,9 @@ contract CounterTest is Test {
         assertEq(total, 0);
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
-        vm.expectRevert();
+        vm.expectRevert(
+            abi.encodeWithSignature("OwnerQueryForNonexistentToken()")
+        );
         cre8orsNFTBase.toggleCre8ing(tokenIds);
     }
 
@@ -99,7 +107,7 @@ contract CounterTest is Test {
         cre8orsNFTBase.purchase(1);
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSignature("Cre8ing_Cre8ingClosed()"));
         cre8orsNFTBase.toggleCre8ing(tokenIds);
     }
 
@@ -136,7 +144,7 @@ contract CounterTest is Test {
         tokenIds[0] = _tokenId;
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         cre8orsNFTBase.toggleCre8ing(tokenIds);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSignature("Cre8ing_Cre8ing()"));
         cre8orsNFTBase.safeTransferFrom(
             DEFAULT_CRE8OR_ADDRESS,
             DEFAULT_OWNER_ADDRESS,

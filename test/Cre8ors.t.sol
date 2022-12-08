@@ -288,7 +288,7 @@ contract CounterTest is Test {
         bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
         vm.expectRevert(
             abi.encodeWithSignature(
-                "Access_MissingRoleOrAdmin(bytes32)",
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
                 minterRole
             )
         );
@@ -307,7 +307,10 @@ contract CounterTest is Test {
         vm.startPrank(address(0x10));
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
         vm.expectRevert(
-            abi.encodeWithSignature("Access_MissingRoleOrAdmin(bytes32)", role)
+            abi.encodeWithSignature(
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                role
+            )
         );
         cre8orsNFTBase.adminMint(address(0x10), 100);
     }
