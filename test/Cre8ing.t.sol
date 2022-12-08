@@ -6,6 +6,7 @@ import {Cre8ing} from "../src/Cre8ing.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
+import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract Cre8ingTest is Test {
     Cre8ing public cre8ingBase;
@@ -200,5 +201,60 @@ contract Cre8ingTest is Test {
             _tokenId
         );
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
+    }
+
+    function test_expelFromWarehouseRevert_AccessControl()
+        public
+        setupCre8orsNFTBase
+    {
+        uint256 _tokenId = 1;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.purchase(1);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        (bool cre8ing, , ) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        assertEq(cre8ing, true);
+        bytes32 role = cre8ingBase.EXPULSION_ROLE();
+        vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(DEFAULT_CRE8OR_ADDRESS),
+                " is missing role ",
+                Strings.toHexString(uint256(role), 32)
+            )
+        );
+        cre8orsNFTBase.expelFromWarehouse(_tokenId);
+        (cre8ing, , ) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        assertEq(cre8ing, true);
+    }
+
+    function test_expelFromWarehouse() public setupCre8orsNFTBase {
+        uint256 _tokenId = 1;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.purchase(1);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes32 role = cre8orsNFTBase.EXPULSION_ROLE();
+        cre8orsNFTBase.grantRole(role, DEFAULT_OWNER_ADDRESS);
+        (bool cre8ing, , ) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        assertEq(cre8ing, true);
+        cre8orsNFTBase.expelFromWarehouse(_tokenId);
+        (cre8ing, , ) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        assertEq(cre8ing, false);
     }
 }

@@ -28,6 +28,9 @@ contract Cre8ing is Cre8iveAdmin {
     ///     by expulsion.
     event Uncre8ed(uint256 indexed tokenId);
 
+    /// @dev Emitted when a CRE8OR is expelled from the Warehouse.
+    event Expelled(uint256 indexed tokenId);
+
     constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
     /// @notice Whether nesting is currently allowed.
@@ -66,5 +69,25 @@ contract Cre8ing is Cre8iveAdmin {
         onlyRoleOrAdmin(SALES_MANAGER_ROLE)
     {
         cre8ingOpen = open;
+    }
+
+    /// @notice Admin-only ability to expel a Moonbird from the nest.
+    /// @dev As most sales listings use off-chain signatures it's impossible to
+    ///     detect someone who has nested and then deliberately undercuts the floor
+    ///     price in the knowledge that the sale can't proceed. This function allows for
+    ///     monitoring of such practices and expulsion if abuse is detected, allowing
+    ///     the undercutting bird to be sold on the open market. Since OpenSea uses
+    ///     isApprovedForAll() in its pre-listing checks, we can't block by that means
+    ///     because nesting would then be all-or-nothing for all of a particular owner's
+    ///     Moonbirds.
+    function expelFromWarehouse(uint256 tokenId)
+        external
+        onlyRole(EXPULSION_ROLE)
+    {
+        require(cre8ingStarted[tokenId] != 0, "Moonbirds: not nested");
+        cre8ingTotal[tokenId] += block.timestamp - cre8ingStarted[tokenId];
+        cre8ingStarted[tokenId] = 0;
+        emit Uncre8ed(tokenId);
+        emit Expelled(tokenId);
     }
 }
