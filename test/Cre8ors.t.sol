@@ -9,7 +9,7 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 
-contract CounterTest is Test {
+contract Cre8orTest is Test {
     Cre8ors public cre8orsNFTBase;
 
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -288,7 +288,7 @@ contract CounterTest is Test {
         bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
         vm.expectRevert(
             abi.encodeWithSignature(
-                "Access_MissingRoleOrAdmin(bytes32)",
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
                 minterRole
             )
         );
@@ -307,7 +307,10 @@ contract CounterTest is Test {
         vm.startPrank(address(0x10));
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
         vm.expectRevert(
-            abi.encodeWithSignature("Access_MissingRoleOrAdmin(bytes32)", role)
+            abi.encodeWithSignature(
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                role
+            )
         );
         cre8orsNFTBase.adminMint(address(0x10), 100);
     }

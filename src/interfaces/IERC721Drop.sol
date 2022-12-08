@@ -25,6 +25,10 @@ interface IERC721Drop {
     error Access_WithdrawNotAllowed();
     /// @notice Cannot withdraw funds due to ETH send failure.
     error Withdraw_FundsSendFailure();
+    /// @notice Missing the owner role.
+    error Access_OnlyOwner();
+    /// @notice Missing the owner role or approved nft access.
+    error Access_MissingOwnerOrApproved();
 
     // Sale/Purchase errors
     /// @notice Sale is inactive
@@ -49,6 +53,12 @@ interface IERC721Drop {
     error Admin_InvalidUpgradeAddress(address proposedAddress);
     /// @notice Unable to finalize an edition not marked as open (size set to uint64_max_value)
     error Admin_UnableToFinalizeNotOpenEdition();
+
+    // CRE8ING errors
+    /// @notice Cre8ing Closed
+    error Cre8ing_Cre8ingClosed();
+    /// @notice Cre8ing
+    error Cre8ing_Cre8ing();
 
     /// @notice Event emitted for each sale
     /// @param to address sale was made to
