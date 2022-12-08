@@ -25,6 +25,8 @@ interface IERC721Drop {
     error Access_WithdrawNotAllowed();
     /// @notice Cannot withdraw funds due to ETH send failure.
     error Withdraw_FundsSendFailure();
+    /// @notice Missing the owner role.
+    error Access_OnlyOwner();
     /// @notice Missing the owner role or approved nft access.
     error Access_MissingOwnerOrApproved();
 

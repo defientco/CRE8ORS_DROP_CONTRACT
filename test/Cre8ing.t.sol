@@ -14,6 +14,7 @@ contract CounterTest is Test {
 
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
+    address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
 
     function setUp() public {
         cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
@@ -56,9 +57,9 @@ contract CounterTest is Test {
         assertEq(cre8ingBase.cre8ingOpen(), false);
     }
 
-    function test_setCre8ingOpenRevertsNonSALES_MANAGER_ROLE(bool _isOpen)
-        public
-    {
+    function test_setCre8ingOpenReverts_AdminAccess_MissingRoleOrAdmin(
+        bool _isOpen
+    ) public {
         assertEq(cre8ingBase.cre8ingOpen(), false);
         bytes32 role = cre8ingBase.SALES_MANAGER_ROLE();
         vm.expectRevert(
@@ -78,7 +79,7 @@ contract CounterTest is Test {
         assertEq(cre8ingBase.cre8ingOpen(), _isOpen);
     }
 
-    function test_toggleCre8ingRevertOwnerQueryForNonexistentToken(
+    function test_toggleCre8ingRevert_OwnerQueryForNonexistentToken(
         uint256 _tokenId
     ) public setupCre8orsNFTBase {
         (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
@@ -94,7 +95,7 @@ contract CounterTest is Test {
         cre8orsNFTBase.toggleCre8ing(tokenIds);
     }
 
-    function test_toggleCre8ingRevertCre8ing_Cre8ingClosed()
+    function test_toggleCre8ingRevert_Cre8ing_Cre8ingClosed()
         public
         setupCre8orsNFTBase
     {
@@ -150,5 +151,54 @@ contract CounterTest is Test {
             DEFAULT_OWNER_ADDRESS,
             _tokenId
         );
+    }
+
+    function test_safeTransferWhileCre8ing() public setupCre8orsNFTBase {
+        uint256 _tokenId = 1;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.purchase(1);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.safeTransferWhileCre8ing(
+            DEFAULT_CRE8OR_ADDRESS,
+            DEFAULT_TRANSFER_ADDRESS,
+            _tokenId
+        );
+        assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_TRANSFER_ADDRESS);
+        (bool cre8ing, , ) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        assertEq(cre8ing, true);
+    }
+
+    function test_safeTransferWhileCre8ingRevert_Access_OnlyOwner()
+        public
+        setupCre8orsNFTBase
+    {
+        uint256 _tokenId = 1;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.purchase(1);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
+        vm.startPrank(DEFAULT_TRANSFER_ADDRESS);
+        vm.expectRevert(abi.encodeWithSignature("Access_OnlyOwner()"));
+        cre8orsNFTBase.safeTransferWhileCre8ing(
+            DEFAULT_CRE8OR_ADDRESS,
+            DEFAULT_TRANSFER_ADDRESS,
+            _tokenId
+        );
+        assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
     }
 }

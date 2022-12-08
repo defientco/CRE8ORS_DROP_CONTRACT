@@ -416,6 +416,21 @@ contract Cre8ors is
         }
     }
 
+    /// @notice Transfer a token between addresses while the Moonbird is minting,
+    ///     thus not resetting the nesting period.
+    function safeTransferWhileCre8ing(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external {
+        if (ownerOf(tokenId) != _msgSender()) {
+            revert Access_OnlyOwner();
+        }
+        cre8ingTransfer = 2;
+        safeTransferFrom(from, to, tokenId);
+        cre8ingTransfer = 1;
+    }
+
     /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
     /////////////////////////////////////////////////
