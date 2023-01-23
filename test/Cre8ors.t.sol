@@ -362,4 +362,39 @@ contract Cre8orTest is Test {
 
         assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
     }
+
+    function test_trait() public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: type(uint64).max,
+            presaleStart: 0,
+            presaleEnd: 0,
+            publicSalePrice: 1,
+            maxSalePurchasePerAddress: 2,
+            presaleMerkleRoot: bytes32(0)
+        });
+
+        assertEq(cre8orsNFTBase.traitContract(0), address(0));
+    }
+
+    function test_setTraitRenderer()
+        public
+        setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
+    {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: type(uint64).max,
+            presaleStart: 0,
+            presaleEnd: 0,
+            publicSalePrice: 1,
+            maxSalePurchasePerAddress: 2,
+            presaleMerkleRoot: bytes32(0)
+        });
+
+        assertEq(cre8orsNFTBase.traitContract(0), address(0));
+        cre8orsNFTBase.setTraitRenderer(0, address(0x8));
+        assertEq(cre8orsNFTBase.traitContract(0), address(0x8));
+    }
 }
