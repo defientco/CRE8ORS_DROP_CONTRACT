@@ -2,7 +2,6 @@
 pragma solidity ^0.8.15;
 
 import "forge-std/Test.sol";
-import {Cre8ing} from "../src/Cre8ing.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
 import {TraitRenderer} from "../src/TraitRenderer.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
@@ -11,7 +10,6 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract TraitRendererTest is Test {
     TraitRenderer public traitRenderer;
-    Cre8ing public cre8ingBase;
     Cre8ors public cre8orsNFTBase;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
 
@@ -20,7 +18,6 @@ contract TraitRendererTest is Test {
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
 
     function setUp() public {
-        cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
         traitRenderer = new TraitRenderer();
     }
 
@@ -50,8 +47,7 @@ contract TraitRendererTest is Test {
     }
 
     function test_trait(uint256 _traitId, uint256 _tokenId) public {
-        string memory trait = traitRenderer.trait(0, 0);
-        emit log_string(trait);
+        string memory trait = traitRenderer.trait(_traitId, _tokenId);
         assertEq(trait, "");
     }
 }
