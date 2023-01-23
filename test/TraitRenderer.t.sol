@@ -21,6 +21,7 @@ contract TraitRendererTest is Test {
 
     function setUp() public {
         cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
+        traitRenderer = new TraitRenderer();
     }
 
     modifier setupCre8orsNFTBase() {
@@ -48,8 +49,9 @@ contract TraitRendererTest is Test {
         _;
     }
 
-    function test_trait(uint256 _trait) public {
-        string memory trait = traitRenderer.trait(_trait);
+    function test_trait(uint256 _traitId, uint256 _tokenId) public {
+        string memory trait = traitRenderer.trait(0, 0);
+        emit log_string(trait);
         assertEq(trait, "");
     }
 }
