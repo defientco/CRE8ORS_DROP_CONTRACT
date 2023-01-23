@@ -18,7 +18,7 @@ contract TraitRendererTest is Test {
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
 
     function setUp() public {
-        traitRenderer = new TraitRenderer();
+        traitRenderer = new TraitRenderer(100);
     }
 
     modifier setupCre8orsNFTBase() {
@@ -63,6 +63,22 @@ contract TraitRendererTest is Test {
 
     function test_tokenTraits(uint256 _tokenId) public {
         string[] memory traits = traitRenderer.tokenTraits(_tokenId);
-        assertEq(traits.length, 0);
+        assertEq(traits.length, traitRenderer.MAX_TRAITS());
     }
+
+    // function test_setTrait(uint256 _traitId, string[] memory _traitUri) public {
+    //     vm.expectRevert(
+    //         abi.encodeWithSignature("Trait_NonExisting(uint256)", _traitId)
+    //     );
+    //     string memory trait = traitRenderer.trait(_traitId, 0);
+    //     assertEq(trait, "");
+    //     emit log_uint(_traitId);
+
+    //     traitRenderer.setTrait(_traitId, _traitUri);
+    //     if (_traitUri.length > 0) {
+    //         emit log_string("hello");
+    //         trait = traitRenderer.trait(_traitId, 0);
+    //         assertEq(trait, _traitUri[0]);
+    //     }
+    // }
 }
