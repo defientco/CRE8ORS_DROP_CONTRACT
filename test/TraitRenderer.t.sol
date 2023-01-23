@@ -77,4 +77,28 @@ contract TraitRendererTest is Test {
             assertEq(trait, _traitUri[0]);
         }
     }
+
+    function test_setTraitRevertNonAdmin(
+        uint256 _traitId,
+        string[] memory _traitUri,
+        address user
+    ) public {
+        vm.startPrank(user);
+        uint256 max = traitRenderer.MAX_TRAITS();
+        bool gteMax = _traitId >= max;
+        if (gteMax) {
+            vm.expectRevert(
+                abi.encodeWithSignature("Trait_MoreThanMax(uint256)", _traitId)
+            );
+        } else {
+            bytes32 role = traitRenderer.DEFAULT_ADMIN_ROLE();
+            vm.expectRevert(
+                abi.encodeWithSignature(
+                    "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                    role
+                )
+            );
+        }
+        traitRenderer.setTrait(_traitId, _traitUri);
+    }
 }

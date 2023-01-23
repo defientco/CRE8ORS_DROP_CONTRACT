@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ITraitRenderer} from "./interfaces/ITraitRenderer.sol";
+import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -11,7 +12,7 @@ import {ITraitRenderer} from "./interfaces/ITraitRenderer.sol";
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
-contract TraitRenderer is ITraitRenderer {
+contract TraitRenderer is ITraitRenderer, Cre8iveAdmin {
     /// @notice maximum number of traits in renderer.
     uint256 public MAX_TRAITS;
 
@@ -32,7 +33,7 @@ contract TraitRenderer is ITraitRenderer {
         return count;
     }
 
-    constructor(uint256 _max) {
+    constructor(uint256 _max) Cre8iveAdmin(_msgSender()) {
         MAX_TRAITS = _max;
     }
 
@@ -82,6 +83,7 @@ contract TraitRenderer is ITraitRenderer {
     function setTrait(uint256 _traitId, string[] memory _traitUri)
         external
         onlyLessThanMax(_traitId)
+        onlyRoleOrAdmin(DEFAULT_ADMIN_ROLE)
     {
         for (uint256 i = 0; i < _traitUri.length; ) {
             traits[_traitId][i] = _traitUri[i];
