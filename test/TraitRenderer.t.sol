@@ -50,4 +50,9 @@ contract TraitRendererTest is Test {
         string memory trait = traitRenderer.trait(_traitId, _tokenId);
         assertEq(trait, "");
     }
+
+    function test_tokenTraits(uint256 _tokenId) public {
+        string[] memory traits = traitRenderer.tokenTraits(_tokenId);
+        assertEq(traits.length, 0);
+    }
 }

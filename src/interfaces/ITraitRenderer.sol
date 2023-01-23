@@ -15,4 +15,7 @@ interface ITraitRenderer {
 
     /// @notice Read trait for given tokenId
     function trait(uint256, uint256) external view returns (string memory);
+
+    /// @notice Read all traits for given tokenId
+    function tokenTraits(uint256) external view returns (string[] memory);
 }
