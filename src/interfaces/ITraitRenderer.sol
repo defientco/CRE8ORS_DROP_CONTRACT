@@ -13,6 +13,9 @@ interface ITraitRenderer {
     /// @notice Missing trait
     error Trait_NonExisting(uint256 _traitId);
 
+    /// @notice TraitId higher than max allowed
+    error Trait_MoreThanMax(uint256 _traitId);
+
     /// @notice Updated trait
     event Trait_Updated(uint256 _traitId);
 

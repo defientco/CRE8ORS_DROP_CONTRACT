@@ -36,12 +36,17 @@ contract TraitRenderer is ITraitRenderer {
         MAX_TRAITS = _max;
     }
 
-    modifier onlyValidTraits(uint256 _traitId) {
-        if (_traitId >= MAX_TRAITS || bytes(traits[_traitId][0]).length < 1) {
-            revert Trait_NonExisting(_traitId);
+    /// @notice only traits less than MAX_TRAITS
+    modifier onlyLessThanMax(uint256 _traitId) {
+        if (!isLessThanMax(_traitId)) {
+            revert Trait_MoreThanMax(_traitId);
         }
-
         _;
+    }
+
+    /// @notice checks if traitId is less than max
+    function isLessThanMax(uint256 _traitId) internal view returns (bool) {
+        return _traitId < MAX_TRAITS;
     }
 
     /// @notice Read trait for given tokenId
@@ -50,7 +55,6 @@ contract TraitRenderer is ITraitRenderer {
     function trait(uint256 _traitId, uint256 _tokenId)
         external
         view
-        onlyValidTraits(_traitId)
         returns (string memory)
     {
         return traits[_traitId][_tokenId];
@@ -75,7 +79,10 @@ contract TraitRenderer is ITraitRenderer {
     /// @notice Set values for a traitId
     /// @param _traitId id of trait
     /// @param _traitUri URI for the trait
-    function setTrait(uint256 _traitId, string[] memory _traitUri) external {
+    function setTrait(uint256 _traitId, string[] memory _traitUri)
+        external
+        onlyLessThanMax(_traitId)
+    {
         for (uint256 i = 0; i < _traitUri.length; ) {
             traits[_traitId][i] = _traitUri[i];
             unchecked {

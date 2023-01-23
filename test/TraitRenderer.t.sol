@@ -52,11 +52,6 @@ contract TraitRendererTest is Test {
     }
 
     function test_trait(uint256 _traitId, uint256 _tokenId) public {
-        if (_traitId >= traitRenderer.numberOfTraits()) {
-            vm.expectRevert(
-                abi.encodeWithSignature("Trait_NonExisting(uint256)", _traitId)
-            );
-        }
         string memory trait = traitRenderer.trait(_traitId, _tokenId);
         assertEq(trait, "");
     }
@@ -66,19 +61,20 @@ contract TraitRendererTest is Test {
         assertEq(traits.length, traitRenderer.MAX_TRAITS());
     }
 
-    // function test_setTrait(uint256 _traitId, string[] memory _traitUri) public {
-    //     vm.expectRevert(
-    //         abi.encodeWithSignature("Trait_NonExisting(uint256)", _traitId)
-    //     );
-    //     string memory trait = traitRenderer.trait(_traitId, 0);
-    //     assertEq(trait, "");
-    //     emit log_uint(_traitId);
+    function test_setTrait(uint256 _traitId, string[] memory _traitUri) public {
+        uint256 max = traitRenderer.MAX_TRAITS();
+        bool gteMax = _traitId >= max;
+        if (gteMax) {
+            vm.expectRevert(
+                abi.encodeWithSignature("Trait_MoreThanMax(uint256)", _traitId)
+            );
+        }
+        traitRenderer.setTrait(_traitId, _traitUri);
 
-    //     traitRenderer.setTrait(_traitId, _traitUri);
-    //     if (_traitUri.length > 0) {
-    //         emit log_string("hello");
-    //         trait = traitRenderer.trait(_traitId, 0);
-    //         assertEq(trait, _traitUri[0]);
-    //     }
-    // }
+        if (_traitUri.length >= 1 && !gteMax) {
+            string memory trait = traitRenderer.trait(_traitId, 0);
+
+            assertEq(trait, _traitUri[0]);
+        }
+    }
 }
