@@ -95,6 +95,16 @@ interface IERC721Drop {
     /// @param renderer new metadata renderer address
     event UpdatedMetadataRenderer(address sender, IMetadataRenderer renderer);
 
+    /// @notice Event emitted when trait renderer is updated.
+    /// @param sender address of the updater
+    /// @param traitId trait id
+    /// @param traitRenderer contract address for new trait
+    event UpdatedTraitRenderer(
+        address sender,
+        uint256 traitId,
+        address traitRenderer
+    );
+
     /// @notice General configuration for NFT Minting and bookkeeping
     struct Configuration {
         /// @dev Metadata renderer (uint160)

@@ -38,6 +38,8 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
+    mapping(uint256 => address) traitContracts;
+
     constructor(
         string memory _contractName,
         string memory _contractSymbol,
@@ -357,6 +359,22 @@ contract Cre8ors is
         });
     }
 
+    /// @notice Set a new metadata renderer
+    /// @param traitId trait id
+    /// @param traitRenderer new renderer address to use
+    function setTraitRenderer(uint256 traitId, address traitRenderer)
+        external
+        onlyAdmin
+    {
+        traitContracts[traitId] = traitRenderer;
+
+        emit UpdatedTraitRenderer({
+            sender: msg.sender,
+            traitId: traitId,
+            traitRenderer: traitRenderer
+        });
+    }
+
     /// @notice This withdraws ETH from the contract to the contract owner.
     function withdraw() external nonReentrant {
         address sender = _msgSender();
@@ -570,5 +588,12 @@ contract Cre8ors is
         }
 
         return config.metadataRenderer.tokenURI(tokenId);
+    }
+
+    /// @notice Trait Contract Address Getter
+    /// @param traitId id of trait to get contract address for
+    /// @return trait contract address
+    function traitContract(uint256 traitId) public view returns (address) {
+        return traitContracts[traitId];
     }
 }
