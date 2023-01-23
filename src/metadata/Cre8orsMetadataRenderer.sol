@@ -75,14 +75,12 @@ contract Cre8orsMetadataRenderer is
             tokenId
         );
 
-        // TODO: add attributes
-        // TODO: update animationUrl to read from attributes
         return
             NFTMetadataRenderer.createMetadataEdition({
                 name: IERC721Metadata(target).name(),
                 description: info.description,
                 imageUrl: info.imageURI,
-                animationUrl: info.animationURI, // trait 0
+                animationUrl: traitValues[0], // trait 0
                 tokenOfEdition: tokenId,
                 editionSize: maxSupply,
                 attributeKeys: traitKeys,
