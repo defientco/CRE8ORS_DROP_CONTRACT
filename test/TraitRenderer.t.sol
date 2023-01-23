@@ -46,7 +46,17 @@ contract TraitRendererTest is Test {
         _;
     }
 
+    function test_numberOfTraits() public {
+        uint256 traitCount = traitRenderer.numberOfTraits();
+        assertEq(traitCount, 0);
+    }
+
     function test_trait(uint256 _traitId, uint256 _tokenId) public {
+        if (_traitId >= traitRenderer.numberOfTraits()) {
+            vm.expectRevert(
+                abi.encodeWithSignature("Trait_NonExisting(uint256)", _traitId)
+            );
+        }
         string memory trait = traitRenderer.trait(_traitId, _tokenId);
         assertEq(trait, "");
     }

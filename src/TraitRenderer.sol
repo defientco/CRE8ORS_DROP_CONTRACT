@@ -15,20 +15,10 @@ contract TraitRenderer is ITraitRenderer {
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(uint256 => string)[] internal traits;
 
-    // constructor(string[][] memory _initialTraits) {
-    //     for (uint256 i = 0; i < _initialTraits.length; ) {
-    //         string[] memory traitArray = _initialTraits[i];
-    //         for (uint256 j = 0; j < traitArray.length; ) {
-    //             traits[i][j] = traitArray[j];
-    //             unchecked {
-    //                 j += 1;
-    //             }
-    //         }
-    //         unchecked {
-    //             i += 1;
-    //         }
-    //     }
-    // }
+    /// @notice Read number of traits
+    function numberOfTraits() external view returns (uint256) {
+        return traits.length;
+    }
 
     /// @notice Read trait for given tokenId
     /// @param _traitId id of trait
@@ -38,6 +28,9 @@ contract TraitRenderer is ITraitRenderer {
         view
         returns (string memory)
     {
+        if (_traitId >= traits.length) {
+            revert Trait_NonExisting(_traitId);
+        }
         return traits[_traitId][_tokenId];
     }
 
