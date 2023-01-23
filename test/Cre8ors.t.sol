@@ -3,6 +3,8 @@ pragma solidity ^0.8.15;
 
 import "forge-std/Test.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
+import {Cre8orsMetadataRenderer} from "../src/metadata/Cre8orsMetadataRenderer.sol";
+import {TraitRenderer} from "../src/metadata/TraitRenderer.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
@@ -11,6 +13,8 @@ import {IOwnable} from "../src/interfaces/IOwnable.sol";
 
 contract Cre8orTest is Test {
     Cre8ors public cre8orsNFTBase;
+    Cre8orsMetadataRenderer public cre8orsMetadataRenderer;
+    TraitRenderer public traitRenderer;
 
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
@@ -40,6 +44,22 @@ contract Cre8orTest is Test {
             })
         });
 
+        _;
+    }
+
+    modifier setupCre8orsTraits() {
+        cre8orsMetadataRenderer = new Cre8orsMetadataRenderer();
+        traitRenderer = new TraitRenderer(1);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setTraitRenderer(address(traitRenderer));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setMetadataRenderer(cre8orsMetadataRenderer);
+        string[] memory traitUri = new string[](3);
+        traitUri[0] = "ipfs://music-trait-token-1";
+        traitUri[1] = "ipfs://music-trait-token-2";
+        traitUri[2] = "ipfs://music-trait-token-3";
+
+        traitRenderer.setTrait(0, traitUri);
         _;
     }
 
@@ -375,7 +395,7 @@ contract Cre8orTest is Test {
             presaleMerkleRoot: bytes32(0)
         });
 
-        assertEq(cre8orsNFTBase.traitContract(0), address(0));
+        assertEq(cre8orsNFTBase.traitRenderer(), address(0));
     }
 
     function test_setTraitRenderer()
@@ -393,8 +413,31 @@ contract Cre8orTest is Test {
             presaleMerkleRoot: bytes32(0)
         });
 
-        assertEq(cre8orsNFTBase.traitContract(0), address(0));
-        cre8orsNFTBase.setTraitRenderer(0, address(0x8));
-        assertEq(cre8orsNFTBase.traitContract(0), address(0x8));
+        assertEq(cre8orsNFTBase.traitRenderer(), address(0));
+        cre8orsNFTBase.setTraitRenderer(address(0x8));
+        assertEq(cre8orsNFTBase.traitRenderer(), address(0x8));
+    }
+
+    function test_tokenURIWithTraits()
+        public
+        setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
+        setupCre8orsTraits
+    {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: type(uint64).max,
+            presaleStart: 0,
+            presaleEnd: 0,
+            publicSalePrice: 1,
+            maxSalePurchasePerAddress: 2,
+            presaleMerkleRoot: bytes32(0)
+        });
+
+        vm.deal(address(456), uint256(1) * 2);
+        vm.prank(address(456));
+        cre8orsNFTBase.purchase{value: 1}(1);
+
+        assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
     }
 }

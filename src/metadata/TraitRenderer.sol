@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ITraitRenderer} from "./interfaces/ITraitRenderer.sol";
-import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
+import {ITraitRenderer} from "../interfaces/ITraitRenderer.sol";
+import {Cre8iveAdmin} from "../Cre8iveAdmin.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗

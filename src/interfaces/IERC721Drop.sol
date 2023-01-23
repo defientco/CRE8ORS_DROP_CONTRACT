@@ -97,13 +97,8 @@ interface IERC721Drop {
 
     /// @notice Event emitted when trait renderer is updated.
     /// @param sender address of the updater
-    /// @param traitId trait id
     /// @param traitRenderer contract address for new trait
-    event UpdatedTraitRenderer(
-        address sender,
-        uint256 traitId,
-        address traitRenderer
-    );
+    event UpdatedTraitRenderer(address sender, address traitRenderer);
 
     /// @notice General configuration for NFT Minting and bookkeeping
     struct Configuration {
@@ -206,11 +201,7 @@ interface IERC721Drop {
 
     /// @notice Update the metadata renderer
     /// @param newRenderer new address for renderer
-    /// @param setupRenderer data to call to bootstrap data for the new renderer (optional)
-    function setMetadataRenderer(
-        IMetadataRenderer newRenderer,
-        bytes memory setupRenderer
-    ) external;
+    function setMetadataRenderer(IMetadataRenderer newRenderer) external;
 
     /// @notice This is an admin mint function to mint a quantity to a specific address
     /// @param to address to mint to

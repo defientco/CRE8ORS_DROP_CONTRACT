@@ -14,7 +14,12 @@ import {IMetadataRenderer} from "../../src/interfaces/IMetadataRenderer.sol";
 
 /// @dev credit: https://github.com/ourzora/zora-drops-contracts
 contract DummyMetadataRenderer is IMetadataRenderer {
-    function tokenURI(uint256) external pure override returns (string memory) {
+    function tokenURI(uint256, address)
+        external
+        pure
+        override
+        returns (string memory)
+    {
         return "DUMMY";
     }
 

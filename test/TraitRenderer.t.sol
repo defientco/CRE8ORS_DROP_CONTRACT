@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import "forge-std/Test.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
-import {TraitRenderer} from "../src/TraitRenderer.sol";
+import {TraitRenderer} from "../src/metadata/TraitRenderer.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";

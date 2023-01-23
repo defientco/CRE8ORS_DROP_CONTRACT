@@ -38,7 +38,8 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
-    mapping(uint256 => address) traitContracts;
+    /// @notice trait renderer
+    address public traitRenderer;
 
     constructor(
         string memory _contractName,
@@ -65,11 +66,6 @@ contract Cre8ors is
         config.metadataRenderer = _metadataRenderer;
         config.royaltyBPS = _royaltyBPS;
         config.fundsRecipient = _fundsRecipient;
-        bytes memory _metadataRendererInit = abi.encode(
-            _metadataURIBase,
-            _metadataContractURI
-        );
-        _metadataRenderer.initializeWithData(_metadataRendererInit);
     }
 
     /// @dev Getter for admin role associated with the contract to handle metadata
@@ -342,16 +338,11 @@ contract Cre8ors is
 
     /// @notice Set a new metadata renderer
     /// @param newRenderer new renderer address to use
-    /// @param setupRenderer data to setup new renderer with
-    function setMetadataRenderer(
-        IMetadataRenderer newRenderer,
-        bytes memory setupRenderer
-    ) external onlyAdmin {
+    function setMetadataRenderer(IMetadataRenderer newRenderer)
+        external
+        onlyAdmin
+    {
         config.metadataRenderer = newRenderer;
-
-        if (setupRenderer.length > 0) {
-            newRenderer.initializeWithData(setupRenderer);
-        }
 
         emit UpdatedMetadataRenderer({
             sender: msg.sender,
@@ -360,18 +351,13 @@ contract Cre8ors is
     }
 
     /// @notice Set a new metadata renderer
-    /// @param traitId trait id
-    /// @param traitRenderer new renderer address to use
-    function setTraitRenderer(uint256 traitId, address traitRenderer)
-        external
-        onlyAdmin
-    {
-        traitContracts[traitId] = traitRenderer;
+    /// @param _traitRenderer new renderer address to use
+    function setTraitRenderer(address _traitRenderer) external onlyAdmin {
+        traitRenderer = _traitRenderer;
 
         emit UpdatedTraitRenderer({
             sender: msg.sender,
-            traitId: traitId,
-            traitRenderer: traitRenderer
+            traitRenderer: _traitRenderer
         });
     }
 
@@ -586,14 +572,6 @@ contract Cre8ors is
         if (!_exists(tokenId)) {
             revert IERC721A.URIQueryForNonexistentToken();
         }
-
-        return config.metadataRenderer.tokenURI(tokenId);
-    }
-
-    /// @notice Trait Contract Address Getter
-    /// @param traitId id of trait to get contract address for
-    /// @return trait contract address
-    function traitContract(uint256 traitId) public view returns (address) {
-        return traitContracts[traitId];
+        return config.metadataRenderer.tokenURI(tokenId, traitRenderer);
     }
 }
