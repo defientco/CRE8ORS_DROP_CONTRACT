@@ -49,9 +49,7 @@ contract Cre8ors is
         uint64 _editionSize,
         uint16 _royaltyBPS,
         SalesConfiguration memory _salesConfig,
-        IMetadataRenderer _metadataRenderer,
-        string memory _metadataURIBase,
-        string memory _metadataContractURI
+        IMetadataRenderer _metadataRenderer
     )
         ERC721A(_contractName, _contractSymbol)
         ReentrancyGuard()

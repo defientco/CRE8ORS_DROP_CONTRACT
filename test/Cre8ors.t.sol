@@ -31,8 +31,6 @@ contract Cre8orTest is Test {
             _editionSize: editionSize,
             _royaltyBPS: 808,
             _metadataRenderer: dummyRenderer,
-            _metadataURIBase: "",
-            _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
                 publicSaleEnd: 0,
@@ -438,6 +436,9 @@ contract Cre8orTest is Test {
         vm.prank(address(456));
         cre8orsNFTBase.purchase{value: 1}(1);
 
-        assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
+        assertEq(
+            cre8orsNFTBase.tokenURI(1),
+            "data:application/json;base64,eyJuYW1lIjogIkNSRThPUlMgMS8xMDAwMCIsICJkZXNjcmlwdGlvbiI6ICIiLCAiYW5pbWF0aW9uX3VybCI6ICJpcGZzOi8vbXVzaWMtdHJhaXQtdG9rZW4tMiIsICJwcm9wZXJ0aWVzIjogeyJudW1iZXIiOiAxLCJtdXNpYyI6ImlwZnM6Ly9tdXNpYy10cmFpdC10b2tlbi0yIiwibmFtZSI6ICJDUkU4T1JTIn19"
+        );
     }
 }

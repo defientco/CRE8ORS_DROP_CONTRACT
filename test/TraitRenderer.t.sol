@@ -30,8 +30,6 @@ contract TraitRendererTest is Test {
             _editionSize: 10_000,
             _royaltyBPS: 808,
             _metadataRenderer: dummyRenderer,
-            _metadataURIBase: "",
-            _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
                 publicSaleEnd: uint64(block.timestamp + 1000),
