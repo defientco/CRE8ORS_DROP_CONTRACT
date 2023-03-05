@@ -251,10 +251,11 @@ contract Cre8ors is
     function saleDetails()
         external
         view
-        returns (IERC721Drop.SaleDetails memory)
+        returns (IERC721Drop.ERC20SaleDetails memory)
     {
         return
-            IERC721Drop.SaleDetails({
+            IERC721Drop.ERC20SaleDetails({
+                erc20PaymentToken: salesConfig.erc20PaymentToken,
                 publicSaleActive: _publicSaleActive(),
                 presaleActive: _presaleActive(),
                 publicSalePrice: salesConfig.publicSalePrice,
@@ -310,6 +311,7 @@ contract Cre8ors is
     /// @dev This sets the sales configuration
     // / @param publicSalePrice New public sale price
     function setSaleConfiguration(
+        address erc20PaymentToken,
         uint104 publicSalePrice,
         uint32 maxSalePurchasePerAddress,
         uint64 publicSaleStart,
@@ -317,16 +319,8 @@ contract Cre8ors is
         uint64 presaleStart,
         uint64 presaleEnd,
         bytes32 presaleMerkleRoot
-    ) external onlyAdmin {
-        // SalesConfiguration storage newConfig = SalesConfiguration({
-        //     publicSaleStart: publicSaleStart,
-        //     publicSaleEnd: publicSaleEnd,
-        //     presaleStart: presaleStart,
-        //     presaleEnd: presaleEnd,
-        //     publicSalePrice: publicSalePrice,
-        //     maxSalePurchasePerAddress: maxSalePurchasePerAddress,
-        //     presaleMerkleRoot: presaleMerkleRoot
-        // });
+    ) external onlyAdmin onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+        salesConfig.erc20PaymentToken = erc20PaymentToken;
         salesConfig.publicSalePrice = publicSalePrice;
         salesConfig.maxSalePurchasePerAddress = maxSalePurchasePerAddress;
         salesConfig.publicSaleStart = publicSaleStart;

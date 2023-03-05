@@ -31,6 +31,7 @@ contract Cre8orTest is Test {
             _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
+                erc20PaymentToken: address(0),
                 publicSaleEnd: 0,
                 presaleStart: 0,
                 presaleEnd: 0,
@@ -55,6 +56,7 @@ contract Cre8orTest is Test {
     {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -80,6 +82,7 @@ contract Cre8orTest is Test {
     function test_PurchaseTime() public setupCre8orsNFTBase(10) {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: 0,
             presaleStart: 0,
@@ -101,6 +104,7 @@ contract Cre8orTest is Test {
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 9 * 3600,
             publicSaleEnd: 11 * 3600,
             presaleStart: 0,
@@ -141,6 +145,7 @@ contract Cre8orTest is Test {
         cre8orsNFTBase.purchase{value: 0.12 ether}(1);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -178,6 +183,7 @@ contract Cre8orTest is Test {
         vm.assume(limit > 0 && limit < 50);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -247,6 +253,7 @@ contract Cre8orTest is Test {
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -347,6 +354,7 @@ contract Cre8orTest is Test {
     function test_TokenURI() public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,

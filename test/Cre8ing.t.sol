@@ -6,7 +6,7 @@ import {Cre8ing} from "../src/Cre8ing.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract Cre8ingTest is Test {
     Cre8ing public cre8ingBase;
@@ -33,6 +33,7 @@ contract Cre8ingTest is Test {
             _metadataURIBase: "",
             _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
+                erc20PaymentToken: address(0),
                 publicSaleStart: 0,
                 publicSaleEnd: uint64(block.timestamp + 1000),
                 presaleStart: 0,
