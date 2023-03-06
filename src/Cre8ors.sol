@@ -46,9 +46,7 @@ contract Cre8ors is
         uint64 _editionSize,
         uint16 _royaltyBPS,
         SalesConfiguration memory _salesConfig,
-        IMetadataRenderer _metadataRenderer,
-        string memory _metadataURIBase,
-        string memory _metadataContractURI
+        IMetadataRenderer _metadataRenderer
     )
         ERC721A(_contractName, _contractSymbol)
         ReentrancyGuard()
@@ -63,11 +61,6 @@ contract Cre8ors is
         config.metadataRenderer = _metadataRenderer;
         config.royaltyBPS = _royaltyBPS;
         config.fundsRecipient = _fundsRecipient;
-        bytes memory _metadataRendererInit = abi.encode(
-            _metadataURIBase,
-            _metadataContractURI
-        );
-        _metadataRenderer.initializeWithData(_metadataRendererInit);
     }
 
     /// @dev Getter for admin role associated with the contract to handle metadata
@@ -459,6 +452,23 @@ contract Cre8ors is
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
                 revert Cre8ing_Cre8ing();
+            }
+        }
+    }
+
+    /// @notice array of staked tokenIDs
+    /// @dev used in cre8ors ui to quickly get list of staked NFTs.
+    function cre8ingTokens()
+        external
+        view
+        returns (uint256[] memory stakedTokens)
+    {
+        uint256 size = _lastMintedTokenId();
+        stakedTokens = new uint256[](size);
+        for (uint256 i = 1; i < size + 1; ++i) {
+            uint256 start = cre8ingStarted[i];
+            if (start != 0) {
+                stakedTokens[i - 1] = i;
             }
         }
     }

@@ -30,8 +30,6 @@ contract Cre8ingTest is Test {
             _editionSize: 10_000,
             _royaltyBPS: 808,
             _metadataRenderer: dummyRenderer,
-            _metadataURIBase: "",
-            _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
                 erc20PaymentToken: address(0),
                 publicSaleStart: 0,
