@@ -5,6 +5,7 @@ import {ERC1155} from "lib/openzeppelin-contracts/contracts/token/ERC1155/ERC115
 import {ERC1155PresetMinterPauser} from "lib/openzeppelin-contracts/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol";
 import {ERC1155Supply} from "lib/openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {ERC1155URIStorage} from "lib/openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -18,9 +19,10 @@ import {ERC1155URIStorage} from "lib/openzeppelin-contracts/contracts/token/ERC1
 contract Cre8orRewards1155 is
     ERC1155Supply,
     ERC1155URIStorage,
-    ERC1155PresetMinterPauser
+    ERC1155PresetMinterPauser,
+    Ownable
 {
-    constructor(string memory uri) ERC1155PresetMinterPauser(uri) {
+    constructor(string memory uri) ERC1155PresetMinterPauser(uri) Ownable() {
         _setURI(1, uri);
     }
 

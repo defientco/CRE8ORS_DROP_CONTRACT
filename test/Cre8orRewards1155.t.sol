@@ -77,4 +77,8 @@ contract Cre8orRewards1155Test is Test {
         assertEq(rewards.balanceOf(address(0x2), tokenId), 1);
         assertEq(rewards.balanceOf(address(0x3), tokenId), 1);
     }
+
+    function test_ownable() public {
+        assertEq(rewards.owner(), DEFAULT_OWNER_ADDRESS);
+    }
 }
