@@ -24,11 +24,13 @@ contract Cre8orRewards1155Test is Test {
         );
         rewards.mint(DEFAULT_OWNER_ADDRESS, 1, amount, "0x0");
         assertEq(0, rewards.balanceOf(DEFAULT_OWNER_ADDRESS, 1));
+        assertEq(0, rewards.totalSupply(1));
     }
 
     function test_mint(uint256 tokenId, uint256 amount) public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         rewards.mint(DEFAULT_OWNER_ADDRESS, tokenId, amount, "0x0");
         assertEq(amount, rewards.balanceOf(DEFAULT_OWNER_ADDRESS, tokenId));
+        assertEq(amount, rewards.totalSupply(tokenId));
     }
 }
