@@ -33,4 +33,21 @@ contract Cre8orRewards1155Test is Test {
         assertEq(amount, rewards.balanceOf(DEFAULT_OWNER_ADDRESS, tokenId));
         assertEq(amount, rewards.totalSupply(tokenId));
     }
+
+    function test_setTokenURI_revert_nonAdminRole(
+        uint256 tokenId,
+        string memory uri
+    ) public {
+        vm.expectRevert(
+            "ERC1155PresetMinterPauser: must have admin role to change URI"
+        );
+        rewards.setTokenURI(tokenId, uri);
+        assertEq("uri/{id}", rewards.uri(1));
+    }
+
+    function test_setTokenURI(uint256 tokenId) public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        rewards.setTokenURI(tokenId, "wagmi");
+        assertEq("wagmi", rewards.uri(tokenId));
+    }
 }
