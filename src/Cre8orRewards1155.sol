@@ -24,6 +24,15 @@ contract Cre8orRewards1155 is
         _setURI(1, uri);
     }
 
+    /// @notice admin function to airdrop to an array of addresses
+    /// @param id token ID
+    /// @param airdropList list of addresses to airdrop to
+    function airdrop(uint256 id, address[] memory airdropList) public {
+        for (uint256 i = 0; i < airdropList.length; i++) {
+            mint(airdropList[i], id, 1, "0x0");
+        }
+    }
+
     /// @notice admin function to update tokenURI for a given token
     /// @param id token ID
     /// @param uri token URI

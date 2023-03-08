@@ -50,4 +50,31 @@ contract Cre8orRewards1155Test is Test {
         rewards.setTokenURI(tokenId, "wagmi");
         assertEq("wagmi", rewards.uri(tokenId));
     }
+
+    function test_airdrop_revert_nonMinterRole(
+        address[] memory airdrop,
+        uint256 tokenId
+    ) public {
+        if (airdrop.length == 0) {
+            return;
+        }
+        vm.expectRevert(
+            "ERC1155PresetMinterPauser: must have minter role to mint"
+        );
+        rewards.airdrop(tokenId, airdrop);
+        assertEq(rewards.totalSupply(tokenId), 0);
+    }
+
+    function test_airdrop(uint256 tokenId) public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        address[] memory airdrop = new address[](3);
+        airdrop[0] = address(0x1);
+        airdrop[1] = address(0x2);
+        airdrop[2] = address(0x3);
+        rewards.airdrop(tokenId, airdrop);
+        assertEq(rewards.totalSupply(tokenId), airdrop.length);
+        assertEq(rewards.balanceOf(address(0x1), tokenId), 1);
+        assertEq(rewards.balanceOf(address(0x2), tokenId), 1);
+        assertEq(rewards.balanceOf(address(0x3), tokenId), 1);
+    }
 }
