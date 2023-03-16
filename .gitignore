@@ -9,3 +9,17 @@ out/
 
 # Dotenv file
 .env
+node_modules/
+artifacts
+node_modules
+cache
+*.private.json
+./networks.private.json
+typechain
+.DS_Store
+.env
+.pkey
+scripts/gen.json
+.env
+dist/
+.idea
