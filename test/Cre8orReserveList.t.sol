@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import "@forge-std/src/Test.sol";
+import "forge-std/Test.sol";
 import {Cre8orReserveList} from "../src/Cre8orReserveList.sol";
 
 contract Cre8orReserveListTest is Test {
