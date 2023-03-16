@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.15;
 
-import "forge-std/Test.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {DSTest} from "ds-test/test.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
@@ -9,9 +10,9 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 
-contract Cre8orTest is Test {
+contract Cre8orTest is DSTest {
     Cre8ors public cre8orsNFTBase;
-
+    Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
@@ -27,10 +28,9 @@ contract Cre8orTest is Test {
             _editionSize: editionSize,
             _royaltyBPS: 808,
             _metadataRenderer: dummyRenderer,
-            _metadataURIBase: "",
-            _metadataContractURI: "",
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
+                erc20PaymentToken: address(0),
                 publicSaleEnd: 0,
                 presaleStart: 0,
                 presaleEnd: 0,
@@ -55,6 +55,7 @@ contract Cre8orTest is Test {
     {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -80,6 +81,7 @@ contract Cre8orTest is Test {
     function test_PurchaseTime() public setupCre8orsNFTBase(10) {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: 0,
             presaleStart: 0,
@@ -101,6 +103,7 @@ contract Cre8orTest is Test {
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 9 * 3600,
             publicSaleEnd: 11 * 3600,
             presaleStart: 0,
@@ -141,6 +144,7 @@ contract Cre8orTest is Test {
         cre8orsNFTBase.purchase{value: 0.12 ether}(1);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -178,6 +182,7 @@ contract Cre8orTest is Test {
         vm.assume(limit > 0 && limit < 50);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -247,6 +252,7 @@ contract Cre8orTest is Test {
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -347,6 +353,7 @@ contract Cre8orTest is Test {
     function test_TokenURI() public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
             publicSaleStart: 0,
             publicSaleEnd: type(uint64).max,
             presaleStart: 0,
@@ -361,5 +368,41 @@ contract Cre8orTest is Test {
         cre8orsNFTBase.purchase{value: 1}(1);
 
         assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
+    }
+
+    function test_cre8ingTokens()
+        public
+        setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
+    {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            erc20PaymentToken: address(0),
+            publicSaleStart: 0,
+            publicSaleEnd: type(uint64).max,
+            presaleStart: 0,
+            presaleEnd: 0,
+            publicSalePrice: 0,
+            maxSalePurchasePerAddress: 1000,
+            presaleMerkleRoot: bytes32(0)
+        });
+        vm.deal(address(456), 10 ether);
+        cre8orsNFTBase.purchase(100);
+        uint256[] memory staked = cre8orsNFTBase.cre8ingTokens();
+        assertEq(staked.length, 100);
+        for (uint256 i = 0; i < staked.length; i++) {
+            assertEq(staked[i], 0);
+        }
+        uint256[] memory unstaked = new uint256[](100);
+        for (uint256 i = 0; i < unstaked.length; i++) {
+            unstaked[i] = i + 1;
+        }
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+        cre8orsNFTBase.toggleCre8ing(unstaked);
+        staked = cre8orsNFTBase.cre8ingTokens();
+        for (uint256 i = 0; i < staked.length; i++) {
+            assertEq(staked[i], i + 1);
+        }
+        assertEq(staked.length, 100);
     }
 }
