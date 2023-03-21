@@ -142,6 +142,14 @@ interface IERC721Drop {
         bytes32 presaleMerkleRoot;
     }
 
+    /// @notice CRE8ORS - General configuration for Builder Rewards burn requirements
+    struct BurnConfiguration {
+        /// @dev Token to burn
+        address burnToken;
+        /// @dev Required number of tokens to burn
+        uint256 burnQuantity;
+    }
+
     /// @notice Sales states and configuration
     /// @dev Uses 3 storage slots
     struct ERC20SalesConfiguration {
@@ -252,10 +260,9 @@ interface IERC721Drop {
 
     /// @notice Function to return the specific sales details for a given address
     /// @param minter address for minter to return mint information for
-    function mintedPerAddress(address minter)
-        external
-        view
-        returns (AddressMintDetails memory);
+    function mintedPerAddress(
+        address minter
+    ) external view returns (AddressMintDetails memory);
 
     /// @notice This is the opensea/public owner setting that can be set by the contract admin
     function owner() external view returns (address);
