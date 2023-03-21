@@ -1,9 +1,9 @@
 {
-    "name": "Reward NFT",
-    "description": "Official CRE8OR Reward NFT.",
-    "image": "ipfs://bafybeihzovuidd5jowksbugxp4jiaeel777j3trnua6pzjhcy4fdknkqvm",
+    "name": "Participation Rewards",
+    "description": "Official CRE8OR's Reward NFT.",
+    "image": "ipfs://bafybeiaoglcj47pklfmwnxp6sd352y4fndr3ojopof7f3ciiaogshcz3au",
     "properties": {
-      "number": 1,
-      "name": "Reward NFT"
+      "name": "Participation Rewards",
+      "project": "CRE8ORS"
     }
-  }
+}
