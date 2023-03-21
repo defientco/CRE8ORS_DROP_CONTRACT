@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
 import {Vm} from "forge-std/Vm.sol";
@@ -49,10 +49,9 @@ contract Cre8orTest is DSTest {
         assertEq(DEFAULT_EDITION_SIZE, cre8orsNFTBase.saleDetails().maxSupply);
     }
 
-    function test_Purchase(uint64 amount)
-        public
-        setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
-    {
+    function test_Purchase(
+        uint64 amount
+    ) public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
             erc20PaymentToken: address(0),
@@ -207,10 +206,9 @@ contract Cre8orTest is DSTest {
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, limit);
     }
 
-    function test_GlobalLimit(uint16 limit)
-        public
-        setupCre8orsNFTBase(uint64(limit))
-    {
+    function test_GlobalLimit(
+        uint16 limit
+    ) public setupCre8orsNFTBase(uint64(limit)) {
         vm.assume(limit > 0);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, limit);

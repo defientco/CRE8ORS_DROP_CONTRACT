@@ -15,7 +15,6 @@ import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
-/// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8orRewards1155 is
     ERC1155Supply,
     ERC1155URIStorage,
