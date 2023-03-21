@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
+import {IERC1155} from "lib/openzeppelin-contracts/contracts/token/ERC1155/IERC1155.sol";
 import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
@@ -88,6 +89,10 @@ contract Cre8orBuilderRewards is
 
         if (msg.value != salePrice * quantity) {
             revert Purchase_WrongPrice(salePrice * quantity);
+        }
+
+        if (burnConfig.burnQuantity > 0 && burnConfig.burnToken != address(0)) {
+            burnTokens(quantity);
         }
 
         // If max purchase per address == 0 there is no limit.
@@ -473,6 +478,23 @@ contract Cre8orBuilderRewards is
                 stakedTokens[i - 1] = i;
             }
         }
+    }
+
+    /// @notice Burn tokens for purchase
+    /// @param quantity number of tokens to purchase
+    function burnTokens(uint256 quantity) internal {
+        bool approved = IERC1155(burnConfig.burnToken).isApprovedForAll(
+            msg.sender,
+            address(this)
+        );
+        require(approved, "CRE8ORS: not approved to transfer Burn Token");
+        IERC1155(burnConfig.burnToken).safeTransferFrom(
+            msg.sender,
+            0x000000000000000000000000000000000000dEaD,
+            1,
+            burnConfig.burnQuantity * quantity,
+            ""
+        );
     }
 
     /////////////////////////////////////////////////
