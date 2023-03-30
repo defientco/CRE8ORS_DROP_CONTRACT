@@ -13,16 +13,37 @@ import {IOwnable} from "../src/interfaces/IOwnable.sol";
 
 contract Burn721MinterTest is DSTest {
     Cre8ors public cre8orsNFTBase;
+    Cre8ors public burn721;
     Burn721Minter public minter;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
+    address public constant DEFAULT_BUYER = address(0x111);
     uint64 DEFAULT_EDITION_SIZE = type(uint64).max;
 
     function setUp() public {
         cre8orsNFTBase = new Cre8ors({
+            _contractName: "CRE8ORS",
+            _contractSymbol: "CRE8",
+            _initialOwner: DEFAULT_OWNER_ADDRESS,
+            _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
+            _editionSize: type(uint64).max,
+            _royaltyBPS: 808,
+            _metadataRenderer: dummyRenderer,
+            _salesConfig: IERC721Drop.SalesConfiguration({
+                publicSaleStart: 0,
+                erc20PaymentToken: address(0),
+                publicSaleEnd: 0,
+                presaleStart: 0,
+                presaleEnd: 0,
+                publicSalePrice: 0,
+                maxSalePurchasePerAddress: 0,
+                presaleMerkleRoot: bytes32(0)
+            })
+        });
+        burn721 = new Cre8ors({
             _contractName: "CRE8ORS",
             _contractSymbol: "CRE8",
             _initialOwner: DEFAULT_OWNER_ADDRESS,
@@ -78,20 +99,64 @@ contract Burn721MinterTest is DSTest {
         assertEq(info.burnQuantity, 5);
     }
 
-    function test_AdminMint() public {
-        address minter = address(0x32402);
+    function test_purchase_revertAccess_MissingOwnerOrApproved() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, 1);
-        require(
-            cre8orsNFTBase.balanceOf(DEFAULT_OWNER_ADDRESS) == 1,
-            "Wrong balance"
-        );
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), minter);
+        bytes memory data = abi.encode(address(burn721), 5);
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         vm.stopPrank();
-        vm.prank(minter);
-        cre8orsNFTBase.adminMint(minter, 1);
-        require(cre8orsNFTBase.balanceOf(minter) == 1, "Wrong balance");
-        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 2);
+        vm.prank(DEFAULT_BUYER);
+        uint256[] memory tokensToBurn = new uint256[](5);
+        tokensToBurn[0] = 1;
+        tokensToBurn[1] = 2;
+        tokensToBurn[2] = 3;
+        tokensToBurn[3] = 4;
+        tokensToBurn[4] = 5;
+        vm.expectRevert(IERC721Drop.Access_MissingOwnerOrApproved.selector);
+        minter.purchase(address(cre8orsNFTBase), 1, tokensToBurn);
+        assertEq(burn721.balanceOf(DEFAULT_BUYER), 0);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+    }
+
+    function test_purchase_revertOwnerQueryForNonexistentToken() public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(address(burn721), 5);
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        vm.stopPrank();
+        vm.startPrank(DEFAULT_BUYER);
+        uint256[] memory tokensToBurn = new uint256[](5);
+        tokensToBurn[0] = 1;
+        tokensToBurn[1] = 2;
+        tokensToBurn[2] = 3;
+        tokensToBurn[3] = 4;
+        tokensToBurn[4] = 5;
+        burn721.setApprovalForAll(address(minter), true);
+        vm.expectRevert(IERC721A.OwnerQueryForNonexistentToken.selector);
+        minter.purchase(address(cre8orsNFTBase), 1, tokensToBurn);
+        assertEq(burn721.balanceOf(DEFAULT_BUYER), 0);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+    }
+
+    function test_purchase() public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(address(burn721), 5);
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        burn721.adminMint(DEFAULT_BUYER, 5);
+        assertEq(burn721.balanceOf(DEFAULT_BUYER), 5);
+        vm.stopPrank();
+        vm.startPrank(DEFAULT_BUYER);
+        uint256[] memory tokensToBurn = new uint256[](5);
+        tokensToBurn[0] = 1;
+        tokensToBurn[1] = 2;
+        tokensToBurn[2] = 3;
+        tokensToBurn[3] = 4;
+        tokensToBurn[4] = 5;
+        burn721.setApprovalForAll(address(minter), true);
+        minter.purchase(address(cre8orsNFTBase), 1, tokensToBurn);
+        assertEq(burn721.balanceOf(DEFAULT_BUYER), 0);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
     }
 
     // test admin mint non-admin permissions

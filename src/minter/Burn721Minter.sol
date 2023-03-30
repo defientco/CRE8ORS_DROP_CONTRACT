@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 
@@ -14,6 +13,10 @@ import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 contract Burn721Minter {
+    /// @notice address to send burned tokens
+    address public constant BURN_ADDRESS =
+        0x000000000000000000000000000000000000dEaD;
+
     /// @notice Storage for contract mint information
     struct ContractMintInfo {
         address burnToken;
@@ -74,12 +77,21 @@ contract Burn721Minter {
     /// @dev at the given price in the contract.
     function purchase(
         address target,
-        uint256 quantity
-    ) external payable returns (uint256) {
+        uint256 quantity,
+        uint256[] calldata tokensToBurn
+    ) external payable onlyApprovedForAll(target) returns (uint256) {
         uint256 firstMintedTokenId = IERC721Drop(target).adminMint(
             msg.sender,
             quantity
         );
+
+        for (uint256 i = 0; i < tokensToBurn.length; i++) {
+            IERC721A(_contractInfos[target].burnToken).safeTransferFrom(
+                msg.sender,
+                BURN_ADDRESS,
+                tokensToBurn[i]
+            );
+        }
 
         return firstMintedTokenId;
     }
@@ -89,9 +101,25 @@ contract Burn721Minter {
     /////////////////////////////////////////////////
 
     /// @notice Only allow for users with admin access
+    /// @param target target for contract to check admin access
     modifier onlyAdmin(address target) {
         if (!isAdmin(target, msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
+        }
+
+        _;
+    }
+
+    /// @notice Only allow for users with token access granted
+    /// @param target target for contract to check burnToken
+    modifier onlyApprovedForAll(address target) {
+        if (
+            !IERC721A(_contractInfos[target].burnToken).isApprovedForAll(
+                msg.sender,
+                address(this)
+            )
+        ) {
+            revert IERC721Drop.Access_MissingOwnerOrApproved();
         }
 
         _;
