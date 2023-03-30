@@ -3,13 +3,13 @@ pragma solidity ^0.8.15;
 
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
-import {Cre8ors} from "../src/Cre8ors.sol";
-import {Burn721Minter} from "../src/minter/Burn721Minter.sol";
-import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
-import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
+import {Cre8ors} from "../../src/Cre8ors.sol";
+import {Burn721Minter} from "../../src/minter/Burn721Minter.sol";
+import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
+import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
-import {IOwnable} from "../src/interfaces/IOwnable.sol";
+import {IOwnable} from "../../src/interfaces/IOwnable.sol";
 
 contract Burn721MinterTest is DSTest {
     Cre8ors public cre8orsNFTBase;
