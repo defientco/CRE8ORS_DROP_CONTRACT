@@ -3,16 +3,7 @@ pragma solidity ^0.8.15;
 
 import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
-import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
-import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
-import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
-import {MerkleProof} from "lib/openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.sol";
-import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
-import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
-import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
-import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
-import {IOwnable} from "./interfaces/IOwnable.sol";
-import {Cre8ing} from "./Cre8ing.sol";
+import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -23,12 +14,59 @@ import {Cre8ing} from "./Cre8ing.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 contract Burn721Minter {
+    /// @notice Storage for contract mint information
+    struct ContractMintInfo {
+        address burnToken;
+        uint256 burnQuantity;
+    }
+
+    /// @notice Event for a new contract initialized
+    /// @dev admin function indexer feedback
+    event NewMinterInitialized(
+        address indexed target,
+        address burnToken,
+        uint256 burnQuantity
+    );
+
+    /// @notice Contract information mapping storage
+    mapping(address => ContractMintInfo) internal _contractInfos;
+
+    /// @notice Read Contract information mapping storage
+    function contractInfos(
+        address target
+    ) public view returns (ContractMintInfo memory) {
+        return _contractInfos[target];
+    }
+
     /// @notice Getter for admin role associated with the contract to handle minting
-    /// @param target drop contract address
+    /// @param target target for contract to check admin
     /// @param user user address
     /// @return boolean if address is admin
     function isAdmin(address target, address user) public view returns (bool) {
         return IERC721Drop(target).isAdmin(user);
+    }
+
+    /// @notice Default initializer for burn data from a specific contract
+    /// @param target target for contract to set mint data
+    /// @param data data to init with
+    function initializeWithData(
+        address target,
+        bytes memory data
+    ) external onlyAdmin(target) {
+        // data format: description, imageURI, animationURI, tokenId
+        (address burnToken, uint256 burnQuantity) = abi.decode(
+            data,
+            (address, uint256)
+        );
+        _contractInfos[target] = ContractMintInfo({
+            burnToken: burnToken,
+            burnQuantity: burnQuantity
+        });
+        emit NewMinterInitialized({
+            target: msg.sender,
+            burnToken: burnToken,
+            burnQuantity: burnQuantity
+        });
     }
 
     /// @notice mint function

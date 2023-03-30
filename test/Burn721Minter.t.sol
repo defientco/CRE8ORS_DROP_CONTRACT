@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
-import {Burn721Minter} from "../src/Burn721Minter.sol";
+import {Burn721Minter} from "../src/minter/Burn721Minter.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
@@ -54,6 +54,28 @@ contract Burn721MinterTest is DSTest {
                 DEFAULT_FUNDS_RECIPIENT_ADDRESS
             )
         );
+    }
+
+    function test_initializeWithData_revertAccess_OnlyAdmin() public {
+        bytes memory data = abi.encode("Description for metadata", 5);
+        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        Burn721Minter.ContractMintInfo memory info = minter.contractInfos(
+            address(cre8orsNFTBase)
+        );
+        assertEq(info.burnToken, address(0));
+        assertEq(info.burnQuantity, 0);
+    }
+
+    function test_initializeWithData() public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(address(0x123), 5);
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        Burn721Minter.ContractMintInfo memory info = minter.contractInfos(
+            address(cre8orsNFTBase)
+        );
+        assertEq(info.burnToken, address(0x123));
+        assertEq(info.burnQuantity, 5);
     }
 
     function test_AdminMint() public {
