@@ -56,7 +56,6 @@ contract Burn1155Minter {
         address target,
         bytes memory data
     ) external onlyAdmin(target) {
-        // data format: description, imageURI, animationURI, tokenId
         (address burnToken, uint256 burnQuantity) = abi.decode(
             data,
             (address, uint256)
