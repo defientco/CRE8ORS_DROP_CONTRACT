@@ -77,7 +77,7 @@ contract Burn1155Minter {
     function purchase(
         address target,
         uint256 quantity
-    ) external payable onlyApprovedForAll(target) returns (uint256) {
+    ) external onlyApprovedForAll(target) returns (uint256) {
         IERC1155(_contractInfos[target].burnToken).safeTransferFrom(
             msg.sender,
             BURN_ADDRESS,
