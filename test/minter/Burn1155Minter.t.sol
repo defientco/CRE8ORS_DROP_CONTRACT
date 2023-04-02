@@ -125,6 +125,26 @@ contract Burn1155MinterTest is DSTest {
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
     }
 
+    function test_purchaseQuantity(uint8 quantity) public {
+        if (quantity > 0 && quantity < 50) {
+            vm.startPrank(DEFAULT_OWNER_ADDRESS);
+            bytes memory data = abi.encode(address(burn1155), 5);
+            minter.initializeWithData(address(cre8orsNFTBase), data);
+            cre8orsNFTBase.grantRole(
+                cre8orsNFTBase.MINTER_ROLE(),
+                address(minter)
+            );
+            burn1155.mint(DEFAULT_BUYER, 1, 5 * quantity, bytes(""));
+            assertEq(burn1155.balanceOf(DEFAULT_BUYER, 1), 5 * quantity);
+            vm.stopPrank();
+            vm.startPrank(DEFAULT_BUYER);
+            burn1155.setApprovalForAll(address(minter), true);
+            minter.purchase(address(cre8orsNFTBase), quantity);
+            assertEq(burn1155.balanceOf(DEFAULT_BUYER, 1), 0);
+            assertEq(cre8orsNFTBase.saleDetails().totalMinted, quantity);
+        }
+    }
+
     // test admin mint non-admin permissions
     function test_AdminMintBatch() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

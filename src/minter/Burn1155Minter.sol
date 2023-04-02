@@ -82,7 +82,7 @@ contract Burn1155Minter {
             msg.sender,
             BURN_ADDRESS,
             1,
-            _contractInfos[target].burnQuantity,
+            _contractInfos[target].burnQuantity * quantity,
             bytes("")
         );
 
