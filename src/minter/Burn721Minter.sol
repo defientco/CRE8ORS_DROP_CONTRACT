@@ -78,7 +78,7 @@ contract Burn721Minter {
         address target,
         uint256 quantity,
         uint256[] calldata tokensToBurn
-    ) external payable onlyApprovedForAll(target) returns (uint256) {
+    ) external onlyApprovedForAll(target) returns (uint256) {
         require(
             tokensToBurn.length ==
                 _contractInfos[target].burnQuantity * quantity,
