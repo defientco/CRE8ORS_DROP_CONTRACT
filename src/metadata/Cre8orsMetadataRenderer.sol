@@ -15,6 +15,14 @@ interface DropConfigGetter {
         returns (IERC721Drop.Configuration memory config);
 }
 
+/**
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
+ */
 /// @notice Cre8orsMetadataRenderer for editions support
 contract Cre8orsMetadataRenderer is
     IMetadataRenderer,
@@ -57,11 +65,10 @@ contract Cre8orsMetadataRenderer is
     mapping(address => mapping(uint256 => TokenEditionInfo))
         internal _tokenInfos;
 
-    function tokenInfos(address target, uint256 tokenId)
-        public
-        view
-        returns (TokenEditionInfo memory)
-    {
+    function tokenInfos(
+        address target,
+        uint256 tokenId
+    ) public view returns (TokenEditionInfo memory) {
         return _tokenInfos[target][tokenId];
     }
 
@@ -150,12 +157,9 @@ contract Cre8orsMetadataRenderer is
     /// @notice Token URI information getter
     /// @param tokenId to get uri for
     /// @return contract uri (if set)
-    function tokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         address target = msg.sender;
 
         TokenEditionInfo memory info = _tokenInfos[target][tokenId];
