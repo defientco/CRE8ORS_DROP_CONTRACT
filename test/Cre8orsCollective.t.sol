@@ -402,7 +402,14 @@ contract Cre8orsCollectiveTest is DSTest {
         vm.prank(address(456));
         cre8orsNFTBase.purchase{value: 1}(1);
 
-        assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsCollectiveMetadataRenderer.updateMetadataBase(
+            address(cre8orsNFTBase),
+            METADATA_BASE_FOUNDERS,
+            METADATA_BASE_COLLECTIVE,
+            CONTRACT_BASE_URL
+        );
+        assertEq(cre8orsNFTBase.tokenURI(1), getUri(1));
     }
 
     function test_cre8ingTokens()
