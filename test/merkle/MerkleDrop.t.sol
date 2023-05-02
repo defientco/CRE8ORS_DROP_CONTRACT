@@ -8,7 +8,7 @@ import {Cre8orsCollective} from "../../src/Cre8orsCollective.sol";
 import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
 import {MerkleData} from "./MerkleData.sol";
 
-contract ZoraNFTBaseTest is DSTest {
+contract MerkleDropTest is DSTest {
     Cre8orsCollective zoraNFTBase;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -20,10 +20,6 @@ contract ZoraNFTBaseTest is DSTest {
         payable(address(0x999));
     address public constant mediaContract = address(0x123456);
 
-    modifier setupZoraNFTBase() {
-        _;
-    }
-
     function setUp() public {
         vm.prank(DEFAULT_ZORA_DAO_ADDRESS);
 
@@ -32,7 +28,7 @@ contract ZoraNFTBaseTest is DSTest {
             _contractSymbol: "TNFT",
             _initialOwner: DEFAULT_OWNER_ADDRESS,
             _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
-            _editionSize: 10,
+            _editionSize: 888,
             _royaltyBPS: 800,
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
@@ -49,7 +45,7 @@ contract ZoraNFTBaseTest is DSTest {
         merkleData = new MerkleData();
     }
 
-    function test_MerklePurchaseActiveSuccess() public setupZoraNFTBase {
+    function test_MerklePurchaseActiveSuccess() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         zoraNFTBase.setSaleConfiguration({
             publicSaleStart: 0,
@@ -77,7 +73,7 @@ contract ZoraNFTBaseTest is DSTest {
             item.mintPrice,
             item.proof
         );
-        assertEq(zoraNFTBase.saleDetails().maxSupply, 10);
+        assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
         assertEq(zoraNFTBase.saleDetails().totalMinted, 1);
         require(
             zoraNFTBase.ownerOf(1) == address(item.user),
@@ -94,7 +90,7 @@ contract ZoraNFTBaseTest is DSTest {
             item.mintPrice,
             item.proof
         );
-        assertEq(zoraNFTBase.saleDetails().maxSupply, 10);
+        assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
         assertEq(zoraNFTBase.saleDetails().totalMinted, 3);
         require(
             zoraNFTBase.ownerOf(2) == address(item.user),
@@ -103,10 +99,7 @@ contract ZoraNFTBaseTest is DSTest {
         vm.stopPrank();
     }
 
-    function test_MerklePurchaseAndPublicSalePurchaseLimits()
-        public
-        setupZoraNFTBase
-    {
+    function test_MerklePurchaseAndPublicSalePurchaseLimits() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         zoraNFTBase.setSaleConfiguration({
             publicSaleStart: 0,
@@ -220,7 +213,7 @@ contract ZoraNFTBaseTest is DSTest {
         vm.stopPrank();
     }
 
-    function test_MerklePurchaseInactiveFails() public setupZoraNFTBase {
+    function test_MerklePurchaseInactiveFails() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         // block.timestamp returning zero allows sales to go through.
         vm.warp(100);
@@ -250,5 +243,57 @@ contract ZoraNFTBaseTest is DSTest {
             item.mintPrice,
             item.proof
         );
+    }
+
+    function test_MerklePurchase88Tokens() public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        zoraNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: 0,
+            presaleStart: 0,
+            presaleEnd: type(uint64).max,
+            publicSalePrice: 0 ether,
+            maxSalePurchasePerAddress: 0,
+            erc20PaymentToken: address(0),
+            presaleMerkleRoot: merkleData
+                .getTestSetByName("test-88-founders")
+                .root
+        });
+        vm.stopPrank();
+
+        MerkleData.MerkleEntry memory item;
+
+        uint256 numberOfFounders = merkleData
+            .getTestSetByName("test-88-founders")
+            .entries
+            .length;
+        for (uint256 i = 0; i < numberOfFounders; i++) {
+            item = merkleData.getTestSetByName("test-88-founders").entries[i];
+            vm.startPrank(address(item.user));
+
+            zoraNFTBase.purchasePresale(
+                1,
+                item.maxMint,
+                item.mintPrice,
+                item.proof
+            );
+            assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
+            assertEq(zoraNFTBase.saleDetails().totalMinted, i + 1);
+            require(
+                zoraNFTBase.ownerOf(i + 1) == address(item.user),
+                "owner is wrong for new minted token"
+            );
+
+            vm.expectRevert();
+            zoraNFTBase.purchasePresale(
+                1,
+                item.maxMint,
+                item.mintPrice,
+                item.proof
+            );
+            vm.stopPrank();
+        }
+        assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
+        assertEq(zoraNFTBase.saleDetails().totalMinted, 88);
     }
 }
