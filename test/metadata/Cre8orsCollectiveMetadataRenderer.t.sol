@@ -20,13 +20,10 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
     }
 
     function getUri(uint256 tokenId) public view returns (string memory) {
-        return
-            string(
-                abi.encodePacked(
-                    METADATA_BASE_FOUNDERS,
-                    Strings.toString(tokenId)
-                )
-            );
+        string memory base = tokenId > 88
+            ? METADATA_BASE_COLLECTIVE
+            : METADATA_BASE_FOUNDERS;
+        return string(abi.encodePacked(base, Strings.toString(tokenId)));
     }
 
     function test_SetupInitializes() public {
@@ -37,7 +34,10 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
             CONTRACT_BASE_URL
         );
         renderer.initializeWithData(initData);
+        assertEq(renderer.tokenURI(1), getUri(1));
         assertEq(renderer.tokenURI(12), getUri(12));
+        assertEq(renderer.tokenURI(89), getUri(89));
+        assertEq(renderer.tokenURI(888), getUri(888));
         assertEq(renderer.contractURI(), CONTRACT_BASE_URL);
         vm.stopPrank();
         vm.prank(address(0x14));
@@ -71,7 +71,11 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
             "http://uri.base.newCollective/",
             "http://uri.base.new/contract.json"
         );
+        assertEq(renderer.tokenURI(1), "http://uri.base.new/1");
         assertEq(renderer.tokenURI(12), "http://uri.base.new/12");
+        assertEq(renderer.tokenURI(88), "http://uri.base.new/88");
+        assertEq(renderer.tokenURI(89), "http://uri.base.newCollective/89");
+        assertEq(renderer.tokenURI(888), "http://uri.base.newCollective/888");
         assertEq(renderer.contractURI(), "http://uri.base.new/contract.json");
     }
 
@@ -95,9 +99,9 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
             "http://uri.base.newCollective/",
             "http://uri.base.new/contract.json"
         );
-        vm.prank(address(base));
+        vm.startPrank(address(base));
         assertEq(renderer.tokenURI(5), "http://uri.base.new/5");
-        vm.prank(address(base));
+        assertEq(renderer.tokenURI(89), "http://uri.base.newCollective/89");
         assertEq(renderer.contractURI(), "http://uri.base.new/contract.json");
     }
 }

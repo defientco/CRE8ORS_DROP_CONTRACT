@@ -171,11 +171,12 @@ contract Cre8orsCollectiveMetadataRenderer is
         MetadataURIInfo memory info = metadataBaseByContract[msg.sender];
 
         if (bytes(info.base).length == 0) revert();
+        string memory base = tokenId <= 88 ? info.base : info.baseCollective;
 
         return
             string(
                 abi.encodePacked(
-                    info.base,
+                    base,
                     Strings.toString(tokenId),
                     info.extension
                 )
