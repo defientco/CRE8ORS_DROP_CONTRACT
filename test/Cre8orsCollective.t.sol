@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
-import {Cre8ors} from "../src/Cre8ors.sol";
+import {Cre8orsCollective} from "../src/Cre8orsCollective.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
@@ -11,7 +11,7 @@ import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 
 contract Cre8orsCollectiveTest is DSTest {
-    Cre8ors public cre8orsNFTBase;
+    Cre8orsCollective public cre8orsNFTBase;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
@@ -20,7 +20,7 @@ contract Cre8orsCollectiveTest is DSTest {
     uint64 DEFAULT_EDITION_SIZE = 10_000;
 
     modifier setupCre8orsNFTBase(uint64 editionSize) {
-        cre8orsNFTBase = new Cre8ors({
+        cre8orsNFTBase = new Cre8orsCollective({
             _contractName: "CRE8ORS",
             _contractSymbol: "CRE8",
             _initialOwner: DEFAULT_OWNER_ADDRESS,
