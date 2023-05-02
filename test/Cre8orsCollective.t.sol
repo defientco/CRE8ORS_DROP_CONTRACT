@@ -9,6 +9,9 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
+import {MerkleData} from "./merkle/MerkleData.sol";
+import {Cre8ors} from "../../src/Cre8ors.sol";
+import {Burn721Minter} from "../../src/minter/Burn721Minter.sol";
 
 contract Cre8orsCollectiveTest is DSTest {
     Cre8orsCollective public cre8orsNFTBase;
@@ -17,7 +20,11 @@ contract Cre8orsCollectiveTest is DSTest {
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
-    uint64 DEFAULT_EDITION_SIZE = 10_000;
+    uint64 DEFAULT_EDITION_SIZE = 888;
+    MerkleData public merkleData;
+    Cre8orsCollective public burnerNft;
+    Burn721Minter public burn721Minter;
+    address public constant DEFAULT_COLLECTIVE_BUYER = address(0x333);
 
     modifier setupCre8orsNFTBase(uint64 editionSize) {
         cre8orsNFTBase = new Cre8orsCollective({
@@ -39,6 +46,28 @@ contract Cre8orsCollectiveTest is DSTest {
                 presaleMerkleRoot: bytes32(0)
             })
         });
+        burnerNft = new Cre8orsCollective({
+            _contractName: "CRE8ORS",
+            _contractSymbol: "CRE8",
+            _initialOwner: DEFAULT_OWNER_ADDRESS,
+            _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
+            _editionSize: type(uint64).max,
+            _royaltyBPS: 808,
+            _metadataRenderer: dummyRenderer,
+            _salesConfig: IERC721Drop.SalesConfiguration({
+                publicSaleStart: 0,
+                erc20PaymentToken: address(0),
+                publicSaleEnd: 0,
+                presaleStart: 0,
+                presaleEnd: 0,
+                publicSalePrice: 0,
+                maxSalePurchasePerAddress: 0,
+                presaleMerkleRoot: bytes32(0)
+            })
+        });
+        burn721Minter = new Burn721Minter();
+
+        merkleData = new MerkleData();
 
         _;
     }
@@ -402,5 +431,108 @@ contract Cre8orsCollectiveTest is DSTest {
             assertEq(staked[i], i + 1);
         }
         assertEq(staked.length, 100);
+    }
+
+    function test_Purchase888Cre8orsCollectivePasses()
+        public
+        setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
+    {
+        // FOUNDERS PASS MINT
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSaleConfiguration({
+            publicSaleStart: 0,
+            publicSaleEnd: 0,
+            presaleStart: 0,
+            presaleEnd: type(uint64).max,
+            publicSalePrice: 0 ether,
+            maxSalePurchasePerAddress: 0,
+            erc20PaymentToken: address(0),
+            presaleMerkleRoot: merkleData
+                .getTestSetByName("test-88-founders")
+                .root
+        });
+        vm.stopPrank();
+
+        MerkleData.MerkleEntry memory item;
+
+        uint256 numberOfFounders = merkleData
+            .getTestSetByName("test-88-founders")
+            .entries
+            .length;
+        for (uint256 i = 0; i < numberOfFounders; i++) {
+            item = merkleData.getTestSetByName("test-88-founders").entries[i];
+            vm.startPrank(address(item.user));
+
+            cre8orsNFTBase.purchasePresale(
+                1,
+                item.maxMint,
+                item.mintPrice,
+                item.proof
+            );
+            assertEq(cre8orsNFTBase.saleDetails().maxSupply, 888);
+            assertEq(cre8orsNFTBase.saleDetails().totalMinted, i + 1);
+            require(
+                cre8orsNFTBase.ownerOf(i + 1) == address(item.user),
+                "owner is wrong for new minted token"
+            );
+
+            vm.expectRevert();
+            cre8orsNFTBase.purchasePresale(
+                1,
+                item.maxMint,
+                item.mintPrice,
+                item.proof
+            );
+            vm.stopPrank();
+        }
+        assertEq(cre8orsNFTBase.saleDetails().maxSupply, 888);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 88);
+
+        // CONFIGURE BURN MINTER
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(address(burnerNft), 1);
+        burn721Minter.initializeWithData(address(cre8orsNFTBase), data);
+        Burn721Minter.ContractMintInfo memory info = burn721Minter
+            .contractInfos(address(cre8orsNFTBase));
+        assertEq(info.burnToken, address(burnerNft));
+        assertEq(info.burnQuantity, 1);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(burn721Minter)
+        );
+        vm.stopPrank();
+
+        // COLLECTORS PASS MINT
+        for (uint256 i = 89; i <= 888; i++) {
+            address relicCollector = address(uint160(i + 700));
+            vm.prank(DEFAULT_OWNER_ADDRESS);
+            uint256 relicToBurn = burnerNft.adminMint(relicCollector, 1);
+            assertEq(burnerNft.balanceOf(relicCollector), 1);
+            vm.startPrank(relicCollector);
+            uint256[] memory tokensToBurn = new uint256[](1);
+            tokensToBurn[0] = relicToBurn;
+            burnerNft.setApprovalForAll(address(burn721Minter), true);
+            burn721Minter.purchase(address(cre8orsNFTBase), 1, tokensToBurn);
+            assertEq(burnerNft.balanceOf(relicCollector), 0);
+            assertEq(cre8orsNFTBase.balanceOf(relicCollector), 1);
+            assertEq(cre8orsNFTBase.saleDetails().totalMinted, i);
+            vm.stopPrank();
+        }
+
+        // VERIFY NO MORE MINTS
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 888);
+        address relicCollector = address(0x7777777);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        uint256 relicToBurn = burnerNft.adminMint(relicCollector, 1);
+        assertEq(burnerNft.balanceOf(relicCollector), 1);
+        vm.startPrank(relicCollector);
+        uint256[] memory tokensToBurn = new uint256[](1);
+        tokensToBurn[0] = relicToBurn;
+        burnerNft.setApprovalForAll(address(burn721Minter), true);
+        vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
+        burn721Minter.purchase(address(cre8orsNFTBase), 1, tokensToBurn);
+        assertEq(burnerNft.balanceOf(relicCollector), 1);
+        assertEq(cre8orsNFTBase.balanceOf(relicCollector), 0);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 888);
     }
 }
