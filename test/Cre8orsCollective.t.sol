@@ -10,8 +10,10 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {MerkleData} from "./merkle/MerkleData.sol";
-import {Cre8ors} from "../../src/Cre8ors.sol";
-import {Burn721Minter} from "../../src/minter/Burn721Minter.sol";
+import {Cre8ors} from "../src/Cre8ors.sol";
+import {Burn721Minter} from "../src/minter/Burn721Minter.sol";
+import {Cre8orsCollectiveMetadataRenderer} from "../src/metadata/Cre8orsCollectiveMetadataRenderer.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract Cre8orsCollectiveTest is DSTest {
     Cre8orsCollective public cre8orsNFTBase;
@@ -25,8 +27,14 @@ contract Cre8orsCollectiveTest is DSTest {
     Cre8orsCollective public burnerNft;
     Burn721Minter public burn721Minter;
     address public constant DEFAULT_COLLECTIVE_BUYER = address(0x333);
+    Cre8orsCollectiveMetadataRenderer public cre8orsCollectiveMetadataRenderer;
+    string METADATA_BASE_FOUNDERS = "http://uri.base/";
+    string METADATA_BASE_COLLECTIVE = "http://uri.collectiveBase/";
+    string CONTRACT_BASE_URL = "http://uri.base/contract.json";
 
     modifier setupCre8orsNFTBase(uint64 editionSize) {
+        cre8orsCollectiveMetadataRenderer = new Cre8orsCollectiveMetadataRenderer();
+
         cre8orsNFTBase = new Cre8orsCollective({
             _contractName: "CRE8ORS",
             _contractSymbol: "CRE8",
@@ -34,7 +42,7 @@ contract Cre8orsCollectiveTest is DSTest {
             _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
             _editionSize: editionSize,
             _royaltyBPS: 808,
-            _metadataRenderer: dummyRenderer,
+            _metadataRenderer: cre8orsCollectiveMetadataRenderer,
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
                 erc20PaymentToken: address(0),
@@ -433,12 +441,27 @@ contract Cre8orsCollectiveTest is DSTest {
         assertEq(staked.length, 100);
     }
 
+    function getUri(uint256 tokenId) public view returns (string memory) {
+        string memory base = tokenId > 88
+            ? METADATA_BASE_COLLECTIVE
+            : METADATA_BASE_FOUNDERS;
+        return string(abi.encodePacked(base, Strings.toString(tokenId)));
+    }
+
     function test_Purchase888Cre8orsCollectivePasses()
         public
         setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
     {
-        // FOUNDERS PASS MINT
+        // METADATA CONFIG
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsCollectiveMetadataRenderer.updateMetadataBase(
+            address(cre8orsNFTBase),
+            METADATA_BASE_FOUNDERS,
+            METADATA_BASE_COLLECTIVE,
+            CONTRACT_BASE_URL
+        );
+
+        // FOUNDERS PASS MINT
         cre8orsNFTBase.setSaleConfiguration({
             publicSaleStart: 0,
             publicSaleEnd: 0,
@@ -469,10 +492,12 @@ contract Cre8orsCollectiveTest is DSTest {
                 item.mintPrice,
                 item.proof
             );
+            uint256 tokenId = i + 1;
             assertEq(cre8orsNFTBase.saleDetails().maxSupply, 888);
-            assertEq(cre8orsNFTBase.saleDetails().totalMinted, i + 1);
+            assertEq(cre8orsNFTBase.saleDetails().totalMinted, tokenId);
+            assertEq(cre8orsNFTBase.tokenURI(tokenId), getUri(tokenId));
             require(
-                cre8orsNFTBase.ownerOf(i + 1) == address(item.user),
+                cre8orsNFTBase.ownerOf(tokenId) == address(item.user),
                 "owner is wrong for new minted token"
             );
 
@@ -516,6 +541,7 @@ contract Cre8orsCollectiveTest is DSTest {
             assertEq(burnerNft.balanceOf(relicCollector), 0);
             assertEq(cre8orsNFTBase.balanceOf(relicCollector), 1);
             assertEq(cre8orsNFTBase.saleDetails().totalMinted, i);
+            assertEq(cre8orsNFTBase.tokenURI(i), getUri(i));
             vm.stopPrank();
         }
 
