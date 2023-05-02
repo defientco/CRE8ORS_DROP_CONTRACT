@@ -12,7 +12,7 @@ import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
-import {Cre8ing} from "./Cre8ing.sol";
+import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -24,8 +24,8 @@ import {Cre8ing} from "./Cre8ing.sol";
  */
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8orsCollective is
+    Cre8iveAdmin,
     ERC721A,
-    Cre8ing,
     IERC2981,
     ReentrancyGuard,
     IERC721Drop,
@@ -50,7 +50,7 @@ contract Cre8orsCollective is
     )
         ERC721A(_contractName, _contractSymbol)
         ReentrancyGuard()
-        Cre8ing(_initialOwner)
+        Cre8iveAdmin(_initialOwner)
     {
         // Set ownership to original sender of contract call
         _setOwner(_initialOwner);
@@ -371,54 +371,6 @@ contract Cre8orsCollective is
     }
 
     /////////////////////////////////////////////////
-    /// CRE8ING
-    /////////////////////////////////////////////////
-
-    /// @notice Changes the CRE8ORs' cre8ing statuss (what's the plural of status?
-    ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
-    ///     plural of status).
-    /// @dev Changes the CRE8ORs' cre8ing sheep (see @notice).
-    function toggleCre8ing(uint256[] calldata tokenIds) external {
-        uint256 n = tokenIds.length;
-        for (uint256 i = 0; i < n; ++i) {
-            toggleCre8ing(tokenIds[i]);
-        }
-    }
-
-    /// @notice Changes the CRE8OR's cre8ing status.
-    function toggleCre8ing(
-        uint256 tokenId
-    ) internal onlyApprovedOrOwner(tokenId) {
-        uint256 start = cre8ingStarted[tokenId];
-        if (start == 0) {
-            if (!cre8ingOpen) {
-                revert Cre8ing_Cre8ingClosed();
-            }
-            cre8ingStarted[tokenId] = block.timestamp;
-            emit Cre8ed(tokenId);
-        } else {
-            cre8ingTotal[tokenId] += block.timestamp - start;
-            cre8ingStarted[tokenId] = 0;
-            emit Uncre8ed(tokenId);
-        }
-    }
-
-    /// @notice Transfer a token between addresses while the CRE8OR is minting,
-    ///     thus not resetting the cre8ing period.
-    function safeTransferWhileCre8ing(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external {
-        if (ownerOf(tokenId) != _msgSender()) {
-            revert Access_OnlyOwner();
-        }
-        cre8ingTransfer = 2;
-        safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer = 1;
-    }
-
-    /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
     /////////////////////////////////////////////////
 
@@ -439,38 +391,6 @@ contract Cre8orsCollective is
         return
             salesConfig.presaleStart <= block.timestamp &&
             salesConfig.presaleEnd > block.timestamp;
-    }
-
-    /// @dev Block transfers while cre8ing.
-    function _beforeTokenTransfers(
-        address,
-        address,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal view override {
-        uint256 tokenId = startTokenId;
-        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
-                revert Cre8ing_Cre8ing();
-            }
-        }
-    }
-
-    /// @notice array of staked tokenIDs
-    /// @dev used in cre8ors ui to quickly get list of staked NFTs.
-    function cre8ingTokens()
-        external
-        view
-        returns (uint256[] memory stakedTokens)
-    {
-        uint256 size = _lastMintedTokenId();
-        stakedTokens = new uint256[](size);
-        for (uint256 i = 1; i < size + 1; ++i) {
-            uint256 start = cre8ingStarted[i];
-            if (start != 0) {
-                stakedTokens[i - 1] = i;
-            }
-        }
     }
 
     /////////////////////////////////////////////////
