@@ -79,7 +79,9 @@ contract Cre8orsCollectiveMetadataRenderer is
     }
 
     /// @notice Update metadata base URI and contract URI
+    /// @param target target contract
     /// @param baseUri new base URI
+    /// @param baseUriCollective new collective base URI
     /// @param newContractUri new contract URI (can be an empty string)
     function updateMetadataBase(
         address target,
@@ -100,6 +102,7 @@ contract Cre8orsCollectiveMetadataRenderer is
     /// @notice Update metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing details
     /// @param target target contract to update metadata for
     /// @param metadataBase new base URI to update metadata with
+    /// @param metadataBaseCollective new baseCollective URI to update metadata with
     /// @param metadataExtension new extension to append to base metadata URI
     /// @param freezeAt time to freeze the contract metadata at (set to 0 to disable)
     function updateMetadataBaseWithDetails(
@@ -121,7 +124,9 @@ contract Cre8orsCollectiveMetadataRenderer is
     }
 
     /// @notice Internal metadata update function
+    /// @param target target contract to update metadata for
     /// @param metadataBase Base URI to update metadata for
+    /// @param metadataBaseCollective BaseCollective URI to update metadata for
     /// @param metadataExtension Extension URI to update metadata for
     /// @param freezeAt timestamp to freeze metadata (set to 0 to disable freezing)
     function _updateMetadataDetails(
