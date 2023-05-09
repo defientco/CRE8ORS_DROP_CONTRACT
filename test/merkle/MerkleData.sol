@@ -2084,5 +2084,1861 @@ contract MerkleData {
     }));
     
     
+    data["test-sweets-86-whitelisted-founder"].root = 0x4f0de22618687a8eb57c7805799e2670f22352ebc59ff291ca5ac79d7b448ec5;
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x8639050de2c8d2df9aa14fb2421d0244e89d4ab08a3b8b917d9f348f4014e9c8);
+    
+    proof[1] = bytes32(0x13e62b9ecb3505587876aadcbc80ece2f339fbb20957ce123bdcae64764ce7d2);
+    
+    proof[2] = bytes32(0xda49bc6bb152e13a40b1ef8abbb16b0ca6446e5e40abeab434bc38b28342c835);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x53b50703c199b0e379575caFE6B3D208676D0593,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x60cb983b92b627bbd910b7d83da5a27d5514fc3ee7145679daacee57701aecb6);
+    
+    proof[1] = bytes32(0x13e62b9ecb3505587876aadcbc80ece2f339fbb20957ce123bdcae64764ce7d2);
+    
+    proof[2] = bytes32(0xda49bc6bb152e13a40b1ef8abbb16b0ca6446e5e40abeab434bc38b28342c835);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x1257EA6f17f3bD82B323789cF08B79191CC82b6D,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x9946029c60ad89fe9561295dde00aa5afb11ebd67ad5657bf66e3118cfc0caed);
+    
+    proof[1] = bytes32(0xf41f954e406076c0b5ef31db9e1a7a17829276b8659b1fe6587c9116f815acdc);
+    
+    proof[2] = bytes32(0xda49bc6bb152e13a40b1ef8abbb16b0ca6446e5e40abeab434bc38b28342c835);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x00D4da27deDce60F859471D8f595fDB4aE861557,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x13466a124deb32fadcbad640475632e88bf745a32811ef14f8cfabf67df8914c);
+    
+    proof[1] = bytes32(0xf41f954e406076c0b5ef31db9e1a7a17829276b8659b1fe6587c9116f815acdc);
+    
+    proof[2] = bytes32(0xda49bc6bb152e13a40b1ef8abbb16b0ca6446e5e40abeab434bc38b28342c835);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x0644161438Ce1e23F050573D0E45A86B98910425,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x9c661b2bc42a666353bab19fd972e5bf4ff9e4a9041666bd521360b014d666fc);
+    
+    proof[1] = bytes32(0x8f3a7bc3cc9718bb49d3e57e612af0b4874dd12c51b98d9da9187a523caf960e);
+    
+    proof[2] = bytes32(0x8cb9860ea7b20e7e56788476b8d7f08ad6e3e0fe2c1028aff6f7e714a59cee48);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x07E061ED6D32dE342dc4026f81E79eD87Ee22361,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x47edb84cc0277cfd395bb7ef6429b6d41b5e74ce55a822ca5125a679eee3a739);
+    
+    proof[1] = bytes32(0x8f3a7bc3cc9718bb49d3e57e612af0b4874dd12c51b98d9da9187a523caf960e);
+    
+    proof[2] = bytes32(0x8cb9860ea7b20e7e56788476b8d7f08ad6e3e0fe2c1028aff6f7e714a59cee48);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x1891D89e6598aE763C6565DE8Fe679f2Da76D868,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x6b7148a5d66b755887ac68e31d16e2240ded1ed52ba84091a99663ce28067802);
+    
+    proof[1] = bytes32(0x2e8b92fe600a8b68367de5a28824b7317328f93ca5beeb87d9387c99a6c816c3);
+    
+    proof[2] = bytes32(0x8cb9860ea7b20e7e56788476b8d7f08ad6e3e0fe2c1028aff6f7e714a59cee48);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x1ed577E7756Bc9b417B6CB4C77e880E761628216,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x3e7079ec6d9909aa1f04109240eb11ee61e7c8d7bb1c5a4a0df325245034f40a);
+    
+    proof[1] = bytes32(0x2e8b92fe600a8b68367de5a28824b7317328f93ca5beeb87d9387c99a6c816c3);
+    
+    proof[2] = bytes32(0x8cb9860ea7b20e7e56788476b8d7f08ad6e3e0fe2c1028aff6f7e714a59cee48);
+    
+    proof[3] = bytes32(0xd2ded2ce854ab1f4fa04872b9b30e5f5867c08c7668851b86eac007904a71d8b);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x21dE2BBEc05468FC41aF5eF2E9e5bbFF21F487b3,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x077815135b98a45e55ab757bd02a581db4672122798fa90bd2aae653a251849f);
+    
+    proof[1] = bytes32(0x7e1aa3a2617eb6b103abe461f256305c6ba6e89ff3d6455742294fed7da3f7bb);
+    
+    proof[2] = bytes32(0x9a6bf94e3c9b4ef1f5b3faa7155112b084349ef9af11b8bcce11a7fd6394718f);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x28a7849118c2AC997C24FA63E9B67D3aa3bb9001,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x2e9483d2426Ea7Acead4e6584463cCC62768d42F,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xb9e958322a7bef10198513060aa5915606e7a806cd8f37b089b8f74e64845da9);
+    
+    proof[1] = bytes32(0xd0d4acff50576fa6d1d15517c242d237aab99073fbdea0ec2f4098b70d77ec94);
+    
+    proof[2] = bytes32(0x9a6bf94e3c9b4ef1f5b3faa7155112b084349ef9af11b8bcce11a7fd6394718f);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x344B16e9cCa560d29951ec2d56F0c2f61158a603,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xaab1093f79ad3a6017901ea2be20e37bff070aa3172165266b6cee18b5564c76);
+    
+    proof[1] = bytes32(0xd0d4acff50576fa6d1d15517c242d237aab99073fbdea0ec2f4098b70d77ec94);
+    
+    proof[2] = bytes32(0x9a6bf94e3c9b4ef1f5b3faa7155112b084349ef9af11b8bcce11a7fd6394718f);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x419C77108b0eF4b1FA5c394AE4aECE0a14f4cea5,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x89a2dd6d8558e9d1615b8ed87ea81018a7a3dcb0478727314ff89d69b41b8a87);
+    
+    proof[1] = bytes32(0xda1e920c6d7577bcc074586663788357eda016245efe382eb45c8d7f6e52037e);
+    
+    proof[2] = bytes32(0x23e1a7a305ea08ba4f9bb064242a5d5c4ae4e0c95ab605bbd270bfbea87f4aa3);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x56fa9263a6B02A5a1259F8d7489693c197836841,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x44504192962a0861c6ebf849992024b9df5d9f17b2ba39ccfeae8b6bd073996d);
+    
+    proof[1] = bytes32(0xda1e920c6d7577bcc074586663788357eda016245efe382eb45c8d7f6e52037e);
+    
+    proof[2] = bytes32(0x23e1a7a305ea08ba4f9bb064242a5d5c4ae4e0c95ab605bbd270bfbea87f4aa3);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x6F4ed5952e0a76e792e80698e9Df47C477c29770,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xe299dc700d71ecf8d50dd4d0114384b32df40210eb1540582a95fce6813cd5b8);
+    
+    proof[1] = bytes32(0x6bcdc8de247dba332ae8ef02e9e4e16a5c0f008e486c297f981448ea5cba4a26);
+    
+    proof[2] = bytes32(0x23e1a7a305ea08ba4f9bb064242a5d5c4ae4e0c95ab605bbd270bfbea87f4aa3);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x724c05D323Ef747465E68F621A2B10Edd9a84463,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xae8c6b325daaaac9a4a67e53c2214e046458310455ac8fee561afbba103fbda3);
+    
+    proof[1] = bytes32(0x6bcdc8de247dba332ae8ef02e9e4e16a5c0f008e486c297f981448ea5cba4a26);
+    
+    proof[2] = bytes32(0x23e1a7a305ea08ba4f9bb064242a5d5c4ae4e0c95ab605bbd270bfbea87f4aa3);
+    
+    proof[3] = bytes32(0xe4b5131ad312c61c46580aac4d72069c617788199e1a068ab8bf721244ac5292);
+    
+    proof[4] = bytes32(0x1e520cd96fe68d20ef955704052b064ad99000797f200e0017e8d4fb9c85c53b);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x849f03ACc35C6F4A861b76e1F271d217CD24b18C,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x9c1a31b0fac08e63387e20c2008fd8482c3737bcb2be07f081f9cc71d21162ab);
+    
+    proof[1] = bytes32(0xa1836f431f2fe5452ef846bf5c8e5b64b661c26ba0dfc5216db373b36505833e);
+    
+    proof[2] = bytes32(0x901b757951ef4c607df8e0f0be2a398739ce6a1c8bfeca4dbdbecc00a2e363fe);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x9Bfff4Bb48e39a14dc945Eb8707B2a6EE8FdeC6D,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x339241f650a193bebf8120175a2d09cce75cb7435fc655f3e3c40ad9d78f280b);
+    
+    proof[1] = bytes32(0xa1836f431f2fe5452ef846bf5c8e5b64b661c26ba0dfc5216db373b36505833e);
+    
+    proof[2] = bytes32(0x901b757951ef4c607df8e0f0be2a398739ce6a1c8bfeca4dbdbecc00a2e363fe);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x9cFc48ED238190B7338DB2e7ED10891197590CEe,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xa22e75d8212789cdfe7422a56db12238c8bdf1fe1d6c5b9df4c8f84d5c6e8b1a);
+    
+    proof[1] = bytes32(0x85ba45ccb43a47cd3552c882f806c71e3b4c64c2950594afc769bcce99cfa58c);
+    
+    proof[2] = bytes32(0x901b757951ef4c607df8e0f0be2a398739ce6a1c8bfeca4dbdbecc00a2e363fe);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xA5D4A2c359C958C0530E37d801e851f7b7F7D69c,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x86b106b13d844e9b1e4f824c27d8ce7350cf27e45c8297b496430eb33067c421);
+    
+    proof[1] = bytes32(0x85ba45ccb43a47cd3552c882f806c71e3b4c64c2950594afc769bcce99cfa58c);
+    
+    proof[2] = bytes32(0x901b757951ef4c607df8e0f0be2a398739ce6a1c8bfeca4dbdbecc00a2e363fe);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xad7b71C53fE26F6896Cd3A2F0931a8Ab99B4107d,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x261dfc87389d4c8c8b8645cb3a11ebba5a6c366fd0b36cf64add829ee57ea5bf);
+    
+    proof[1] = bytes32(0xd323b7976441f6d566a4855101ea3f1640bcc5eada51b5aa4d4ca32738436210);
+    
+    proof[2] = bytes32(0xd7ccc55fb54001ad125553cdfb53bf85ea177fde997242451c9c57da2a3b6fbd);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xB06De036641C6D855C6D572E1a7C8CF27d64bcd1,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x497d6446d67ecafae6e8b95cba209dd18da286ccec90219cab50e5c2b9002dfd);
+    
+    proof[1] = bytes32(0xd323b7976441f6d566a4855101ea3f1640bcc5eada51b5aa4d4ca32738436210);
+    
+    proof[2] = bytes32(0xd7ccc55fb54001ad125553cdfb53bf85ea177fde997242451c9c57da2a3b6fbd);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xC808CB8b45257ab8E67bB87448F12128e0B2E4d0,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xbe08428dd22e35dedc2f6a94859b427e8da9e72af048f0d4cd596d46eefc587a);
+    
+    proof[1] = bytes32(0x289d1351e34d04233af143829c26a5b1f3c2a90871a9d670493f71cdd66daa8b);
+    
+    proof[2] = bytes32(0xd7ccc55fb54001ad125553cdfb53bf85ea177fde997242451c9c57da2a3b6fbd);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xCf86e52A434993AD77E9BC5673BAB7f15B65165e,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x94494eb1f84008671731064cc7877a82524c72fe2a2a2abd12d9804fde4873dc);
+    
+    proof[1] = bytes32(0x289d1351e34d04233af143829c26a5b1f3c2a90871a9d670493f71cdd66daa8b);
+    
+    proof[2] = bytes32(0xd7ccc55fb54001ad125553cdfb53bf85ea177fde997242451c9c57da2a3b6fbd);
+    
+    proof[3] = bytes32(0x5052afb6c734cea658b3f93fbab9a46bc4f29eb30cc8ee4fe9b063f092d92b1f);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xdC3c1c2126289bb2A4F5DdA0c6a0c67035697719,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xb10608e999c6915e3cca9576fcc6269b53a96d874f0889e40bf61e4ba1642542);
+    
+    proof[1] = bytes32(0xff3d518bf7978afa870bcf6c90d10a6cb719020e998f2d35d0156e33ed388417);
+    
+    proof[2] = bytes32(0x9ea7e5d5a67a933842ac9895b38fa4a25f8f00a6d0a3e4f110c75a90a03f3af8);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xE65416906B8C0936aE0463d2B45bf7090102A438,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xd7cb4c3a64dad4a7b035c23f420abd96c8a29487b8684b4595a84fbf13eca079);
+    
+    proof[1] = bytes32(0xff3d518bf7978afa870bcf6c90d10a6cb719020e998f2d35d0156e33ed388417);
+    
+    proof[2] = bytes32(0x9ea7e5d5a67a933842ac9895b38fa4a25f8f00a6d0a3e4f110c75a90a03f3af8);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xF9d08A28c634A5939c9F93368e438B55932E5806,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x3cd7b02b89e03b157cb2210f64a1012e6e2ac02534d1184f9187207d8b844242);
+    
+    proof[1] = bytes32(0xa72ab1bcb498bd6191dc7b350702ebd235fa68a9816180de36b8c0e81a9fac44);
+    
+    proof[2] = bytes32(0x9ea7e5d5a67a933842ac9895b38fa4a25f8f00a6d0a3e4f110c75a90a03f3af8);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x18f2145e46E77Cb0405fF9A486A194698326Ee38,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x9f6306f3b246acb8de04f32f1bf8125b780c47456bd0bb18922328075e13e0a0);
+    
+    proof[1] = bytes32(0xa72ab1bcb498bd6191dc7b350702ebd235fa68a9816180de36b8c0e81a9fac44);
+    
+    proof[2] = bytes32(0x9ea7e5d5a67a933842ac9895b38fa4a25f8f00a6d0a3e4f110c75a90a03f3af8);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x2697f24A0128F4BC44c37576152518EC6Cd70924,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x14adcbe1628ed4fb76235ffc4d63158165fd9149b5eee78782da41fc46a5d211);
+    
+    proof[1] = bytes32(0x2ef960bd0b8ed006a9836d7fe8522a391ec1633ef4fea8de1cd0a9266c9021fc);
+    
+    proof[2] = bytes32(0xf90c834f31e8741d36de3bf398dda0de8cea5068dee455fc90f23af3971f6434);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x7f05D5F291922aC1fcF5aD07f419791853e34DA9,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x3f5b349a9169789f7d3dff2d77370c3470da88b42de4ebd60a9eec25f47aa5ab);
+    
+    proof[1] = bytes32(0x2ef960bd0b8ed006a9836d7fe8522a391ec1633ef4fea8de1cd0a9266c9021fc);
+    
+    proof[2] = bytes32(0xf90c834f31e8741d36de3bf398dda0de8cea5068dee455fc90f23af3971f6434);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x045f5C44522cD53603664b7bA3DEa3928a6417d5,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x43b3b8b5d4d2542c4ef4cd2a594122922e88ec7d361f3a38945511fdb4a2a44a);
+    
+    proof[1] = bytes32(0x06984d045871aa969f44af87f34a59ee243a336797a09c4c1fbfcc0b95934e5c);
+    
+    proof[2] = bytes32(0xf90c834f31e8741d36de3bf398dda0de8cea5068dee455fc90f23af3971f6434);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x4210EeE2bc528b0A846EaA016cE8167A840B8B23,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x5cae91f3b56ff61b971f4c72331b49f6f0d53ca9caf860356edacb82689d6749);
+    
+    proof[1] = bytes32(0x06984d045871aa969f44af87f34a59ee243a336797a09c4c1fbfcc0b95934e5c);
+    
+    proof[2] = bytes32(0xf90c834f31e8741d36de3bf398dda0de8cea5068dee455fc90f23af3971f6434);
+    
+    proof[3] = bytes32(0x56a42d828c86c2ef6c7b1fdc91f6d519997e2c7ca7d99464c643fbe526c9976e);
+    
+    proof[4] = bytes32(0x1821a5edf29626d12e56702cbe4aa52814ce989a7f45cd0e29b6503bc396a843);
+    
+    proof[5] = bytes32(0x781a34291fcd5025f439d1d8abf07a6dd4c0f0ad99afb7c260ec2013722cc46a);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x476d8f71D85a4f2b12f6720fbd77d2E471a83B95,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x1cb2a9070de67d9b0892ca03aa190d60d220382afc779c316fbb240bbd0f3f94);
+    
+    proof[1] = bytes32(0x44a89b21230c0be3ad384213e6a06aea81ea317bcfe4b44aa81892113895d808);
+    
+    proof[2] = bytes32(0xb15180db451eb8f90e180eb0015d5b29c669bf46f7f710da22de295f6cfc99aa);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x547a9fAC996aDF04A865F7df3f8957Be4a224135,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xbda54b78588563b530eb07b955666d323b7a0a308afb64f0e9418b8f7001e447);
+    
+    proof[1] = bytes32(0x44a89b21230c0be3ad384213e6a06aea81ea317bcfe4b44aa81892113895d808);
+    
+    proof[2] = bytes32(0xb15180db451eb8f90e180eb0015d5b29c669bf46f7f710da22de295f6cfc99aa);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x5AE67754420a6FBB85270b9D71CA21977d889583,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xbb4aa0ff1089dac1212d690ffff73a857add4273590b2eba954a2031046bbb14);
+    
+    proof[1] = bytes32(0x18f379d94a602fe7492c7d579b7467ea550d3347ff73571f6f16755f648f1c8f);
+    
+    proof[2] = bytes32(0xb15180db451eb8f90e180eb0015d5b29c669bf46f7f710da22de295f6cfc99aa);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x5F8Fbf2a4E4e18cadDB4619635818667fC2A075B,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x131e4e137a10d27014684e063c2ba8673bd93b9c828cd31a7f698816e0a0e862);
+    
+    proof[1] = bytes32(0x18f379d94a602fe7492c7d579b7467ea550d3347ff73571f6f16755f648f1c8f);
+    
+    proof[2] = bytes32(0xb15180db451eb8f90e180eb0015d5b29c669bf46f7f710da22de295f6cfc99aa);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x6d8C6e7815dA0CFF6bE2c152Bd4F89b9d05bc416,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x80fcc7558d9440003facbc9524e6895fac8eb45c13e0454ed923646383916fd9);
+    
+    proof[1] = bytes32(0x3163ae92a74f23cb3e88b43d89da0c334de3c4165370f9dab7a55d0f4af62c2b);
+    
+    proof[2] = bytes32(0x6e8c6f8dd30bf3297e9f430ad59b3ee93f8021f9a33a7c591ed98bd5947a8291);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x8b835e35838448a8A29Be15E926D99E9FB040822,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xad94b62bd7c5a1a85792b5ca05600ddbba40531c8d04f1e1a4001950b125825d);
+    
+    proof[1] = bytes32(0x3163ae92a74f23cb3e88b43d89da0c334de3c4165370f9dab7a55d0f4af62c2b);
+    
+    proof[2] = bytes32(0x6e8c6f8dd30bf3297e9f430ad59b3ee93f8021f9a33a7c591ed98bd5947a8291);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x8cd32534e41A1aec03626c9680eCe89eeEB9e9b0,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x2d604707d0d6e6b19d1d5459a8b8f7d9cc61d0eb80b232e4ae02cc60c0328c5a);
+    
+    proof[1] = bytes32(0x8ab8b951273e2ac0779c7dfa21c4f4a13309f13fb8f3135d1965e6f7b09f4bca);
+    
+    proof[2] = bytes32(0x6e8c6f8dd30bf3297e9f430ad59b3ee93f8021f9a33a7c591ed98bd5947a8291);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x914D14e0394a8138C12F8817c063F465d1FDdf61,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xde62112cf1fda006a245ef8129b6f201aedb9e3f59597a25e20c575b7bc83579);
+    
+    proof[1] = bytes32(0x8ab8b951273e2ac0779c7dfa21c4f4a13309f13fb8f3135d1965e6f7b09f4bca);
+    
+    proof[2] = bytes32(0x6e8c6f8dd30bf3297e9f430ad59b3ee93f8021f9a33a7c591ed98bd5947a8291);
+    
+    proof[3] = bytes32(0x4ed1b75f279cb1d94517c150b203c9c00633b437462550a3aa8f3fbecd17b601);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x959919178CEff4a7bf5A1EdC653e2Eb965709d97,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x61c749bc78df90d76ef4025da114d547b9d95876fca32cb4439ff12295f81987);
+    
+    proof[1] = bytes32(0x1cfbb2453509aa2ced5d03f8cc2a3e841662ed82b06b282a553ebae35457fb6c);
+    
+    proof[2] = bytes32(0xffbc0eccfbf44b5a76e44863f0a7703cbaa8123cb11d35cdef02a4975a6b5ec3);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x9933D503916c1CE8D629667EDc8De3a8149aa0C0,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xff654d8342cfb0c95e6980a111a4be5e8a7a2e9623a48b98b056cd7e287f00fc);
+    
+    proof[1] = bytes32(0x1cfbb2453509aa2ced5d03f8cc2a3e841662ed82b06b282a553ebae35457fb6c);
+    
+    proof[2] = bytes32(0xffbc0eccfbf44b5a76e44863f0a7703cbaa8123cb11d35cdef02a4975a6b5ec3);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x9aF4F5D600253Bb6DCE0bfeDB41f89e9B380b80B,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x6bfbfb5e3909037613424ee175cb7424c50aff32e352e1318ebe593fd560c226);
+    
+    proof[1] = bytes32(0x4e823447bf38e8ec3e4629b88220e1729ef6a9b041490e9c28f36cb5be8bbe2f);
+    
+    proof[2] = bytes32(0xffbc0eccfbf44b5a76e44863f0a7703cbaa8123cb11d35cdef02a4975a6b5ec3);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xDd34985900fbc5C2353C8f7Db923503A19918c1d,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xc315f4b31b8917ec56f900c3694e4bc9ef187186be46eef857bb541bb6883f88);
+    
+    proof[1] = bytes32(0x4e823447bf38e8ec3e4629b88220e1729ef6a9b041490e9c28f36cb5be8bbe2f);
+    
+    proof[2] = bytes32(0xffbc0eccfbf44b5a76e44863f0a7703cbaa8123cb11d35cdef02a4975a6b5ec3);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x06d92B5b6Ae4b53fffdC8654707DFC2821e3897C,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x63c82737737733be3c57c3869e49746ee052a43700b4e5dc9c3104d51ca5b56c);
+    
+    proof[1] = bytes32(0x27604d306cb4bef551e880f4ca032c3083eb0ca94c13a6d6c686646394207a47);
+    
+    proof[2] = bytes32(0x19457aad979cf6a962bf3df155f9241e29897c9443e5c52c64d649ec52aeb74c);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x0849370812C98EFC94aF4ce2516aeeE2636cEd7c,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xed648629abad07adb2de7d772df300b9a974b89b1373b6f7359f4b6aa26695b4);
+    
+    proof[1] = bytes32(0x27604d306cb4bef551e880f4ca032c3083eb0ca94c13a6d6c686646394207a47);
+    
+    proof[2] = bytes32(0x19457aad979cf6a962bf3df155f9241e29897c9443e5c52c64d649ec52aeb74c);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x135538daed6657644b7A90958183d760f508BA45,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x40270ef3c57b4e18298a25bb1dcb73da31124502f74badc3a81675dc725ac1cb);
+    
+    proof[1] = bytes32(0x53498a6736f5a2d77b6ad23df485c9a05f0cd829d57bea59f62aa785c0016bec);
+    
+    proof[2] = bytes32(0x19457aad979cf6a962bf3df155f9241e29897c9443e5c52c64d649ec52aeb74c);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x2aE7AC4D95e1bFe1172FAE1c8efe9097119216cF,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x9c6b3597a35c24ea6e87715e885a9031ffeebaafed7e0e90299c1c18086669f1);
+    
+    proof[1] = bytes32(0x53498a6736f5a2d77b6ad23df485c9a05f0cd829d57bea59f62aa785c0016bec);
+    
+    proof[2] = bytes32(0x19457aad979cf6a962bf3df155f9241e29897c9443e5c52c64d649ec52aeb74c);
+    
+    proof[3] = bytes32(0xdb114174e3b0c12591d2e98f20126ca7ff6f7f12c97848ba5564b0299984051d);
+    
+    proof[4] = bytes32(0x602ea1a3a520819c4f02c388e68dfae8b9590b32a8532da8d01acc3487fb7fb0);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x3188973471200Df1dA427c20D8f1eBD48AC70B3c,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x32220baee611cdae4f3c22540296c322d7f8468ece8d835d08d537bc3eb1c5ad);
+    
+    proof[1] = bytes32(0xc78cac4fdb5ba53a937afcddfbf43134e1d900caaddfcecb4bbbd7391470eb22);
+    
+    proof[2] = bytes32(0x4a607bd9bffb7bb5f08a12b84ec8b2af1578a78c3ce38d09825dc3c744b1b7ce);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x39A416a1184DE3C438E6987eBBd05cb0D5699B44,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x46afaa4c98945040f897eb5af0160caf4d5b4c95945016a9423000c252c929d8);
+    
+    proof[1] = bytes32(0xc78cac4fdb5ba53a937afcddfbf43134e1d900caaddfcecb4bbbd7391470eb22);
+    
+    proof[2] = bytes32(0x4a607bd9bffb7bb5f08a12b84ec8b2af1578a78c3ce38d09825dc3c744b1b7ce);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x47fCc623926d1e0df091e7D16A59abd3C93de08e,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x4d8d90fcb22fe13b1031b32ccaf26675e90a1b297b9332354ad30c46111ca097);
+    
+    proof[1] = bytes32(0xdd913cb1cb12678a318c2331fe85d9ff3d5d52d3d826f118d0db73fd41e30054);
+    
+    proof[2] = bytes32(0x4a607bd9bffb7bb5f08a12b84ec8b2af1578a78c3ce38d09825dc3c744b1b7ce);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x6EAC18bb705C845aCe004ac19a87521bfdCA2dc6,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xd91f3c014f4a633fbb862827248620d6a0def9e5e0fb35b0dae1a1203ec504fd);
+    
+    proof[1] = bytes32(0xdd913cb1cb12678a318c2331fe85d9ff3d5d52d3d826f118d0db73fd41e30054);
+    
+    proof[2] = bytes32(0x4a607bd9bffb7bb5f08a12b84ec8b2af1578a78c3ce38d09825dc3c744b1b7ce);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x7a137E2D8B77709aE76E28f7b19F493FF24eaFd5,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x7Bfe963C7b6C653889C83e833AD59487147aA9F3,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x0b65ea81e181d80c8dd726b29af89aab75cdefe5d3eeb34534d31bcb3213c797);
+    
+    proof[1] = bytes32(0x9d79b8e269726b64c3e40b6a5fa9dc74835a7edcbf5406f1e11e9b0f1b2f7812);
+    
+    proof[2] = bytes32(0xd8da0ae6a6b3197c3a60e668e6b9aa31c04650116f77589c6808b4e74618bb9a);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x8D0F88CC0f08e6d21B0cf7c3aCc90e8d280fCCCE,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x70b136e390e1e4bc4e5597bcaaa85f38ca9f91090a4a9f046ddcb5fd3de33bd9);
+    
+    proof[1] = bytes32(0xb8c61e2ba33735fc0a9f7cbaf26cf90471ebcce7eedebbdc35dafb8099807f55);
+    
+    proof[2] = bytes32(0xd8da0ae6a6b3197c3a60e668e6b9aa31c04650116f77589c6808b4e74618bb9a);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xa3F9718409aE2E9c54B889BeBC3a6B2d321BFd86,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xd6109c62cc4a2480a52416294b4c50761ecdc5beda0742477a05bd502a45e7be);
+    
+    proof[1] = bytes32(0xb8c61e2ba33735fc0a9f7cbaf26cf90471ebcce7eedebbdc35dafb8099807f55);
+    
+    proof[2] = bytes32(0xd8da0ae6a6b3197c3a60e668e6b9aa31c04650116f77589c6808b4e74618bb9a);
+    
+    proof[3] = bytes32(0x0f64a2bc8a72cfd0c48b00edefba2771045b88c89a753f4c986d0f8bd6a0b5fb);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xa88Fe6fA01FCC112BB2164c6e37d63395B923E5F,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xc3bFBa9c3D4B07ca6B909aE491fDa9CDa7F7D732,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x083ea2df74e22cb310ff1c9ae9c69e81b797cf1c5b462c0f57e5dcfd2250cc29);
+    
+    proof[1] = bytes32(0xd6c5c16fe3fcfd379b86d0a196c0a5eb561f24aebabefe7d738e694644aaa934);
+    
+    proof[2] = bytes32(0xdf1a6cf52c0a0b565f6f25937c06427de441fc28f7ea4b6a51603a0fda3af9c5);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xc8113bFd005B4c2De35212eA750357002868548f,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xb3975513452bdf6bc590468cd2d4e1c9fee55e9f3f0ffec99859c9e8ae94af6f);
+    
+    proof[1] = bytes32(0x1a7ae43bb01675dfbf7216d9a081c2f911c24a88fd859955eb491a2193f874ec);
+    
+    proof[2] = bytes32(0xdf1a6cf52c0a0b565f6f25937c06427de441fc28f7ea4b6a51603a0fda3af9c5);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xcd28cc2cafc7449c21D8D94c676A630b7Bbb9522,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0xf89ddd8b1688b3f40f576f25b3e9fcbacbdb99890cec54b1779b17987d139666);
+    
+    proof[1] = bytes32(0x1a7ae43bb01675dfbf7216d9a081c2f911c24a88fd859955eb491a2193f874ec);
+    
+    proof[2] = bytes32(0xdf1a6cf52c0a0b565f6f25937c06427de441fc28f7ea4b6a51603a0fda3af9c5);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xCf3BB7Ec4778eAf6214cd5Ea958A355D2Ec095f1,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x7c4cff290722b8cf9b10e52e5f2391dd996a3342971829e03f3e6ce1fbd126ba);
+    
+    proof[1] = bytes32(0xeb2b9eda08214013c2b98ff5c7329d56ce8d4465d236227fd035c8633a9c68e5);
+    
+    proof[2] = bytes32(0xbb9848e19f447effc36b6425fc4289d1928a96930fef3582d1c7de40b0bfb6e8);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xEBcCb8027e4cBBeca4147d8C5a29DddEcD62C6A2,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x1b342913fb20ad19f8b468873f767e361a9629326a47f0fd711d42bdf39f19a7);
+    
+    proof[1] = bytes32(0xeb2b9eda08214013c2b98ff5c7329d56ce8d4465d236227fd035c8633a9c68e5);
+    
+    proof[2] = bytes32(0xbb9848e19f447effc36b6425fc4289d1928a96930fef3582d1c7de40b0bfb6e8);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xecCE1ffa735Ff743DcFa9f0A1E14D6e38D28bed2,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x7399894a17dc1f16209f2d0c19cd4df11fca67e6466fa34544ed9f98ae62113c);
+    
+    proof[1] = bytes32(0xd33b6e76e6048fa98b354a821d96ca363263f6fc109831debe4aa07040a64d3f);
+    
+    proof[2] = bytes32(0xbb9848e19f447effc36b6425fc4289d1928a96930fef3582d1c7de40b0bfb6e8);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xa9334f7750E398Ed7624D828EC584467D87dc3b0,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](7);
+    
+    proof[0] = bytes32(0x7ad235e6c3dc486a241e2b9644338b04893af79c0bb0f1c01d036784ad821075);
+    
+    proof[1] = bytes32(0xd33b6e76e6048fa98b354a821d96ca363263f6fc109831debe4aa07040a64d3f);
+    
+    proof[2] = bytes32(0xbb9848e19f447effc36b6425fc4289d1928a96930fef3582d1c7de40b0bfb6e8);
+    
+    proof[3] = bytes32(0x322d2baf3626333eec19c87ffcc6e452f749ce40f76f313359462f090147b909);
+    
+    proof[4] = bytes32(0x0d46c86612dc9c12dc8c97eed77441d09956d7426d2f7d8b4dfbcb3974b065fa);
+    
+    proof[5] = bytes32(0x62835db99b3a73e4627b73609b414714289c1c9f82cf228af5bdf6deda2f985d);
+    
+    proof[6] = bytes32(0x7cd14aac96870a2af0a742db7dd2052f92a4bd34b8bdf16e9c1aebe42142d7fc);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x0BED69761B7F28322D5ec8C7455de22f9Ed5e7E7,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0x0145ab63a974bd4e0b44f5135dcc6a87ada999f96adcf2973f4f64d1861e0b16);
+    
+    proof[1] = bytes32(0xe80340d793e9d7d9784bb57a9ceb5ac560c18ec53e6042e53a524f6f26a75e55);
+    
+    proof[2] = bytes32(0xc7b0715253b137d9e420243d517a20f97fe608a901681a560e232cdfac350f15);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x1593c5e4183a7628CFa8155F2f3771Fbd74DD249,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x1f562c3259b5266a1a934a4d20d22b7135D3600d,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0x16a80135c4edc746e0175ba5a39a8f7ea0a6c075754c5e5495ea3d6594440d10);
+    
+    proof[1] = bytes32(0xb0f76c4a91a130e862b708545c6d45154179e8ce4c04f5dd420c3f1afb4c774e);
+    
+    proof[2] = bytes32(0xc7b0715253b137d9e420243d517a20f97fe608a901681a560e232cdfac350f15);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x24Fc7b0DAFbD998856Cfc35CbEac9aeEb53e72cb,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xb95e366ef4968873268e3f36f1dfdc88bb45a92d456207cc37b6d30d3a84f958);
+    
+    proof[1] = bytes32(0xb0f76c4a91a130e862b708545c6d45154179e8ce4c04f5dd420c3f1afb4c774e);
+    
+    proof[2] = bytes32(0xc7b0715253b137d9e420243d517a20f97fe608a901681a560e232cdfac350f15);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x43a66Af60EBf2E445F12D303fE93ff6F2c8cc102,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0x90bbab04c157ffc3cb23526b0e9afb0d0ab1a531241ab02db33eb6076ce15667);
+    
+    proof[1] = bytes32(0x0f11eb3b3745e059f214ea1d2640847c9b1271ce7adc96d68f0c8f82da07a78f);
+    
+    proof[2] = bytes32(0x0a12c3a79b3eb2f192515c9694e1c5c32ae9c8788cabb422b6ed8ac5cbfff649);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x5A48A0b76693ccAeDdB277bB44E2eb2Dc672BD38,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xb9c02ab361ea3ccc2c5e48fa5c6d68e61925b62e685b6718e99e93689feeabbd);
+    
+    proof[1] = bytes32(0x0f11eb3b3745e059f214ea1d2640847c9b1271ce7adc96d68f0c8f82da07a78f);
+    
+    proof[2] = bytes32(0x0a12c3a79b3eb2f192515c9694e1c5c32ae9c8788cabb422b6ed8ac5cbfff649);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x61083772b5B10b6214C91db6AD625eCb24A60834,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0x27817e926aab550c9dc7e58cdda5856c684d160bb4f2ee69808f078e8235111b);
+    
+    proof[1] = bytes32(0x0761492164ece02f5e8bfc2711cfc05d96de0326e3325f94c22b5f47d747bf21);
+    
+    proof[2] = bytes32(0x0a12c3a79b3eb2f192515c9694e1c5c32ae9c8788cabb422b6ed8ac5cbfff649);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x62cfC308dC5DF36A417427eB0a2e61eE9AbFebbe,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xf703d3046ccea78b8aa67d564478bdc2c1af5e04b4485439da89d64802aab3e7);
+    
+    proof[1] = bytes32(0x0761492164ece02f5e8bfc2711cfc05d96de0326e3325f94c22b5f47d747bf21);
+    
+    proof[2] = bytes32(0x0a12c3a79b3eb2f192515c9694e1c5c32ae9c8788cabb422b6ed8ac5cbfff649);
+    
+    proof[3] = bytes32(0xea475fc68abba54dec807f74833fb73c304c48400a3a8947f60fdb52e7112706);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x77DE23D1D24eD19E5bD7f112008f423ec199fd1d,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xb8f60555182f3cfbaac8a7618f61b02de832deb1703d4462bc3d5bb1445f4d3c);
+    
+    proof[1] = bytes32(0x8f39791da0d2d7d9f7d4beaffe2fcef5213932190c4aeb77726f5951a7eee5dd);
+    
+    proof[2] = bytes32(0x330e769b576a539371b1fcce52a571c8ae469e19a3708e49de712c4ffe1a199a);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x7F9Efc77234dD34328b764d68606De972E24a510,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xd0bd9fe2001748838e98edd717de870300cd852305c13f9f3c5358fae35d359b);
+    
+    proof[1] = bytes32(0x8f39791da0d2d7d9f7d4beaffe2fcef5213932190c4aeb77726f5951a7eee5dd);
+    
+    proof[2] = bytes32(0x330e769b576a539371b1fcce52a571c8ae469e19a3708e49de712c4ffe1a199a);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x80fB7c29233e824a244c9E7e96feEbc671aB03D7,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xca14c17c3ea595932f0aece726c16c0eeec2c637d7e4394f42cd5c1b54fe9e1a);
+    
+    proof[1] = bytes32(0xf8d6af107412c7352de43f6afde6748a6b5582d5419a548f14ae199f9f700d6c);
+    
+    proof[2] = bytes32(0x330e769b576a539371b1fcce52a571c8ae469e19a3708e49de712c4ffe1a199a);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0x8b7D12B2Aed991eF314CAff9a68228eA6aDf1C65,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xffa9a616b159e438d50b464e86f663a5c58d7bffb8b0bad0290ed9254e080a55);
+    
+    proof[1] = bytes32(0xf8d6af107412c7352de43f6afde6748a6b5582d5419a548f14ae199f9f700d6c);
+    
+    proof[2] = bytes32(0x330e769b576a539371b1fcce52a571c8ae469e19a3708e49de712c4ffe1a199a);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xA2A983f5ddB82Fd04f6df101043787Fd1a04322F,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xaA2bA5C877B70BAc69763917d3657CA22D1C1CEA,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0x0afaed35b7c832724a7b100784f85cf7755eece45fd7661657daa86ee7f79235);
+    
+    proof[1] = bytes32(0x0dab2192ac5ed456f89f99382a8c045202691914d74f6469b7cfb48937beed0f);
+    
+    proof[2] = bytes32(0xcc40734ebde94e3c7a5c8ea789c063dcf2e0a8f926e306df0eee948f38124f5b);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xB0af55D6f513048cB554ee7DD3343f71a90b19Cc,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0x30486fffbbd74840161b1d90cb376d0a1bfa96334a191511505d811ce13f91b1);
+    
+    proof[1] = bytes32(0x9f3323c0ca424497d3a91fbb4130b55364f79ecbd128443f41330a72714a0c38);
+    
+    proof[2] = bytes32(0xcc40734ebde94e3c7a5c8ea789c063dcf2e0a8f926e306df0eee948f38124f5b);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xb0b9C8E79651D94b76129760C93A8F91026A9DDd,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](6);
+    
+    proof[0] = bytes32(0xac32f1ab7baad97f6b065551bb38718f26b6e35a24f7712f36b12ce58201ef78);
+    
+    proof[1] = bytes32(0x9f3323c0ca424497d3a91fbb4130b55364f79ecbd128443f41330a72714a0c38);
+    
+    proof[2] = bytes32(0xcc40734ebde94e3c7a5c8ea789c063dcf2e0a8f926e306df0eee948f38124f5b);
+    
+    proof[3] = bytes32(0x3bb32aaeac067bfc6175ca5cfc76c485c5f91fd6ad774e03b0287f30995e48ce);
+    
+    proof[4] = bytes32(0xbdd3df21fb290ffa2d9dac1e0a4fe47b118f78377490d347cc7e43df8f4637b6);
+    
+    proof[5] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xB37FCa6f0AE248ADB466096d06D15b826D07EBD7,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](5);
+    
+    proof[0] = bytes32(0x0892c964cd885b1940a602e2bf7849a93444c3cc5a99b8c3bb982db03a5b4527);
+    
+    proof[1] = bytes32(0xa57ce89930008cc64f1a7b95f2f36fd209653c5340d0bf8ca5c9975bcfd3040b);
+    
+    proof[2] = bytes32(0x5a0e0c98c364741f6ed6defac25dc91173e952df1c9427c9480068e13cc0b802);
+    
+    proof[3] = bytes32(0xb4ea9b80989fc18b7657c91cf333dcf6e8ca37ac755216ea63fc99928941cb68);
+    
+    proof[4] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xb68f14521e129D469B172064Fd4f3C0fC46A1644,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xbA781Db2a3Ea4D31d9F75a79722D17262D44Aabd,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](5);
+    
+    proof[0] = bytes32(0x42a6012d77c217bd446836ff8e3f0fa142ec8ce42613a1df2413046682f40817);
+    
+    proof[1] = bytes32(0xf38658a36467b41fb9bcabd03a01d1f8727b57caecdeea65d9253cb740f49f78);
+    
+    proof[2] = bytes32(0x5a0e0c98c364741f6ed6defac25dc91173e952df1c9427c9480068e13cc0b802);
+    
+    proof[3] = bytes32(0xb4ea9b80989fc18b7657c91cf333dcf6e8ca37ac755216ea63fc99928941cb68);
+    
+    proof[4] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xcbd38467F5811d91a053Cbf63853162c66bF57e6,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](5);
+    
+    proof[0] = bytes32(0xde2ff2d899bd8f494bca7ad549f611f70681290235a86297b1ac151432240a8b);
+    
+    proof[1] = bytes32(0xf38658a36467b41fb9bcabd03a01d1f8727b57caecdeea65d9253cb740f49f78);
+    
+    proof[2] = bytes32(0x5a0e0c98c364741f6ed6defac25dc91173e952df1c9427c9480068e13cc0b802);
+    
+    proof[3] = bytes32(0xb4ea9b80989fc18b7657c91cf333dcf6e8ca37ac755216ea63fc99928941cb68);
+    
+    proof[4] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xdAc807E6B8a4B008643aBC8451339d17C5F06f82,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](5);
+    
+    proof[0] = bytes32(0x0e13c0f81920c13cbf6e1363c8bba69807379cb90dd8c81d6b009aa89defdb10);
+    
+    proof[1] = bytes32(0x682a2c8f714235bca22860f606d86db94df927cdf058933d3985e78719856209);
+    
+    proof[2] = bytes32(0xffc57ca69494e5e32727040d1147739ea8bd5afd0693c43b1f2544dc5a63a68e);
+    
+    proof[3] = bytes32(0xb4ea9b80989fc18b7657c91cf333dcf6e8ca37ac755216ea63fc99928941cb68);
+    
+    proof[4] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xdF7e66d0316F43cf45e74ABa199bbf368BB8EB0b,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xEbaFaCA1aa8D0C93692fE368fFC35Faa977Fd9d9,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](4);
+    
+    proof[0] = bytes32(0x68908b2e5bd4751c6db5f8edc0cc912474026f837525d380d5e0fff2ad9cc953);
+    
+    proof[1] = bytes32(0xffc57ca69494e5e32727040d1147739ea8bd5afd0693c43b1f2544dc5a63a68e);
+    
+    proof[2] = bytes32(0xb4ea9b80989fc18b7657c91cf333dcf6e8ca37ac755216ea63fc99928941cb68);
+    
+    proof[3] = bytes32(0xd3477b360847f396e242886c8c676563dc81c29ba62cc6aa67e57569d066c046);
+    
+    data["test-sweets-86-whitelisted-founder"].entries.push(MerkleEntry({
+      user: 0xcfBf34d385EA2d5Eb947063b67eA226dcDA3DC38,
+      maxMint: 1,
+      mintPrice: 0,
+      proof: proof 
+    }));
+    
+    
   }
 }
