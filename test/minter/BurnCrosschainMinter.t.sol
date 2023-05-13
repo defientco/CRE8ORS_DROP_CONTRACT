@@ -21,6 +21,7 @@ contract BurnCrosschainMinterTest is DSTest {
         payable(address(0x21303));
     address public constant DEFAULT_BUYER = address(0x111);
     uint64 DEFAULT_EDITION_SIZE = type(uint64).max;
+    string public DEFAULT_PASSCODE = "password";
 
     function setUp() public {
         cre8orsNFTBase = new Cre8ors({
@@ -62,7 +63,7 @@ contract BurnCrosschainMinterTest is DSTest {
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
             5,
-            "myPasscode"
+            DEFAULT_PASSCODE
         );
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         minter.initializeWithData(address(cre8orsNFTBase), data);
@@ -73,7 +74,7 @@ contract BurnCrosschainMinterTest is DSTest {
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
             5,
-            "myPasscode"
+            DEFAULT_PASSCODE
         );
         minter.initializeWithData(address(cre8orsNFTBase), data);
     }
@@ -84,7 +85,7 @@ contract BurnCrosschainMinterTest is DSTest {
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
             burnQuantity,
-            "myPasscode"
+            DEFAULT_PASSCODE
         );
         minter.initializeWithData(address(cre8orsNFTBase), data);
         cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
@@ -95,6 +96,11 @@ contract BurnCrosschainMinterTest is DSTest {
         );
         vm.deal(DEFAULT_BUYER, price);
         vm.startPrank(DEFAULT_BUYER);
+        data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            burnQuantity,
+            keccak256(abi.encodePacked(DEFAULT_BUYER, DEFAULT_PASSCODE))
+        );
         minter.purchase{value: price}(address(cre8orsNFTBase), data);
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
     }
@@ -106,7 +112,7 @@ contract BurnCrosschainMinterTest is DSTest {
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
             burnQuantity,
-            "myPasscode"
+            DEFAULT_PASSCODE
         );
         minter.initializeWithData(address(cre8orsNFTBase), data);
         cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
@@ -119,6 +125,11 @@ contract BurnCrosschainMinterTest is DSTest {
         uint256 price = calculateDiscountedPrice(
             address(cre8orsNFTBase),
             burnQuantity
+        );
+        data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            burnQuantity,
+            keccak256(abi.encodePacked(DEFAULT_BUYER, DEFAULT_PASSCODE))
         );
         for (uint256 i = 0; i < editionSize; i++) {
             vm.deal(DEFAULT_BUYER, price);
@@ -167,7 +178,7 @@ contract BurnCrosschainMinterTest is DSTest {
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
             burnQuantity,
-            "myPasscode"
+            DEFAULT_PASSCODE
         );
         uint256 price = calculateDiscountedPrice(
             address(cre8orsNFTBase),
@@ -185,6 +196,11 @@ contract BurnCrosschainMinterTest is DSTest {
             (cre8orsNFTBase.saleDetails().publicSalePrice + price) * editionSize
         );
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+        data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            burnQuantity,
+            keccak256(abi.encodePacked(DEFAULT_BUYER, DEFAULT_PASSCODE))
+        );
         for (uint256 i = 0; i < editionSize / 2; i++) {
             minter.purchase{value: price}(address(cre8orsNFTBase), data);
             cre8orsNFTBase.purchase{value: 0.8 ether}(1);
@@ -218,7 +234,36 @@ contract BurnCrosschainMinterTest is DSTest {
         cre8orsNFTBase.adminMint(address(0x10), 100);
     }
 
-    function test_purchaseWithdraws(uint32 burnQuantity) public {
+    function test_withdraw(uint32 burnQuantity) public {
+        if (burnQuantity > 88) return;
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            burnQuantity,
+            DEFAULT_PASSCODE
+        );
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        vm.stopPrank();
+        uint256 price = calculateDiscountedPrice(
+            address(cre8orsNFTBase),
+            burnQuantity
+        );
+        vm.deal(DEFAULT_BUYER, price);
+        vm.startPrank(DEFAULT_BUYER);
+        assertEq(cre8orsNFTBase.owner().balance, 0);
+        data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            burnQuantity,
+            keccak256(abi.encodePacked(DEFAULT_BUYER, DEFAULT_PASSCODE))
+        );
+        minter.purchase{value: price}(address(cre8orsNFTBase), data);
+        minter.withdraw(address(cre8orsNFTBase));
+        assertEq(cre8orsNFTBase.owner().balance, price);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
+    }
+
+    function test_purchase_revert_WrongCode(uint32 burnQuantity) public {
         if (burnQuantity > 88) return;
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         bytes memory data = abi.encode(
@@ -235,11 +280,11 @@ contract BurnCrosschainMinterTest is DSTest {
         );
         vm.deal(DEFAULT_BUYER, price);
         vm.startPrank(DEFAULT_BUYER);
-        assertEq(cre8orsNFTBase.owner().balance, 0);
+
+        // VERIFY REVERT
+        vm.expectRevert(BurnCrosschainMinter.Code_Incorrect.selector);
         minter.purchase{value: price}(address(cre8orsNFTBase), data);
-        minter.withdraw(address(cre8orsNFTBase));
-        assertEq(cre8orsNFTBase.owner().balance, price);
-        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
     }
 
     function calculateDiscountedPrice(

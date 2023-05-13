@@ -18,6 +18,9 @@ contract BurnCrosschainMinter {
         string secretPasscode;
     }
 
+    /// @notice incorrect code error
+    error Code_Incorrect();
+
     /// @notice Event for a new contract initialized
     /// @dev admin function indexer feedback
     event NewMinterInitialized(address indexed target);
@@ -53,6 +56,7 @@ contract BurnCrosschainMinter {
     /// @notice mint function
     /// @dev This allows the user to purchase an edition
     /// @dev at the given price in the contract.
+    /// @param target target for contract to purchase
     function purchase(
         address target,
         bytes calldata data
@@ -60,9 +64,10 @@ contract BurnCrosschainMinter {
         (
             bytes32 hashedFrom,
             uint256 burnQuantity,
-            string memory encryptedPasscode
-        ) = abi.decode(data, (bytes32, uint256, string));
+            bytes32 encryptedPasscode
+        ) = abi.decode(data, (bytes32, uint256, bytes32));
 
+        verifyCode(target, encryptedPasscode);
         uint256 salePrice = calculateDiscountedPrice(target, burnQuantity);
 
         if (msg.value != salePrice) {
@@ -79,6 +84,9 @@ contract BurnCrosschainMinter {
         return firstMintedTokenId;
     }
 
+    /// @notice calculates discount for relics burned
+    /// @param target target for contract to calculate discount
+    /// @param burnQuantity number of relics to burn
     function calculateDiscountedPrice(
         address target,
         uint256 burnQuantity
@@ -90,6 +98,7 @@ contract BurnCrosschainMinter {
     }
 
     /// @notice This withdraws ETH from the contract to the contract owner.
+    /// @param target target for contract to withdraw
     function withdraw(address target) external {
         // Get fee amount
         uint256 funds = _balances[target];
@@ -101,6 +110,16 @@ contract BurnCrosschainMinter {
         }("");
         if (!successFunds) {
             revert IERC721Drop.Withdraw_FundsSendFailure();
+        }
+    }
+
+    /// @notice verifies code
+    function verifyCode(address target, bytes32 code) internal view {
+        bytes32 wad = keccak256(
+            abi.encodePacked(msg.sender, _contractInfos[target].secretPasscode)
+        );
+        if (code != wad) {
+            revert Code_Incorrect();
         }
     }
 
