@@ -51,20 +51,36 @@ contract BurnCrosschainMinter {
     /// @dev at the given price in the contract.
     function purchase(
         address target,
-        uint256 quantity,
         bytes calldata data
-    ) external returns (uint256) {
+    ) external payable returns (uint256) {
         (
             bytes32 hashedFrom,
             uint256 burnQuantity,
             string memory encryptedPasscode
         ) = abi.decode(data, (bytes32, uint256, string));
+
+        uint256 salePrice = calculateDiscountedPrice(target, burnQuantity);
+
+        if (msg.value != salePrice) {
+            revert IERC721Drop.Purchase_WrongPrice(salePrice);
+        }
+
         uint256 firstMintedTokenId = IERC721Drop(target).adminMint(
             msg.sender,
-            quantity
+            1
         );
 
         return firstMintedTokenId;
+    }
+
+    function calculateDiscountedPrice(
+        address target,
+        uint256 burnQuantity
+    ) internal view returns (uint256) {
+        require(burnQuantity < 89, "CRE8ORS: max burn 88");
+        uint256 price = IERC721Drop(target).saleDetails().publicSalePrice;
+        uint256 discountPerRelic = (price / 88);
+        return price - (discountPerRelic * burnQuantity);
     }
 
     /////////////////////////////////////////////////
