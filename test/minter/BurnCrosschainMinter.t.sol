@@ -79,7 +79,7 @@ contract BurnCrosschainMinterTest is DSTest {
     }
 
     function test_purchase(uint32 burnQuantity) public {
-        if (burnQuantity > 89) return;
+        if (burnQuantity > 88) return;
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
@@ -101,7 +101,7 @@ contract BurnCrosschainMinterTest is DSTest {
 
     function test_purchase800Minter(uint32 burnQuantity) public {
         // SETUP MINTER
-        if (burnQuantity > 89) return;
+        if (burnQuantity > 88) return;
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         bytes memory data = abi.encode(
             keccak256(abi.encodePacked(msg.sender)),
@@ -160,7 +160,7 @@ contract BurnCrosschainMinterTest is DSTest {
     }
 
     function test_purchase400Minter400Payment(uint32 burnQuantity) public {
-        if (burnQuantity > 89) return;
+        if (burnQuantity > 88) return;
 
         // SETUP MINTER
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -222,6 +222,7 @@ contract BurnCrosschainMinterTest is DSTest {
         address target,
         uint256 burnQuantity
     ) internal view returns (uint256) {
+        require(burnQuantity < 89, "CRE8ORS: max burn 88");
         uint256 price = IERC721Drop(target).saleDetails().publicSalePrice;
         uint256 discountPerRelic = (price / 88);
         return price - (discountPerRelic * burnQuantity);
