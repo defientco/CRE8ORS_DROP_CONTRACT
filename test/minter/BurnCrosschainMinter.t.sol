@@ -138,11 +138,43 @@ contract BurnCrosschainMinterTest is DSTest {
             quantity;
         vm.deal(DEFAULT_BUYER, priceToPay);
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
-        (, uint64 editionSize, , ) = cre8orsNFTBase.config();
         cre8orsNFTBase.purchase{value: quantity * 0.8 ether}(quantity);
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 800);
 
         // VERIFY SOLD OUT
+        vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
+        cre8orsNFTBase.purchase(1);
+    }
+
+    function test_purchase400Minter400Payment() public {
+        // SETUP MINTER
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            5,
+            "myPasscode"
+        );
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        vm.stopPrank();
+
+        // PURCHASE 800
+        vm.startPrank(DEFAULT_BUYER);
+        (, uint64 editionSize, , ) = cre8orsNFTBase.config();
+        vm.deal(
+            DEFAULT_BUYER,
+            cre8orsNFTBase.saleDetails().publicSalePrice * editionSize
+        );
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+        for (uint256 i = 0; i < editionSize / 2; i++) {
+            minter.purchase(address(cre8orsNFTBase), 1, data);
+            cre8orsNFTBase.purchase{value: 0.8 ether}(1);
+        }
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 800);
+
+        // VERIFY SOLD OUT
+        vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
+        minter.purchase(address(cre8orsNFTBase), 1, data);
         vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
         cre8orsNFTBase.purchase(1);
     }
