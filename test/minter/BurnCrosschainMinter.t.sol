@@ -34,10 +34,10 @@ contract BurnCrosschainMinterTest is DSTest {
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
                 erc20PaymentToken: address(0),
-                publicSaleEnd: 0,
+                publicSaleEnd: type(uint64).max,
                 presaleStart: 0,
                 presaleEnd: 0,
-                publicSalePrice: 0,
+                publicSalePrice: 0.8 ether,
                 maxSalePurchasePerAddress: 0,
                 presaleMerkleRoot: bytes32(0)
             })
@@ -91,6 +91,60 @@ contract BurnCrosschainMinterTest is DSTest {
         vm.startPrank(DEFAULT_BUYER);
         minter.purchase(address(cre8orsNFTBase), 1, data);
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
+    }
+
+    function test_purchase800Minter() public {
+        // SETUP MINTER
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            5,
+            "myPasscode"
+        );
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        vm.stopPrank();
+
+        // PURCHASE 800
+        vm.startPrank(DEFAULT_BUYER);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+        (, uint64 editionSize, , ) = cre8orsNFTBase.config();
+        for (uint256 i = 0; i < editionSize; i++) {
+            minter.purchase(address(cre8orsNFTBase), 1, data);
+        }
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 800);
+
+        // VERIFY SOLD OUT
+        vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
+        minter.purchase(address(cre8orsNFTBase), 1, data);
+    }
+
+    function test_purchase800() public {
+        // SETUP MINTER
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            5,
+            "myPasscode"
+        );
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        vm.stopPrank();
+
+        // PURCHASE 800
+        vm.startPrank(DEFAULT_BUYER);
+        uint256 quantity = 800;
+        uint256 priceToPay = cre8orsNFTBase.saleDetails().publicSalePrice *
+            quantity;
+        vm.deal(DEFAULT_BUYER, priceToPay);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 0);
+        (, uint64 editionSize, , ) = cre8orsNFTBase.config();
+        cre8orsNFTBase.purchase{value: quantity * 0.8 ether}(quantity);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 800);
+
+        // VERIFY SOLD OUT
+        vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
+        cre8orsNFTBase.purchase(1);
     }
 
     // test admin mint non-admin permissions
