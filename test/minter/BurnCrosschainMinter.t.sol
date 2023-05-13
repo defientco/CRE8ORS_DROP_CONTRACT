@@ -218,6 +218,30 @@ contract BurnCrosschainMinterTest is DSTest {
         cre8orsNFTBase.adminMint(address(0x10), 100);
     }
 
+    function test_purchaseWithdraws(uint32 burnQuantity) public {
+        if (burnQuantity > 88) return;
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        bytes memory data = abi.encode(
+            keccak256(abi.encodePacked(msg.sender)),
+            burnQuantity,
+            "myPasscode"
+        );
+        minter.initializeWithData(address(cre8orsNFTBase), data);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
+        vm.stopPrank();
+        uint256 price = calculateDiscountedPrice(
+            address(cre8orsNFTBase),
+            burnQuantity
+        );
+        vm.deal(DEFAULT_BUYER, price);
+        vm.startPrank(DEFAULT_BUYER);
+        assertEq(cre8orsNFTBase.owner().balance, 0);
+        minter.purchase{value: price}(address(cre8orsNFTBase), data);
+        minter.withdraw(address(cre8orsNFTBase));
+        assertEq(cre8orsNFTBase.owner().balance, price);
+        assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
+    }
+
     function calculateDiscountedPrice(
         address target,
         uint256 burnQuantity

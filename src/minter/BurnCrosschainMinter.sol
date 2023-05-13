@@ -24,6 +24,7 @@ contract BurnCrosschainMinter {
 
     /// @notice Contract information mapping storage
     mapping(address => ContractMintInfo) internal _contractInfos;
+    mapping(address => uint256) internal _balances;
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
@@ -68,6 +69,8 @@ contract BurnCrosschainMinter {
             revert IERC721Drop.Purchase_WrongPrice(salePrice);
         }
 
+        _balances[target] += msg.value;
+
         uint256 firstMintedTokenId = IERC721Drop(target).adminMint(
             msg.sender,
             1
@@ -89,7 +92,7 @@ contract BurnCrosschainMinter {
     /// @notice This withdraws ETH from the contract to the contract owner.
     function withdraw(address target) external {
         // Get fee amount
-        uint256 funds = address(this).balance;
+        uint256 funds = _balances[target];
 
         // Payout recipient
         (bool successFunds, ) = IERC721Drop(target).owner().call{
