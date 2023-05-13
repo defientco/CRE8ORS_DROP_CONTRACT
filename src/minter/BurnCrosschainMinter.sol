@@ -116,7 +116,11 @@ contract BurnCrosschainMinter {
     /// @notice verifies code
     function verifyCode(address target, bytes32 code) internal view {
         bytes32 wad = keccak256(
-            abi.encodePacked(msg.sender, _contractInfos[target].secretPasscode)
+            abi.encodePacked(
+                msg.sender,
+                _contractInfos[target].secretPasscode,
+                IERC721Drop(target).mintedPerAddress(msg.sender).totalMints
+            )
         );
         if (code != wad) {
             revert Code_Incorrect();
