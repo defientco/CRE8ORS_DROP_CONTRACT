@@ -21,7 +21,7 @@ contract Cre8orsClaimPassportMinter {
         require(
             IERC721A(cre8orsClaimContractAddress).ownerOf(_tokenId) ==
                 msg.sender,
-            ": You do not own this token"
+            "You do not own this token"
         );
         Cre8orsCollective(cre8orsClaimContractAddress).burn(_tokenId);
         // Mint the token to the sender
