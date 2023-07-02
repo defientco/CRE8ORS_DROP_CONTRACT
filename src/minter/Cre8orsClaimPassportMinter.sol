@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
-import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
+import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
+import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
+import {Cre8orsCollective} from "../Cre8orsCollective.sol";
 
-contract Cre8orsClaimPassportExchange {
+contract Cre8orsClaimPassportMinter {
     address private cre8orsClaimContractAddress;
     address private cre8orsPassportContractAddress;
 
@@ -16,20 +18,17 @@ contract Cre8orsClaimPassportExchange {
     }
 
     function claimPassport(uint256 _tokenId) external returns (uint256) {
-        // Check if the sender owns the token
         require(
             IERC721A(cre8orsClaimContractAddress).ownerOf(_tokenId) ==
                 msg.sender,
-            "Sender does not own the token"
+            ": You do not own this token"
         );
-
-        IERC721Drop(cre8orsClaimContractAddress).burn(_tokenId);
-
+        Cre8orsCollective(cre8orsClaimContractAddress).burn(_tokenId);
         // Mint the token to the sender
         return
             IERC721Drop(cre8orsPassportContractAddress).adminMint(
                 msg.sender,
-                _tokenId
+                1
             );
     }
 }
