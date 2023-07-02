@@ -73,31 +73,50 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
     }
 
     function test_purchase() public {
-        console.log("Minter address: %s", address(minter));
-        // vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        // cre8orsPassport.grantRole(
-        //     cre8orsPassport.MINTER_ROLE(),
-        //     address(minter)
-        // );
-        // console.log("Minter address: %s", address(minter));
-        // assertEq(
-        //     cre8orsPassport.hasRole(
-        //         cre8orsPassport.MINTER_ROLE(),
-        //         address(minter)
-        //     ),
-        //     true
-        // );
-        // vm.stopPrank();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsPassport.grantRole(
+            cre8orsPassport.MINTER_ROLE(),
+            address(minter)
+        );
+        bool minterHasRole = cre8orsPassport.hasRole(
+            cre8orsPassport.MINTER_ROLE(),
+            address(minter)
+        );
+        assertTrue(minterHasRole, "Minter does not have role");
+        vm.stopPrank();
 
-        // uint256 price = 0.8 ether;
-        // vm.deal(DEFAULT_BUYER, price);
-        // vm.startPrank(DEFAULT_BUYER);
-        // uint256 tokenId = cre8orsNFTBase.purchase{value: price}(1);
-        // vm.stopPrank();
-        // cre8orsNFTBase.approve(address(minter), tokenId);
-        // vm.startPrank(DEFAULT_BUYER);
-        // uint256 passportId = minter.claimPassport(tokenId);
-        // vm.stopPrank();
-        // assertEq(passportId, 1);
+        uint256 price = 0.8 ether;
+        vm.deal(DEFAULT_BUYER, 1 ether);
+        vm.startPrank(DEFAULT_BUYER);
+        uint256 tokenId = cre8orsNFTBase.purchase{value: price}(1);
+        cre8orsNFTBase.approve(address(minter), tokenId + 1);
+        uint256 passportId = minter.claimPassport(tokenId + 1);
+        vm.stopPrank();
+        assertEq(passportId, 1);
+    }
+
+    function test_purchase_Wrong_Owner() public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsPassport.grantRole(
+            cre8orsPassport.MINTER_ROLE(),
+            address(minter)
+        );
+        bool minterHasRole = cre8orsPassport.hasRole(
+            cre8orsPassport.MINTER_ROLE(),
+            address(minter)
+        );
+        assertTrue(minterHasRole, "Minter does not have role");
+        vm.stopPrank();
+
+        uint256 price = 0.8 ether;
+        vm.deal(DEFAULT_BUYER, 1 ether);
+        vm.startPrank(DEFAULT_BUYER);
+        uint256 tokenId = cre8orsNFTBase.purchase{value: price}(1);
+        cre8orsNFTBase.approve(address(minter), tokenId + 1);
+        vm.stopPrank();
+        vm.startPrank(address(0x123456));
+        vm.expectRevert("You do not own this token");
+        minter.claimPassport(tokenId + 1);
+        vm.stopPrank();
     }
 }
