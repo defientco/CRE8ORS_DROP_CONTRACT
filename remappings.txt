@@ -1,7 +1,9 @@
-@ERC721A/=lib/ERC721A/
-@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
-@openzeppelin/contracts=lib/openzeppelin-contracts/contracts/
-erc721a-upgradeable=lib/ERC721A-Upgradeable/contracts/
-base64/=lib/base64/
+ERC721A-Upgradeable/=lib/ERC721A-Upgradeable/contracts/
+ERC721A/=lib/ERC721A/contracts/
 ds-test/=lib/ds-test/src/
+erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/
 forge-std/=lib/forge-std/src/
+openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/
+openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
+@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
