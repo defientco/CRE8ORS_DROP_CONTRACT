@@ -14,6 +14,8 @@ import {Account} from "../src/utils/ERC6551Account.sol";
 import {AccountGuardian} from "../src/utils/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 
+error NotAuthorized();
+
 contract ERC6551Test is DSTest {
     Cre8ors public cre8orsNFTBase;
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -127,6 +129,28 @@ contract ERC6551Test is DSTest {
             address(0x000000000000000000000000000000000000dEaD),
             tokenId + 1
         );
+        Account(tokenBoundAccount).executeCall(
+            address(cre8orsNFTBase),
+            value,
+            data
+        );
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+    }
+
+    function test_sendWithTBA_revert_NotAuthorized() public setupErc6551 {
+        address payable tokenBoundAccount = payable(getTBA(1));
+
+        // MINT REGISTERS WITH ERC6511
+        assertTrue(!isContract(tokenBoundAccount));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.purchase(3);
+        assertTrue(isContract(tokenBoundAccount));
+
+        // TBA used to mint another CRE8OR
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        uint256 value;
+        bytes memory data = abi.encodeWithSignature("purchase(uint256)", 1);
+        vm.expectRevert(NotAuthorized.selector);
         Account(tokenBoundAccount).executeCall(
             address(cre8orsNFTBase),
             value,
