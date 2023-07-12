@@ -17,11 +17,10 @@ import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol"
 contract ERC6551Test is DSTest {
     Cre8ors public cre8orsNFTBase;
     Vm public constant vm = Vm(HEVM_ADDRESS);
-    ERC6551Registry erc6551Registry = new ERC6551Registry();
-    AccountGuardian guardian = new AccountGuardian();
-    EntryPoint entryPoint = new EntryPoint();
-    ERC6551Account erc6551Implementation =
-        new ERC6551Account(address(guardian), address(entryPoint));
+    ERC6551Registry erc6551Registry;
+    AccountGuardian guardian;
+    EntryPoint entryPoint;
+    ERC6551Account erc6551Implementation;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
@@ -40,7 +39,7 @@ contract ERC6551Test is DSTest {
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
                 erc20PaymentToken: address(0),
-                publicSaleEnd: 0,
+                publicSaleEnd: type(uint64).max,
                 presaleStart: 0,
                 presaleEnd: 0,
                 publicSalePrice: 0,
@@ -48,11 +47,55 @@ contract ERC6551Test is DSTest {
                 presaleMerkleRoot: bytes32(0)
             })
         });
+        vm.chainId(1);
+        erc6551Registry = new ERC6551Registry();
+        guardian = new AccountGuardian();
+        entryPoint = new EntryPoint();
+        erc6551Implementation = new ERC6551Account(
+            address(guardian),
+            address(entryPoint)
+        );
     }
 
     function test_Erc6551Registry() public {
-        assertEq("CRE8ORS", cre8orsNFTBase.name());
-        assertEq("CRE8", cre8orsNFTBase.symbol());
-        assertEq(DEFAULT_EDITION_SIZE, cre8orsNFTBase.saleDetails().maxSupply);
+        address tokenBoundAccount = erc6551Registry.account(
+            address(erc6551Implementation),
+            1,
+            address(cre8orsNFTBase),
+            1,
+            0
+        );
+        assertTrue(!isContract(tokenBoundAccount));
+    }
+
+    function test_createAccount() public setupErc6551 {
+        address tokenBoundAccount = erc6551Registry.account(
+            address(erc6551Implementation),
+            1,
+            address(cre8orsNFTBase),
+            1,
+            0
+        );
+
+        // MINT REGISTERS WITH ERC6511
+        assertTrue(!isContract(tokenBoundAccount));
+        cre8orsNFTBase.purchase(1);
+        assertTrue(isContract(tokenBoundAccount));
+    }
+
+    modifier setupErc6551() {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setErc6551Registry(address(erc6551Registry));
+        cre8orsNFTBase.setErc6551Implementation(address(erc6551Implementation));
+        vm.stopPrank();
+        _;
+    }
+
+    function isContract(address _addr) private view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
     }
 }
