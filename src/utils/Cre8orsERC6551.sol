@@ -22,6 +22,9 @@ contract Cre8orsERC6551 {
     /// @dev Initial data for ERC6551 createAccount
     bytes public constant INIT_DATA = "0x8129fc1c";
 
+    /// @notice creates TBA with ERC6551
+    /// @param startTokenId tokenID to start from
+    /// @param quantity number of tokens to createAccount for
     function createTokenBoundAccounts(
         uint256 startTokenId,
         uint256 quantity
