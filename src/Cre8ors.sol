@@ -429,10 +429,12 @@ contract Cre8ors is
         address from,
         address,
         uint256 startTokenId,
-        uint256
+        uint256 quantity
     ) internal override {
         if (erc6551Registry != address(0) && from == address(0)) {
-            createTokenBoundAccount(startTokenId);
+            for (uint256 i = 0; i < quantity; i++) {
+                createTokenBoundAccount(startTokenId + i);
+            }
         }
     }
 

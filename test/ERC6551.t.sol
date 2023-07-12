@@ -93,6 +93,37 @@ contract ERC6551Test is DSTest {
         assertTrue(isContract(tokenBoundAccount));
     }
 
+    function test_createMultipleAccounts() public setupErc6551 {
+        uint256 quantity = 88;
+
+        // No ERC6551 before purchase
+        for (uint256 i = 1; i <= quantity; i++) {
+            address tokenBoundAccount = erc6551Registry.account(
+                address(erc6551Implementation),
+                1,
+                address(cre8orsNFTBase),
+                i,
+                0
+            );
+            assertTrue(!isContract(tokenBoundAccount));
+        }
+
+        // MINT REGISTERS WITH ERC6511
+        cre8orsNFTBase.purchase(quantity);
+
+        // All CRE8ORS have ERC6551 after purchase
+        for (uint256 i = 1; i <= quantity; i++) {
+            address tokenBoundAccount = erc6551Registry.account(
+                address(erc6551Implementation),
+                1,
+                address(cre8orsNFTBase),
+                i,
+                0
+            );
+            assertTrue(isContract(tokenBoundAccount));
+        }
+    }
+
     modifier setupErc6551() {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setErc6551Registry(address(erc6551Registry));
