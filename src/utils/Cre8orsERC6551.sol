@@ -19,15 +19,24 @@ contract Cre8orsERC6551 {
     /// @dev Gas limit to send funds
     address internal erc6551AccountImplementation;
 
-    function createTokenBoundAccount(uint256 tokenId) public {
-        bytes memory initData = "0x8129fc1c";
-        IERC6551Registry(erc6551Registry).createAccount(
-            erc6551AccountImplementation,
-            block.chainid,
-            address(this),
-            tokenId,
-            0,
-            initData
-        );
+    /// @dev Initial data for ERC6551 createAccount
+    bytes public constant INIT_DATA = "0x8129fc1c";
+
+    function createTokenBoundAccounts(
+        uint256 startTokenId,
+        uint256 quantity
+    ) public {
+        IERC6551Registry registry = IERC6551Registry(erc6551Registry);
+        address implementation = erc6551AccountImplementation;
+        for (uint256 i = 0; i < quantity; i++) {
+            registry.createAccount(
+                implementation,
+                block.chainid,
+                address(this),
+                startTokenId + i,
+                0,
+                INIT_DATA
+            );
+        }
     }
 }

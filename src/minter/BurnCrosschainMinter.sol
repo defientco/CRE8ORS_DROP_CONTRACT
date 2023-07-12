@@ -47,8 +47,10 @@ contract BurnCrosschainMinter {
         address target,
         bytes memory data
     ) external onlyAdmin(target) {
-        (bytes32 hashedFrom, uint256 burnQuantity, string memory passcode) = abi
-            .decode(data, (bytes32, uint256, string));
+        (, , string memory passcode) = abi.decode(
+            data,
+            (bytes32, uint256, string)
+        );
         _contractInfos[target] = ContractMintInfo({secretPasscode: passcode});
         emit NewMinterInitialized({target: target});
     }
@@ -61,11 +63,10 @@ contract BurnCrosschainMinter {
         address target,
         bytes calldata data
     ) external payable returns (uint256) {
-        (
-            bytes32 hashedFrom,
-            uint256 burnQuantity,
-            bytes32 encryptedPasscode
-        ) = abi.decode(data, (bytes32, uint256, bytes32));
+        (, uint256 burnQuantity, bytes32 encryptedPasscode) = abi.decode(
+            data,
+            (bytes32, uint256, bytes32)
+        );
 
         verifyCode(target, encryptedPasscode);
         uint256 salePrice = calculateDiscountedPrice(target, burnQuantity);

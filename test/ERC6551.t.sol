@@ -27,6 +27,8 @@ contract ERC6551Test is DSTest {
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
+    address constant DEAD_ADDRESS =
+        address(0x000000000000000000000000000000000000dEaD);
     uint64 DEFAULT_EDITION_SIZE = 8888;
 
     function setUp() public {
@@ -126,7 +128,7 @@ contract ERC6551Test is DSTest {
         data = abi.encodeWithSignature(
             "safeTransferFrom(address,address,uint256)",
             tokenBoundAccount,
-            address(0x000000000000000000000000000000000000dEaD),
+            DEAD_ADDRESS,
             tokenId + 1
         );
         Account(tokenBoundAccount).executeCall(
@@ -157,6 +159,16 @@ contract ERC6551Test is DSTest {
             data
         );
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+    }
+
+    function test_transfer_only() public setupErc6551 {
+        uint256 quantity = 888;
+        address BUYER = address(0x123);
+        vm.startPrank(BUYER);
+        cre8orsNFTBase.purchase(quantity);
+        for (uint256 i = 1; i <= quantity; i++) {
+            cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
+        }
     }
 
     modifier setupErc6551() {

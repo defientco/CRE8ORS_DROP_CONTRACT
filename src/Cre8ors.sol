@@ -431,10 +431,8 @@ contract Cre8ors is
         uint256 startTokenId,
         uint256 quantity
     ) internal override {
-        if (erc6551Registry != address(0) && from == address(0)) {
-            for (uint256 i = 0; i < quantity; i++) {
-                createTokenBoundAccount(startTokenId + i);
-            }
+        if (from == address(0) && erc6551Registry != address(0)) {
+            createTokenBoundAccounts(startTokenId, quantity);
         }
     }
 
