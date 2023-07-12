@@ -25,7 +25,7 @@ contract Cre8orsERC6551 {
     function createTokenBoundAccounts(
         uint256 startTokenId,
         uint256 quantity
-    ) public {
+    ) internal {
         IERC6551Registry registry = IERC6551Registry(erc6551Registry);
         address implementation = erc6551AccountImplementation;
         for (uint256 i = 0; i < quantity; i++) {
