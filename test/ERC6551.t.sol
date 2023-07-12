@@ -68,6 +68,11 @@ contract ERC6551Test is DSTest {
         assertTrue(!isContract(tokenBoundAccount));
     }
 
+    function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
+        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        cre8orsNFTBase.setErc6551Registry(address(erc6551Registry));
+    }
+
     function test_createAccount() public setupErc6551 {
         address tokenBoundAccount = erc6551Registry.account(
             address(erc6551Implementation),
