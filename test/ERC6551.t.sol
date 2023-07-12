@@ -10,7 +10,7 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {ERC6551Registry} from "../src/utils/ERC6551Registry.sol";
-import {Account as ERC6551Account} from "../src/utils/ERC6551Account.sol";
+import {Account} from "../src/utils/ERC6551Account.sol";
 import {AccountGuardian} from "../src/utils/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 
@@ -20,7 +20,7 @@ contract ERC6551Test is DSTest {
     ERC6551Registry erc6551Registry;
     AccountGuardian guardian;
     EntryPoint entryPoint;
-    ERC6551Account erc6551Implementation;
+    Account erc6551Implementation;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
@@ -51,20 +51,14 @@ contract ERC6551Test is DSTest {
         erc6551Registry = new ERC6551Registry();
         guardian = new AccountGuardian();
         entryPoint = new EntryPoint();
-        erc6551Implementation = new ERC6551Account(
+        erc6551Implementation = new Account(
             address(guardian),
             address(entryPoint)
         );
     }
 
     function test_Erc6551Registry() public {
-        address tokenBoundAccount = erc6551Registry.account(
-            address(erc6551Implementation),
-            1,
-            address(cre8orsNFTBase),
-            1,
-            0
-        );
+        address tokenBoundAccount = getTBA(1);
         assertTrue(!isContract(tokenBoundAccount));
     }
 
@@ -79,13 +73,7 @@ contract ERC6551Test is DSTest {
     }
 
     function test_createAccount() public setupErc6551 {
-        address tokenBoundAccount = erc6551Registry.account(
-            address(erc6551Implementation),
-            1,
-            address(cre8orsNFTBase),
-            1,
-            0
-        );
+        address tokenBoundAccount = getTBA(1);
 
         // MINT REGISTERS WITH ERC6511
         assertTrue(!isContract(tokenBoundAccount));
@@ -98,13 +86,7 @@ contract ERC6551Test is DSTest {
 
         // No ERC6551 before purchase
         for (uint256 i = 1; i <= quantity; i++) {
-            address tokenBoundAccount = erc6551Registry.account(
-                address(erc6551Implementation),
-                1,
-                address(cre8orsNFTBase),
-                i,
-                0
-            );
+            address tokenBoundAccount = getTBA(i);
             assertTrue(!isContract(tokenBoundAccount));
         }
 
@@ -113,15 +95,44 @@ contract ERC6551Test is DSTest {
 
         // All CRE8ORS have ERC6551 after purchase
         for (uint256 i = 1; i <= quantity; i++) {
-            address tokenBoundAccount = erc6551Registry.account(
-                address(erc6551Implementation),
-                1,
-                address(cre8orsNFTBase),
-                i,
-                0
-            );
+            address tokenBoundAccount = getTBA(i);
             assertTrue(isContract(tokenBoundAccount));
         }
+    }
+
+    function test_sendWithTBA() public setupErc6551 {
+        address payable tokenBoundAccount = payable(getTBA(1));
+
+        // MINT REGISTERS WITH ERC6511
+        assertTrue(!isContract(tokenBoundAccount));
+        cre8orsNFTBase.purchase(3);
+        assertTrue(isContract(tokenBoundAccount));
+
+        // TBA used to mint another CRE8OR
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        uint256 value;
+        bytes memory data = abi.encodeWithSignature("purchase(uint256)", 1);
+        bytes memory response = Account(tokenBoundAccount).executeCall(
+            address(cre8orsNFTBase),
+            value,
+            data
+        );
+        uint256 tokenId = abi.decode(response, (uint256));
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 1);
+
+        // use TBA to burn CRE8OR
+        data = abi.encodeWithSignature(
+            "safeTransferFrom(address,address,uint256)",
+            tokenBoundAccount,
+            address(0x000000000000000000000000000000000000dEaD),
+            tokenId + 1
+        );
+        Account(tokenBoundAccount).executeCall(
+            address(cre8orsNFTBase),
+            value,
+            data
+        );
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
     }
 
     modifier setupErc6551() {
@@ -138,5 +149,18 @@ contract ERC6551Test is DSTest {
             size := extcodesize(_addr)
         }
         return (size > 0);
+    }
+
+    function getTBA(uint256 tokenId) private view returns (address) {
+        address payable tokenBoundAccount = payable(
+            erc6551Registry.account(
+                address(erc6551Implementation),
+                1,
+                address(cre8orsNFTBase),
+                tokenId,
+                0
+            )
+        );
+        return tokenBoundAccount;
     }
 }
