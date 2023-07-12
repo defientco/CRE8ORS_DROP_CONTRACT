@@ -73,6 +73,11 @@ contract ERC6551Test is DSTest {
         cre8orsNFTBase.setErc6551Registry(address(erc6551Registry));
     }
 
+    function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
+        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        cre8orsNFTBase.setErc6551Implementation(address(erc6551Implementation));
+    }
+
     function test_createAccount() public setupErc6551 {
         address tokenBoundAccount = erc6551Registry.account(
             address(erc6551Implementation),
