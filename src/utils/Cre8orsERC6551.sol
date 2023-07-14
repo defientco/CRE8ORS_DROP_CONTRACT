@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {IERC6551Registry} from "../interfaces/IERC6551Registry.sol";
+import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗

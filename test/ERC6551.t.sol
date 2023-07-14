@@ -9,9 +9,9 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
-import {ERC6551Registry} from "../src/utils/ERC6551Registry.sol";
-import {Account} from "../src/utils/ERC6551Account.sol";
-import {AccountGuardian} from "../src/utils/AccountGuardian.sol";
+import {ERC6551Registry} from "lib/ERC6551/src/ERC6551Registry.sol";
+import {Account} from "lib/tokenbound/src/Account.sol";
+import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 
 error NotAuthorized();

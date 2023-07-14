@@ -3,8 +3,7 @@ pragma solidity ^0.8.15;
 
 import {IMetadataRenderer} from "../interfaces/IMetadataRenderer.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
-import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC721MetadataUpgradeable.sol";
-import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
+import {IERC721Metadata} from "lib/openzeppelin-contracts/contracts/interfaces/IERC721Metadata.sol";
 import {NFTMetadataRenderer} from "../utils/NFTMetadataRenderer.sol";
 import {MetadataRenderAdminCheck} from "./MetadataRenderAdminCheck.sol";
 
@@ -146,7 +145,7 @@ contract Cre8orsMetadataRenderer is
 
         return
             NFTMetadataRenderer.encodeContractURIJSON({
-                name: IERC721MetadataUpgradeable(target).name(),
+                name: IERC721Metadata(target).name(),
                 description: editionInfo.description,
                 imageURI: editionInfo.imageURI,
                 royaltyBPS: uint256(config.royaltyBPS),
@@ -175,7 +174,7 @@ contract Cre8orsMetadataRenderer is
 
         return
             NFTMetadataRenderer.createMetadataEdition({
-                name: IERC721MetadataUpgradeable(target).name(),
+                name: IERC721Metadata(target).name(),
                 description: info.description,
                 imageUrl: info.imageURI,
                 animationUrl: info.animationURI,
