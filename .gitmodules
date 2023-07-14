@@ -10,6 +10,6 @@
 [submodule "lib/account-abstraction"]
 	path = lib/account-abstraction
 	url = https://github.com/eth-infinitism/account-abstraction
-[submodule "lib/reference"]
-	path = lib/reference
+[submodule "lib/ERC6551"]
+	path = lib/ERC6551
 	url = https://github.com/erc6551/reference
