@@ -21,8 +21,8 @@ contract Cre8orRewards1155 is
     ERC1155PresetMinterPauser,
     Ownable
 {
-    constructor(string memory uri) ERC1155PresetMinterPauser(uri) Ownable() {
-        _setURI(1, uri);
+    constructor(string memory _uri) ERC1155PresetMinterPauser(_uri) Ownable() {
+        _setURI(1, _uri);
     }
 
     /// @notice admin function to airdrop to an array of addresses
@@ -36,14 +36,14 @@ contract Cre8orRewards1155 is
 
     /// @notice admin function to update tokenURI for a given token
     /// @param id token ID
-    /// @param uri token URI
-    function setTokenURI(uint256 id, string memory uri) public {
+    /// @param _uri token URI
+    function setTokenURI(uint256 id, string memory _uri) public {
         require(
             hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
             "ERC1155PresetMinterPauser: must have admin role to change URI"
         );
 
-        _setURI(id, uri);
+        _setURI(id, _uri);
     }
 
     /// @dev See {IERC1155MetadataURI-uri}.

@@ -13,6 +13,7 @@ import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8ing} from "./Cre8ing.sol";
+import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -30,7 +31,8 @@ contract Cre8ors is
     ReentrancyGuard,
     IERC721Drop,
     OwnableSkeleton,
-    ERC721DropStorageV1
+    ERC721DropStorageV1,
+    Cre8orsERC6551
 {
     /// @dev This is the max mint batch size for the optimized ERC721A mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
@@ -72,7 +74,9 @@ contract Cre8ors is
     /// @notice mint function
     /// @dev This allows the user to purchase an edition
     /// @dev at the given price in the contract.
-    function purchase(uint256 quantity)
+    function purchase(
+        uint256 quantity
+    )
         external
         payable
         nonReentrant
@@ -166,7 +170,10 @@ contract Cre8ors is
     /// @notice Mint admin
     /// @param recipient recipient to mint to
     /// @param quantity quantity to mint
-    function adminMint(address recipient, uint256 quantity)
+    function adminMint(
+        address recipient,
+        uint256 quantity
+    )
         external
         onlyRoleOrAdmin(MINTER_ROLE)
         canMintTokens(quantity)
@@ -179,7 +186,9 @@ contract Cre8ors is
 
     /// @dev This mints multiple editions to the given list of addresses.
     /// @param recipients list of addresses to send the newly minted editions to
-    function adminMintAirdrop(address[] calldata recipients)
+    function adminMintAirdrop(
+        address[] calldata recipients
+    )
         external
         override
         onlyRoleOrAdmin(MINTER_ROLE)
@@ -203,12 +212,10 @@ contract Cre8ors is
 
     /// @dev Get royalty information for token
     /// @param _salePrice Sale price for the token
-    function royaltyInfo(uint256, uint256 _salePrice)
-        external
-        view
-        override
-        returns (address receiver, uint256 royaltyAmount)
-    {
+    function royaltyInfo(
+        uint256,
+        uint256 _salePrice
+    ) external view override returns (address receiver, uint256 royaltyAmount) {
         if (config.fundsRecipient == address(0)) {
             return (config.fundsRecipient, 0);
         }
@@ -265,12 +272,9 @@ contract Cre8ors is
 
     /// @dev Number of NFTs the user has minted per address
     /// @param minter to get counts for
-    function mintedPerAddress(address minter)
-        external
-        view
-        override
-        returns (IERC721Drop.AddressMintDetails memory)
-    {
+    function mintedPerAddress(
+        address minter
+    ) external view override returns (IERC721Drop.AddressMintDetails memory) {
         return
             IERC721Drop.AddressMintDetails({
                 presaleMints: presaleMintsByAddress[minter],
@@ -292,10 +296,9 @@ contract Cre8ors is
 
     /// @notice Set a different funds recipient
     /// @param newRecipientAddress new funds recipient address
-    function setFundsRecipient(address payable newRecipientAddress)
-        external
-        onlyRoleOrAdmin(SALES_MANAGER_ROLE)
-    {
+    function setFundsRecipient(
+        address payable newRecipientAddress
+    ) external onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         // TODO(iain): funds recipient cannot be 0?
         config.fundsRecipient = newRecipientAddress;
         emit FundsRecipientChanged(newRecipientAddress, _msgSender());
@@ -385,10 +388,9 @@ contract Cre8ors is
     }
 
     /// @notice Changes the CRE8OR's cre8ing status.
-    function toggleCre8ing(uint256 tokenId)
-        internal
-        onlyApprovedOrOwner(tokenId)
-    {
+    function toggleCre8ing(
+        uint256 tokenId
+    ) internal onlyApprovedOrOwner(tokenId) {
         uint256 start = cre8ingStarted[tokenId];
         if (start == 0) {
             if (!cre8ingOpen) {
@@ -416,6 +418,36 @@ contract Cre8ors is
         cre8ingTransfer = 2;
         safeTransferFrom(from, to, tokenId);
         cre8ingTransfer = 1;
+    }
+
+    /////////////////////////////////////////////////
+    /// ERC6551 - token bound accounts
+    /////////////////////////////////////////////////
+
+    /// @dev Register ERC6551 token bound account onMint.
+    function _afterTokenTransfers(
+        address from,
+        address,
+        uint256 startTokenId,
+        uint256 quantity
+    ) internal override {
+        if (from == address(0) && erc6551Registry != address(0)) {
+            createTokenBoundAccounts(startTokenId, quantity);
+        }
+    }
+
+    /// @notice Set ERC6551 registry
+    /// @param _registry ERC6551 registry
+    function setErc6551Registry(address _registry) public onlyAdmin {
+        erc6551Registry = _registry;
+    }
+
+    /// @notice Set ERC6551 account implementation
+    /// @param _implementation ERC6551 account implementation
+    function setErc6551Implementation(
+        address _implementation
+    ) public onlyAdmin {
+        erc6551AccountImplementation = _implementation;
     }
 
     /////////////////////////////////////////////////
@@ -531,12 +563,9 @@ contract Cre8ors is
 
     /// @notice ERC165 supports interface
     /// @param interfaceId interface id to check if supported
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(IERC165, ERC721A, AccessControl)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(IERC165, ERC721A, AccessControl) returns (bool) {
         return
             super.supportsInterface(interfaceId) ||
             type(IOwnable).interfaceId == interfaceId ||
@@ -563,12 +592,9 @@ contract Cre8ors is
     /// @notice Token URI Getter, proxies to metadataRenderer
     /// @param tokenId id of token to get URI for
     /// @return Token URI
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
         if (!_exists(tokenId)) {
             revert IERC721A.URIQueryForNonexistentToken();
         }

@@ -499,13 +499,16 @@ contract Cre8orsCollectiveTest is DSTest {
         vm.stopPrank();
 
         // COLLECTORS PASS MINT
+        address relicCollector;
+        uint256 relicToBurn;
+        uint256[] memory tokensToBurn;
         for (uint256 i = 89; i <= 888; i++) {
-            address relicCollector = address(uint160(i + 700));
+            relicCollector = address(uint160(i + 700));
             vm.prank(DEFAULT_OWNER_ADDRESS);
-            uint256 relicToBurn = burnerNft.adminMint(relicCollector, 1);
+            relicToBurn = burnerNft.adminMint(relicCollector, 1);
             assertEq(burnerNft.balanceOf(relicCollector), 1);
             vm.startPrank(relicCollector);
-            uint256[] memory tokensToBurn = new uint256[](1);
+            tokensToBurn = new uint256[](1);
             tokensToBurn[0] = relicToBurn;
             burnerNft.setApprovalForAll(address(burn721Minter), true);
             burn721Minter.purchase(address(cre8orsNFTBase), 1, tokensToBurn);
@@ -518,12 +521,12 @@ contract Cre8orsCollectiveTest is DSTest {
 
         // VERIFY NO MORE MINTS
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 888);
-        address relicCollector = address(0x7777777);
+        relicCollector = address(0x7777777);
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        uint256 relicToBurn = burnerNft.adminMint(relicCollector, 1);
+        relicToBurn = burnerNft.adminMint(relicCollector, 1);
         assertEq(burnerNft.balanceOf(relicCollector), 1);
         vm.startPrank(relicCollector);
-        uint256[] memory tokensToBurn = new uint256[](1);
+        tokensToBurn = new uint256[](1);
         tokensToBurn[0] = relicToBurn;
         burnerNft.setApprovalForAll(address(burn721Minter), true);
         vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
