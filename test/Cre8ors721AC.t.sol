@@ -19,6 +19,7 @@ contract Cre8ors721ACTest is DSTest {
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;
+    uint16 DEFAULT_ROYALTY_BPS = 888;
 
     function setUp() public {
         cre8orsNFTBase = new Cre8ors({
@@ -27,7 +28,7 @@ contract Cre8ors721ACTest is DSTest {
             _initialOwner: DEFAULT_OWNER_ADDRESS,
             _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
             _editionSize: DEFAULT_EDITION_SIZE,
-            _royaltyBPS: 808,
+            _royaltyBPS: DEFAULT_ROYALTY_BPS,
             _metadataRenderer: dummyRenderer,
             _salesConfig: IERC721Drop.SalesConfiguration({
                 publicSaleStart: 0,
@@ -64,5 +65,15 @@ contract Cre8ors721ACTest is DSTest {
         assertTrue(
             cre8orsNFTBase.supportsInterface(type(IERC721Drop).interfaceId)
         );
+    }
+
+    function test_royaltyInfo() public {
+        uint256 royaltyAmount = 1000;
+        (address receiver, uint256 amount) = cre8orsNFTBase.royaltyInfo(
+            1,
+            royaltyAmount
+        );
+        assertEq(amount, (royaltyAmount * DEFAULT_ROYALTY_BPS) / 10_000);
+        assertEq(receiver, DEFAULT_FUNDS_RECIPIENT_ADDRESS);
     }
 }
