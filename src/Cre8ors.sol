@@ -210,7 +210,7 @@ contract Cre8ors is
         return _lastMintedTokenId();
     }
 
-    /// @dev Get royalty information for token
+    /// @dev ERC2981 - Get royalty information for token
     /// @param _salePrice Sale price for the token
     function royaltyInfo(
         uint256,
@@ -424,16 +424,24 @@ contract Cre8ors is
     /// ERC6551 - token bound accounts
     /////////////////////////////////////////////////
 
+    function _postValidateMint(
+        address caller,
+        address to,
+        uint256 tokenId,
+        uint256 value
+    ) internal override {}
+
     /// @dev Register ERC6551 token bound account onMint.
     function _afterTokenTransfers(
         address from,
-        address,
+        address to,
         uint256 startTokenId,
         uint256 quantity
     ) internal override {
         if (from == address(0) && erc6551Registry != address(0)) {
             createTokenBoundAccounts(startTokenId, quantity);
         }
+        ERC721AC._afterTokenTransfers(from, to, startTokenId, quantity);
     }
 
     /// @notice Set ERC6551 registry
@@ -453,8 +461,12 @@ contract Cre8ors is
     /////////////////////////////////////////////////
     /// ERC721C - cre8or royalties
     /////////////////////////////////////////////////
+
+    /// @notice ERC721C required override
     function _requireCallerIsContractOwner() internal view override {
-        // TODO: should we add more OWNER logic here?
+        if (msg.sender != owner()) {
+            revert Access_OnlyAdmin();
+        }
     }
 
     /////////////////////////////////////////////////
@@ -482,17 +494,18 @@ contract Cre8ors is
 
     /// @dev Block transfers while cre8ing.
     function _beforeTokenTransfers(
-        address,
-        address,
+        address from,
+        address to,
         uint256 startTokenId,
         uint256 quantity
-    ) internal view override {
+    ) internal override {
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
                 revert Cre8ing_Cre8ing();
             }
         }
+        ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
     }
 
     /// @notice array of staked tokenIDs
