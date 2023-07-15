@@ -1,5 +1,6 @@
 ERC721A-Upgradeable/=lib/ERC721A-Upgradeable/contracts/
 ERC721A/=lib/ERC721A/contracts/
+erc721a/=lib/ERC721A/
 ds-test/=lib/forge-std/lib/ds-test/src/
 erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/
 forge-std/=lib/forge-std/src/

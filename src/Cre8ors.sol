@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {ERC721A} from "lib/ERC721A/contracts/ERC721A.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
+import {ERC721AC} from "lib/creator-token-contracts/contracts/erc721c/ERC721AC.sol";
 import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
@@ -25,7 +26,7 @@ import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
  */
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8ors is
-    ERC721A,
+    ERC721AC,
     Cre8ing,
     IERC2981,
     ReentrancyGuard,
@@ -34,7 +35,7 @@ contract Cre8ors is
     ERC721DropStorageV1,
     Cre8orsERC6551
 {
-    /// @dev This is the max mint batch size for the optimized ERC721A mint contract
+    /// @dev This is the max mint batch size for the optimized ERC721AC mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
 
     /// @dev Gas limit to send funds
@@ -50,7 +51,7 @@ contract Cre8ors is
         SalesConfiguration memory _salesConfig,
         IMetadataRenderer _metadataRenderer
     )
-        ERC721A(_contractName, _contractSymbol)
+        ERC721AC(_contractName, _contractSymbol)
         ReentrancyGuard()
         Cre8ing(_initialOwner)
     {
@@ -227,7 +228,7 @@ contract Cre8ors is
 
     /// @notice Function to mint NFTs
     /// @dev (important: Does not enforce max supply limit, enforce that limit earlier)
-    /// @dev This batches in size of 8 as per recommended by ERC721A creators
+    /// @dev This batches in size of 8 as per recommended by ERC721AC creators
     /// @param to address to mint NFTs to
     /// @param quantity number of NFTs to mint
     function _mintNFTs(address to, uint256 quantity) internal {
@@ -451,6 +452,13 @@ contract Cre8ors is
     }
 
     /////////////////////////////////////////////////
+    /// ERC721C - cre8or royalties
+    /////////////////////////////////////////////////
+    function _requireCallerIsContractOwner() internal view override {
+        // TODO: should we add more OWNER logic here?
+    }
+
+    /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
     /////////////////////////////////////////////////
 
@@ -565,7 +573,7 @@ contract Cre8ors is
     /// @param interfaceId interface id to check if supported
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(IERC165, ERC721A, AccessControl) returns (bool) {
+    ) public view override(IERC165, ERC721AC, AccessControl) returns (bool) {
         return
             super.supportsInterface(interfaceId) ||
             type(IOwnable).interfaceId == interfaceId ||
