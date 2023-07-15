@@ -424,13 +424,6 @@ contract Cre8ors is
     /// ERC6551 - token bound accounts
     /////////////////////////////////////////////////
 
-    function _postValidateMint(
-        address caller,
-        address to,
-        uint256 tokenId,
-        uint256 value
-    ) internal override {}
-
     /// @dev Register ERC6551 token bound account onMint.
     function _afterTokenTransfers(
         address from,
