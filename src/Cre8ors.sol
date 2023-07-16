@@ -405,7 +405,7 @@ contract Cre8ors is
         }
     }
 
-    /// @notice Transfer a token between addresses while the CRE8OR is minting,
+    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
     ///     thus not resetting the cre8ing period.
     function safeTransferWhileCre8ing(
         address from,
