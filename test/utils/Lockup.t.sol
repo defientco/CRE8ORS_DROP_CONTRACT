@@ -35,15 +35,11 @@ contract LockupTest is DSTest, Cre8orTestBase {
         assertEq(address(cre8orsNFTBase.lockup()), address(0));
     }
 
-    function test_setUnlockDate() public {
+    function test_setUnlockDate(uint64 unlockDate) public {
         assertEq(lockup.unlockDate(address(cre8orsNFTBase), 1), 0);
         vm.prank(DEFAULT_OWNER_ADDRESS);
-
-        lockup.setUnlockDate(address(cre8orsNFTBase), 1, type(uint64).max);
-        assertEq(
-            lockup.unlockDate(address(cre8orsNFTBase), 1),
-            type(uint64).max
-        );
+        lockup.setUnlockDate(address(cre8orsNFTBase), 1, unlockDate);
+        assertEq(lockup.unlockDate(address(cre8orsNFTBase), 1), unlockDate);
     }
 
     function test_setUnlockDate_revert_Access_OnlyAdmin() public {
@@ -53,22 +49,17 @@ contract LockupTest is DSTest, Cre8orTestBase {
         assertEq(lockup.unlockDate(address(cre8orsNFTBase), 1), 0);
     }
 
-    function test_isLocked(uint256 tokenId) public {
+    function test_isLocked(uint256 tokenId, uint64 unlockDate) public {
         assertTrue(!lockup.isLocked(address(cre8orsNFTBase), tokenId));
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockDate(
-            address(cre8orsNFTBase),
-            tokenId,
-            type(uint64).max
-        );
-        assertTrue(lockup.isLocked(address(cre8orsNFTBase), tokenId));
-    }
-
-    function test_isUnlocked(uint256 tokenId) public {
-        assertTrue(!lockup.isLocked(address(cre8orsNFTBase), tokenId));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        uint64 unlockDate = uint64(block.timestamp) - 1;
         lockup.setUnlockDate(address(cre8orsNFTBase), tokenId, unlockDate);
-        assertTrue(!lockup.isLocked(address(cre8orsNFTBase), tokenId));
+        bool expectLocked = block.timestamp <
+            lockup.unlockDate(address(cre8orsNFTBase), tokenId);
+
+        assertTrue(
+            expectLocked
+                ? lockup.isLocked(address(cre8orsNFTBase), tokenId)
+                : !lockup.isLocked(address(cre8orsNFTBase), tokenId)
+        );
     }
 }

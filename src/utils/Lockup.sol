@@ -33,7 +33,7 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
         address _target,
         uint256 _tokenId
     ) external view returns (bool) {
-        return unlockDate(_target, _tokenId) > block.timestamp;
+        return block.timestamp < unlockDate(_target, _tokenId);
     }
 
     /// @notice sets unlock date for token
