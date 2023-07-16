@@ -34,4 +34,41 @@ contract LockupTest is DSTest, Cre8orTestBase {
         cre8orsNFTBase.setLockup(lockup);
         assertEq(address(cre8orsNFTBase.lockup()), address(0));
     }
+
+    function test_setUnlockDate() public {
+        assertEq(lockup.unlockDate(address(cre8orsNFTBase), 1), 0);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+
+        lockup.setUnlockDate(address(cre8orsNFTBase), 1, type(uint64).max);
+        assertEq(
+            lockup.unlockDate(address(cre8orsNFTBase), 1),
+            type(uint64).max
+        );
+    }
+
+    function test_setUnlockDate_revert_Access_OnlyAdmin() public {
+        assertEq(lockup.unlockDate(address(cre8orsNFTBase), 1), 0);
+        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        lockup.setUnlockDate(address(cre8orsNFTBase), 1, type(uint64).max);
+        assertEq(lockup.unlockDate(address(cre8orsNFTBase), 1), 0);
+    }
+
+    function test_isLocked(uint256 tokenId) public {
+        assertTrue(!lockup.isLocked(address(cre8orsNFTBase), tokenId));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        lockup.setUnlockDate(
+            address(cre8orsNFTBase),
+            tokenId,
+            type(uint64).max
+        );
+        assertTrue(lockup.isLocked(address(cre8orsNFTBase), tokenId));
+    }
+
+    function test_isUnlocked(uint256 tokenId) public {
+        assertTrue(!lockup.isLocked(address(cre8orsNFTBase), tokenId));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        uint64 unlockDate = uint64(block.timestamp) - 1;
+        lockup.setUnlockDate(address(cre8orsNFTBase), tokenId, unlockDate);
+        assertTrue(!lockup.isLocked(address(cre8orsNFTBase), tokenId));
+    }
 }
