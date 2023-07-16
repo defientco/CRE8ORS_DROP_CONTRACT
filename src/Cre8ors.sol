@@ -9,6 +9,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
+import {ILockup} from "./interfaces/ILockup.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
@@ -39,6 +40,9 @@ contract Cre8ors is
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
+
+    /// @dev Lockup Contract
+    ILockup public lockup;
 
     constructor(
         string memory _contractName,
@@ -345,6 +349,12 @@ contract Cre8ors is
             sender: msg.sender,
             renderer: newRenderer
         });
+    }
+
+    /// @notice Set a new lockup contract
+    /// @param newLockup new lockup address to use
+    function setLockup(ILockup newLockup) external onlyAdmin {
+        lockup = newLockup;
     }
 
     /// @notice This withdraws ETH from the contract to the contract owner.
