@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
+import {ILockup} from "../../src/interfaces/ILockup.sol";
 import {Cre8orTestBase} from "./Cre8orTestBase.sol";
 import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 
@@ -67,19 +68,23 @@ contract LockupTest is DSTest, Cre8orTestBase {
         _cre8ingSetup();
     }
 
-    function test_toggleCre8ing_revert_Lockup() public {
+    function test_toggleCre8ing_revert_Lockup_Locked(uint64 unlockDate) public {
+        vm.assume(unlockDate > block.timestamp);
+
         // Start cre8ing
         _cre8ingSetup();
 
         // Lock Cre8ing Tokens
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockDate(address(cre8orsNFTBase), 1, type(uint64).max);
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        lockup.setUnlockDate(address(cre8orsNFTBase), 1, unlockDate);
+        cre8orsNFTBase.setLockup(lockup);
         assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
+        vm.stopPrank();
 
         // Revert uncre8
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = 1;
-        vm.expectRevert();
+        vm.expectRevert(ILockup.Lockup_Locked.selector);
         cre8orsNFTBase.toggleCre8ing(tokenIds);
     }
 
