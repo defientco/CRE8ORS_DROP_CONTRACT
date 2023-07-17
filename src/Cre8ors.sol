@@ -398,6 +398,7 @@ contract Cre8ors is
     }
 
     /// @notice Changes the CRE8OR's cre8ing status.
+    /// @param tokenId token to toggle cre8ing status
     function toggleCre8ing(
         uint256 tokenId
     ) internal onlyApprovedOrOwner(tokenId) {
@@ -426,6 +427,15 @@ contract Cre8ors is
 
     /// @dev validation hook that fires before an exit from cre8ing
     function _beforeCre8ingExit(uint256 tokenId) internal override {
+        _requireUnlocked(tokenId);
+    }
+
+    /////////////////////////////////////////////////
+    /// Lockup
+    /////////////////////////////////////////////////
+
+    /// @notice Lockup unlocked verification
+    function _requireUnlocked(uint256 tokenId) internal {
         if (
             address(lockup) != address(0) &&
             lockup.isLocked(address(this), tokenId)
