@@ -424,6 +424,13 @@ contract Cre8ors is
         cre8ingTransfer = 1;
     }
 
+    /// @dev Optional validation hook that fires before an exit from cre8ing
+    function _beforeCre8ingExit(uint256 tokenId) internal override {
+        if (lockup.isLocked(address(this), tokenId)) {
+            revert ILockup.Lockup_Locked();
+        }
+    }
+
     /////////////////////////////////////////////////
     /// ERC6551 - token bound accounts
     /////////////////////////////////////////////////
