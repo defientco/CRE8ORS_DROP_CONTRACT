@@ -355,12 +355,6 @@ contract Cre8ors is
         });
     }
 
-    /// @notice Set a new lockup contract
-    /// @param newLockup new lockup address to use
-    function setLockup(ILockup newLockup) external onlyAdmin {
-        lockup = newLockup;
-    }
-
     /// @notice This withdraws ETH from the contract to the contract owner.
     function withdraw() external nonReentrant {
         address sender = _msgSender();
@@ -437,6 +431,18 @@ contract Cre8ors is
     /////////////////////////////////////////////////
     /// Lockup
     /////////////////////////////////////////////////
+
+    /// @notice Set a new lockup contract
+    /// @param newLockup new lockup address to use
+    function setLockup(ILockup newLockup) external onlyAdmin {
+        lockup = newLockup;
+    }
+
+    /// @notice Set a new pay to unlock contract
+    /// @param newPayToUnlock new pay to unlock to use
+    function setPayToUnlock(IPayToUnlock newPayToUnlock) external onlyAdmin {
+        payToUnlock = newPayToUnlock;
+    }
 
     /// @notice Lockup unlocked verification
     function _requireUnlocked(uint256 tokenId) internal {
