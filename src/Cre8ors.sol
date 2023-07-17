@@ -10,6 +10,7 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
+import {IPayToUnlock} from "./interfaces/IPayToUnlock.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
@@ -43,6 +44,9 @@ contract Cre8ors is
 
     /// @dev Lockup Contract
     ILockup public lockup;
+
+    /// @dev PayToUnlock Contract
+    IPayToUnlock public payToUnlock;
 
     constructor(
         string memory _contractName,
