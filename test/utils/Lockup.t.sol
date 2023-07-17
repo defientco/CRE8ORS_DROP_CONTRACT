@@ -62,4 +62,45 @@ contract LockupTest is DSTest, Cre8orTestBase {
                 : !lockup.isLocked(address(cre8orsNFTBase), tokenId)
         );
     }
+
+    function test_toggleCre8ing() public {
+        _cre8ingSetup();
+    }
+
+    function test_toggleCre8ing_revert_Lockup() public {
+        // Start cre8ing
+        _cre8ingSetup();
+
+        // Lock Cre8ing Tokens
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        lockup.setUnlockDate(address(cre8orsNFTBase), 1, type(uint64).max);
+        assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
+
+        // Revert uncre8
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = 1;
+        vm.expectRevert();
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+    }
+
+    function _cre8ingSetup() internal {
+        uint256 _tokenId = 1;
+        (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
+            .cre8ingPeriod(_tokenId);
+        assertTrue(!cre8ing);
+        assertEq(current, 0);
+        assertEq(total, 0);
+        cre8orsNFTBase.purchase(1);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ingOpen(true);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        (cre8ing, current, total) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        assertTrue(cre8ing);
+        assertEq(current, 0);
+        assertEq(total, 0);
+    }
 }

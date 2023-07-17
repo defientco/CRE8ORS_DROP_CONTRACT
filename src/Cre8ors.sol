@@ -403,15 +403,9 @@ contract Cre8ors is
     ) internal onlyApprovedOrOwner(tokenId) {
         uint256 start = cre8ingStarted[tokenId];
         if (start == 0) {
-            if (!cre8ingOpen) {
-                revert Cre8ing_Cre8ingClosed();
-            }
-            cre8ingStarted[tokenId] = block.timestamp;
-            emit Cre8ed(tokenId);
+            enterWarehouse(tokenId);
         } else {
-            cre8ingTotal[tokenId] += block.timestamp - start;
-            cre8ingStarted[tokenId] = 0;
-            emit Uncre8ed(tokenId);
+            leaveWarehouse(tokenId);
         }
     }
 

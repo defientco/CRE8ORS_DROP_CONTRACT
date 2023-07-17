@@ -33,6 +33,10 @@ contract Cre8ing is Cre8iveAdmin {
 
     /// @notice Missing cre8ing status
     error CRE8ING_NotCre8ing(uint256 tokenId);
+    /// @notice Cre8ing Closed
+    error Cre8ing_Cre8ingClosed();
+    /// @notice Cre8ing
+    error Cre8ing_Cre8ing();
 
     constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
@@ -49,15 +53,9 @@ contract Cre8ing is Cre8iveAdmin {
     ///     since the most recent cre8ing began.
     /// @return total Total period of time for which the CRE8OR has cre8ed across
     ///     its life, including the current period.
-    function cre8ingPeriod(uint256 tokenId)
-        external
-        view
-        returns (
-            bool cre8ing,
-            uint256 current,
-            uint256 total
-        )
-    {
+    function cre8ingPeriod(
+        uint256 tokenId
+    ) external view returns (bool cre8ing, uint256 current, uint256 total) {
         uint256 start = cre8ingStarted[tokenId];
         if (start != 0) {
             cre8ing = true;
@@ -67,10 +65,9 @@ contract Cre8ing is Cre8iveAdmin {
     }
 
     /// @notice Toggles the `cre8ingOpen` flag.
-    function setCre8ingOpen(bool open)
-        external
-        onlyRoleOrAdmin(SALES_MANAGER_ROLE)
-    {
+    function setCre8ingOpen(
+        bool open
+    ) external onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         cre8ingOpen = open;
     }
 
@@ -83,10 +80,9 @@ contract Cre8ing is Cre8iveAdmin {
     ///     isApprovedForAll() in its pre-listing checks, we can't block by that means
     ///     because cre8ing would then be all-or-nothing for all of a particular owner's
     ///     CRE8OR.
-    function expelFromWarehouse(uint256 tokenId)
-        external
-        onlyRole(EXPULSION_ROLE)
-    {
+    function expelFromWarehouse(
+        uint256 tokenId
+    ) external onlyRole(EXPULSION_ROLE) {
         if (cre8ingStarted[tokenId] == 0) {
             revert CRE8ING_NotCre8ing(tokenId);
         }
@@ -94,5 +90,20 @@ contract Cre8ing is Cre8iveAdmin {
         cre8ingStarted[tokenId] = 0;
         emit Uncre8ed(tokenId);
         emit Expelled(tokenId);
+    }
+
+    function enterWarehouse(uint256 tokenId) internal {
+        if (!cre8ingOpen) {
+            revert Cre8ing_Cre8ingClosed();
+        }
+        cre8ingStarted[tokenId] = block.timestamp;
+        emit Cre8ed(tokenId);
+    }
+
+    function leaveWarehouse(uint256 tokenId) internal {
+        uint256 start = cre8ingStarted[tokenId];
+        cre8ingTotal[tokenId] += block.timestamp - start;
+        cre8ingStarted[tokenId] = 0;
+        emit Uncre8ed(tokenId);
     }
 }
