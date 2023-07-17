@@ -64,8 +64,32 @@ contract LockupTest is DSTest, Cre8orTestBase {
         );
     }
 
-    function test_toggleCre8ing() public {
+    function test_toggleCre8ing(uint64 unlockDate) public {
+        uint64 start = uint64(block.timestamp);
+        vm.assume(unlockDate < type(uint64).max);
+        vm.assume(unlockDate > start);
+        // Start cre8ing
         _cre8ingSetup();
+
+        // Lock Cre8ing Tokens
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        lockup.setUnlockDate(address(cre8orsNFTBase), 1, unlockDate);
+        cre8orsNFTBase.setLockup(lockup);
+        assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
+        vm.stopPrank();
+
+        // fast-forward to unlock date
+        vm.warp(unlockDate);
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = 1;
+
+        // allow exit from warehouse
+        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
+            .cre8ingPeriod(1);
+        assertTrue(!cre8ing);
+        assertEq(current, 0);
+        assertEq(total, unlockDate - start);
     }
 
     function test_toggleCre8ing_revert_Lockup_Locked(uint64 unlockDate) public {
