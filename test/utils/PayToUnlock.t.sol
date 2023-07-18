@@ -53,6 +53,12 @@ contract PayToUnlockTest is DSTest, Cre8orTestBase {
         );
     }
 
+    function test_amountToUnlock() public {
+        assertEq(payToUnlock.amountToUnlock(address(cre8orsNFTBase), 1), 0);
+        _setupPayToUnlock();
+        assertEq(payToUnlock.amountToUnlock(address(cre8orsNFTBase), 1), 0);
+    }
+
     function _setupPayToUnlock() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setLockup(lockup);

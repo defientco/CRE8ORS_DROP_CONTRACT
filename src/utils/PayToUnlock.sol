@@ -18,11 +18,28 @@ contract PayToUnlock is IPayToUnlock, MetadataRenderAdminCheck {
     /// @notice Lockup information mapping storage
     mapping(address => mapping(uint256 => uint64)) internal _lockupInfos;
 
-    function lockup(address _target) external view returns (ILockup) {
+    /// @notice find the lockup for a contract
+    /// @param _target contract to lookup lockup
+    function lockup(address _target) public view returns (ILockup) {
         return ICre8ors(_target).lockup();
     }
 
-    function amountToUnlock(address, uint256) external view returns (uint256) {}
+    /// @notice price to pay, in wei, to unlock a given tokenId
+    /// @param _target contract to unlock
+    /// @param _tokenId tokenId to unlock
+    function amountToUnlock(
+        address _target,
+        uint256 _tokenId
+    ) external view returns (uint256) {
+        ILockup lock = ILockup(lockup(_target));
+        if (address(lock) != address(0)) {
+            uint64 unlockDate = lock.unlockDate(_target, _tokenId);
+            // TODO: use BOTH unlockDate & lockStart to determine total length of lockup
+            // unlockDate
+            // lockStart
+            // lockDuration
+        }
+    }
 
     function payToUnlock(address, uint256) external {}
 }
