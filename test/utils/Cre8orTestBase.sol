@@ -13,6 +13,7 @@ contract Cre8orTestBase {
     Cre8ors public cre8orsNFTBase;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
+    address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;

@@ -21,4 +21,8 @@ contract PayToUnlock is IPayToUnlock, MetadataRenderAdminCheck {
     function lockup(address _target) external view returns (ILockup) {
         return ICre8ors(_target).lockup();
     }
+
+    function amountToUnlock(address, uint256) external view returns (uint256) {}
+
+    function payToUnlock(address, uint256) external {}
 }
