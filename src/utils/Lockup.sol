@@ -46,6 +46,27 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
         uint256 _tokenId,
         bytes memory _unlockData
     ) external requireSenderAdmin(_target) {
+        _setUnlockInfo(_target, _tokenId, _unlockData);
+    }
+
+    /// @notice unlocks token
+    /// @param _target target contract
+    /// @param _tokenId tokenId to unlock
+    function unlock(address _target, uint256 _tokenId) private {
+        uint64 newUnlockDate = uint64(block.timestamp);
+        bytes memory data = abi.encode(newUnlockDate, 0);
+        _setUnlockInfo(_target, _tokenId, data);
+    }
+
+    /// @notice sets unlock tier for token
+    /// @param _target target contract
+    /// @param _tokenId tokenId to set unlock date for
+    /// @param _unlockData unlock information
+    function _setUnlockInfo(
+        address _target,
+        uint256 _tokenId,
+        bytes memory _unlockData
+    ) private {
         // data format: uint64 unlockDate, uint256 priceToUnlock
         (uint64 _unlockDate, uint256 _priceToUnlock) = abi.decode(
             _unlockData,
@@ -61,21 +82,6 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
             tokenId: _tokenId,
             unlockDate: _unlockDate,
             priceToUnlock: _priceToUnlock
-        });
-    }
-
-    function unlock(address _target, uint256 _tokenId) private {
-        uint64 newUnlockDate = uint64(block.timestamp);
-        _lockupInfos[_target][_tokenId] = TokenLockupInfo({
-            unlockDate: newUnlockDate,
-            priceToUnlock: 0
-        });
-
-        emit TokenLockupUpdated({
-            target: _target,
-            tokenId: _tokenId,
-            unlockDate: newUnlockDate,
-            priceToUnlock: 0
         });
     }
 
