@@ -97,6 +97,40 @@ contract LockupTest is DSTest, Cre8orTestBase {
         assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
     }
 
+    function test_payToUnlock_refundsExtra(
+        uint256 tokenId,
+        uint64 unlockDate,
+        uint256 priceToUnlock,
+        uint256 pricePaid
+    ) public {
+        uint64 start = uint64(block.timestamp);
+        vm.assume(priceToUnlock > 0);
+        vm.assume(unlockDate > start);
+        vm.assume(pricePaid > priceToUnlock);
+
+        // Lock token
+        _assertIsLocked(tokenId, false);
+        bytes memory data = abi.encode(unlockDate, priceToUnlock);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+
+        // Pay to unlock
+        vm.startPrank(DEFAULT_BUYER_ADDRESS);
+        vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
+        lockup.payToUnlock{value: priceToUnlock}(
+            payable(address(cre8orsNFTBase)),
+            tokenId
+        );
+        _assertIsLocked(tokenId, false);
+
+        // Verify payment sent to base CRE8ORS
+        assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
+
+        // Verify extra is refunded back to caller
+        uint256 refund = pricePaid - priceToUnlock;
+        assertEq(address(DEFAULT_BUYER_ADDRESS).balance, refund);
+    }
+
     function test_payToUnlock_revert_Unlock_WrongPrice(
         uint256 tokenId,
         uint64 unlockDate,
