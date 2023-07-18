@@ -47,7 +47,7 @@ contract LockupTest is DSTest, Cre8orTestBase {
         _assertLockup(1, unlockDate, priceToUnlock);
     }
 
-    function test_setUnlockTier_revert_Access_OnlyAdmin(
+    function test_setUnlockInfo_revert_Access_OnlyAdmin(
         uint256 tokenId,
         uint64 unlockDate,
         uint256 priceToUnlock
