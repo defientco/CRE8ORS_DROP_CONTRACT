@@ -6,7 +6,7 @@ import {DSTest} from "ds-test/test.sol";
 import {CreatorTokenTransferValidator} from "lib/creator-token-contracts/contracts/utils/CreatorTokenTransferValidator.sol";
 import {TransferSecurityLevels} from "lib/creator-token-contracts/contracts/utils/TransferPolicy.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
-import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
+import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC2981} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {ERC721AC} from "lib/creator-token-contracts/contracts/erc721c/ERC721AC.sol";
