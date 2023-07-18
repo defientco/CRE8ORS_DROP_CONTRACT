@@ -39,5 +39,5 @@ interface ILockup {
 
     function setUnlockInfo(address, uint256, bytes memory) external;
 
-    function payToUnlock(address, uint256) external payable;
+    function payToUnlock(address payable, uint256) external payable;
 }

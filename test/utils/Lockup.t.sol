@@ -73,24 +73,6 @@ contract LockupTest is DSTest, Cre8orTestBase {
         _assertIsLocked(tokenId, expectLocked);
     }
 
-    function test_payToUnlock_revert_Unlock_WrongPrice(
-        uint256 tokenId,
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        uint64 start = uint64(block.timestamp);
-        vm.assume(priceToUnlock > 0);
-        vm.assume(unlockDate > start);
-
-        _assertIsLocked(tokenId, false);
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
-        vm.expectRevert();
-        lockup.payToUnlock(address(cre8orsNFTBase), tokenId);
-        _assertIsLocked(tokenId, true);
-    }
-
     function test_payToUnlock(
         uint256 tokenId,
         uint64 unlockDate,
@@ -108,10 +90,46 @@ contract LockupTest is DSTest, Cre8orTestBase {
         vm.startPrank(DEFAULT_BUYER_ADDRESS);
         vm.deal(DEFAULT_BUYER_ADDRESS, priceToUnlock);
         lockup.payToUnlock{value: priceToUnlock}(
-            address(cre8orsNFTBase),
+            payable(address(cre8orsNFTBase)),
             tokenId
         );
         _assertIsLocked(tokenId, false);
+        assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
+    }
+
+    function test_payToUnlock_revert_Unlock_WrongPrice(
+        uint256 tokenId,
+        uint64 unlockDate,
+        uint256 priceToUnlock,
+        uint256 pricePaid
+    ) public {
+        // set assumptions in fuzzing
+        uint64 start = uint64(block.timestamp);
+        vm.assume(priceToUnlock > 0);
+        vm.assume(unlockDate > start);
+        vm.assume(pricePaid < priceToUnlock);
+        _assertIsLocked(tokenId, false);
+
+        // setup lock
+        bytes memory data = abi.encode(unlockDate, priceToUnlock);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+
+        // try to unlock
+        vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
+        vm.startPrank(DEFAULT_BUYER_ADDRESS);
+        bytes memory expectedRevertReason = abi.encodePacked(
+            ILockup.Unlock_WrongPrice.selector,
+            abi.encode(priceToUnlock)
+        );
+        vm.expectRevert(expectedRevertReason);
+        lockup.payToUnlock{value: pricePaid}(
+            payable(address(cre8orsNFTBase)),
+            tokenId
+        );
+
+        // assert still locked
+        _assertIsLocked(tokenId, true);
     }
 
     function test_toggleCre8ing(

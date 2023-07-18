@@ -355,6 +355,9 @@ contract Cre8ors is
         });
     }
 
+    /// @notice Receive Ether function
+    receive() external payable {}
+
     /// @notice This withdraws ETH from the contract to the contract owner.
     function withdraw() external nonReentrant {
         address sender = _msgSender();

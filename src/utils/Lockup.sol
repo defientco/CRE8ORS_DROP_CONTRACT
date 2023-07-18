@@ -82,7 +82,10 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
     /// @notice pay to unlock a locked token
     /// @param _target target contract
     /// @param _tokenId tokenId to unlock
-    function payToUnlock(address _target, uint256 _tokenId) public payable {
+    function payToUnlock(
+        address payable _target,
+        uint256 _tokenId
+    ) public payable {
         // verify paid unlock price
         uint256 priceToPay = _lockupInfos[_target][_tokenId].priceToUnlock;
         if (msg.value < priceToPay) {
@@ -92,6 +95,15 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
         // unlock token
         unlock(_target, _tokenId);
 
-        // SEND FUNDS TO CRE8ORS
+        // send funds to the target
+        (bool success, ) = _target.call{value: priceToPay}("");
+        require(success, "Transfer failed.");
+
+        // if the payment is more than the unlock price, refund the extra
+        if (msg.value > priceToPay) {
+            uint256 refundAmount = msg.value - priceToPay;
+            (bool refundSuccess, ) = msg.sender.call{value: refundAmount}("");
+            require(refundSuccess, "Refund failed.");
+        }
     }
 }
