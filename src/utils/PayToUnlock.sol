@@ -33,7 +33,7 @@ contract PayToUnlock is IPayToUnlock, MetadataRenderAdminCheck {
     ) external view returns (uint256) {
         ILockup lock = ILockup(lockup(_target));
         if (address(lock) != address(0)) {
-            uint64 unlockDate = lock.unlockDate(_target, _tokenId);
+            uint64 unlockDate = lock.unlockInfo(_target, _tokenId).unlockDate;
             // TODO: use BOTH unlockDate & lockStart to determine total length of lockup
             // unlockDate
             // lockStart

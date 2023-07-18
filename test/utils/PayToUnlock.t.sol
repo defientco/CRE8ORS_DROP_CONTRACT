@@ -63,11 +63,6 @@ contract PayToUnlockTest is DSTest, Cre8orTestBase {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setLockup(lockup);
         cre8orsNFTBase.setPayToUnlock(payToUnlock);
-        lockup.setUnlockDate(
-            address(cre8orsNFTBase),
-            1,
-            uint64(block.timestamp + eightMonths)
-        );
         vm.stopPrank();
     }
 }
