@@ -6,7 +6,7 @@ import {ERC721AC} from "ERC721C/erc721c/ERC721AC.sol";
 
 /**
  * @title ERC721HAC
- * @author Defient Entertainment.
+ * @author Cre8ors Inc.
  * @notice Extends Limit Break's ERC721-AC implementation with Hook functionality, which
  *         allows the contract owner to override hooks associated with core ERC721 functions.
  */

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ERC721HAC Contracts
-// Creator: Defient Entertainment
+// Creator: Cre8ors Inc.
 
 pragma solidity ^0.8.15;
 
