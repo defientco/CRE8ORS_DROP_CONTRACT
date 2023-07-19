@@ -16,5 +16,11 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
         string memory _contractSymbol
     ) ERC721AC(_contractName, _contractSymbol) {}
 
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
     function _requireCallerIsContractOwner() internal view virtual override {}
 }
