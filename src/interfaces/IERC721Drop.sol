@@ -28,12 +28,6 @@ interface IERC721Drop {
     /// @notice Missing the owner role or approved nft access.
     error Access_MissingOwnerOrApproved();
 
-    // CRE8ING errors
-    /// @notice Cre8ing Closed
-    error Cre8ing_Cre8ingClosed();
-    /// @notice Cre8ing
-    error Cre8ing_Cre8ing();
-
     // Sale/Purchase errors
     /// @notice Sale is inactive
     error Sale_Inactive();
