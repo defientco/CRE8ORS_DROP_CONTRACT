@@ -5,11 +5,11 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 
 contract PassportHolderMinter {
-    mapping(uint256 => bool) private _claimed;
+    mapping(uint256 => bool) private _freeMintClaimed;
 
     address private _passportContractAddress;
     uint256 private _week = 7 * 24 * 60 * 60;
-    uint256 private _month = 4 * week;
+    uint256 private _month = 4 * _week;
 
     constructor(address passportContractAddress) {
         _passportContractAddress = passportContractAddress;
@@ -17,50 +17,28 @@ contract PassportHolderMinter {
 
     function mintPfp(
         uint256 passportTokenId,
-        uint16 quantity,
-        address recipient,
-        string calldata _tier
+        address target,
+        address recipient
     ) external returns (uint256) {
-        uint256 allowedQuantity = block.timestamp < 1691668799 ? 9 : 88;
-        require(block.timestamp >= 1691495999, "Too early to mint");
         require(
-            !_claimed[passportTokenId],
-            "This passport has already been claimed a free mint"
+            !_freeMintClaimed[passportTokenId],
+            "This passport has already claimed a free mint"
         );
         require(
             IERC721A(_passportContractAddress).ownerOf(passportTokenId) ==
                 recipient,
             "You do not own this passport"
         );
-        require(
-            IERC721A(_passportContractAddress).balanceOf(to) <= allowedQuantity,
-            "All passports have been claimed"
-        );
-        uint256 pfpTokenId = ICre8ors(_passportContractAddress).adminMint(
-            recipient,
-            quantity
-        );
-        if (_tier != "tier 3") {
-            ILockup lockup = ICre8ors(_passportContractAddress).lockup();
-            lockup.setUnlockDate(
-                msg.sender,
-                pfpTokenId,
-                _calculateLockupDate(_tier)
-            );
-        }
-        _claimed[passportTokenId] = true;
-        return pfpTokenId;
-    }
+        uint256 pfpTokenId = ICre8ors(target).adminMint(recipient, 1);
 
-    function _calculateLockupDate(
-        string calldata _tier
-    ) internal returns (uint256) {
-        uint256 lockupDate;
-        if (_tier == "tier 1") {
-            lockup_date = block.timestamp + (8 * month);
-        } else {
-            lockup_date = block.timestamp + (8 * week);
+        ILockup lockup = ICre8ors(target).lockup();
+        if (address(lockup) != address(0)) {
+            uint256 lockupDate = 8 * _week;
+            bytes memory data = abi.encode(lockupDate, 0.15 ether);
+            lockup.setUnlockInfo(target, pfpTokenId, data);
         }
-        return lockupDate;
+
+        _freeMintClaimed[passportTokenId] = true;
+        return pfpTokenId;
     }
 }
