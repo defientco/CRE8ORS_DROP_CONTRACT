@@ -41,4 +41,10 @@ contract PassportHolderMinter {
         _freeMintClaimed[passportTokenId] = true;
         return pfpTokenId;
     }
+
+    function freeMintClaimed(
+        uint256 passportTokenId
+    ) external view returns (bool) {
+        return _freeMintClaimed[passportTokenId];
+    }
 }
