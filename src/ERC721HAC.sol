@@ -28,7 +28,7 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
     function balanceOf(
         address owner
     ) public view virtual override returns (uint256) {
-        if (_useBalanceOfHook()) {
+        if (_useBalanceOfHook(owner)) {
             return _balanceOfHook(owner);
         }
         return super.balanceOf(owner);
@@ -37,10 +37,21 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
     function ownerOf(
         uint256 tokenId
     ) public view virtual override returns (address) {
-        if (_useOwnerOfHook()) {
+        if (_useOwnerOfHook(tokenId)) {
             return _ownerOfHook(tokenId);
         }
         return super.ownerOf(tokenId);
+    }
+
+    function approve(
+        address approved,
+        uint256 tokenId
+    ) public payable virtual override {
+        if (_useApproveHook(approved, tokenId)) {
+            _approveHook(approved, tokenId);
+        } else {
+            super.approve(approved, tokenId);
+        }
     }
 
     /////////////////////////////////////////////////
@@ -50,12 +61,20 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
     /// @dev balanceOf - ERC721
     function _balanceOfHook(address) internal view virtual returns (uint256) {}
 
-    function _useBalanceOfHook() internal view virtual returns (bool) {}
+    function _useBalanceOfHook(address) internal view virtual returns (bool) {}
 
     /// @dev ownerOf - ERC721
     function _ownerOfHook(uint256) internal view virtual returns (address) {}
 
-    function _useOwnerOfHook() internal view virtual returns (bool) {}
+    function _useOwnerOfHook(uint256) internal view virtual returns (bool) {}
+
+    /// @dev approve - ERC721
+    function _approveHook(address approved, uint256 tokenId) internal virtual {}
+
+    function _useApproveHook(
+        address,
+        uint256
+    ) internal view virtual returns (bool) {}
 
     /////////////////////////////////////////////////
     /// ERC721C Override

@@ -30,11 +30,15 @@ contract ERC721HACMock is ERC721HAC {
         hooksEnabled = _enabled;
     }
 
-    function _useBalanceOfHook() internal view virtual override returns (bool) {
+    function _useBalanceOfHook(
+        address owner
+    ) internal view virtual override returns (bool) {
         return hooksEnabled;
     }
 
-    function _useOwnerOfHook() internal view virtual override returns (bool) {
+    function _useOwnerOfHook(
+        uint256
+    ) internal view virtual override returns (bool) {
         return hooksEnabled;
     }
 }
