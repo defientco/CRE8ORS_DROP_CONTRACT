@@ -9,6 +9,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
+import {ILockup} from "./interfaces/ILockup.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
@@ -39,6 +40,9 @@ contract Cre8ors is
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
+
+    /// @dev Lockup Contract
+    ILockup public lockup;
 
     constructor(
         string memory _contractName,
@@ -347,6 +351,9 @@ contract Cre8ors is
         });
     }
 
+    /// @notice Receive Ether function
+    receive() external payable {}
+
     /// @notice This withdraws ETH from the contract to the contract owner.
     function withdraw() external nonReentrant {
         address sender = _msgSender();
@@ -388,24 +395,19 @@ contract Cre8ors is
     }
 
     /// @notice Changes the CRE8OR's cre8ing status.
+    /// @param tokenId token to toggle cre8ing status
     function toggleCre8ing(
         uint256 tokenId
     ) internal onlyApprovedOrOwner(tokenId) {
         uint256 start = cre8ingStarted[tokenId];
         if (start == 0) {
-            if (!cre8ingOpen) {
-                revert Cre8ing_Cre8ingClosed();
-            }
-            cre8ingStarted[tokenId] = block.timestamp;
-            emit Cre8ed(tokenId);
+            enterWarehouse(tokenId);
         } else {
-            cre8ingTotal[tokenId] += block.timestamp - start;
-            cre8ingStarted[tokenId] = 0;
-            emit Uncre8ed(tokenId);
+            leaveWarehouse(tokenId);
         }
     }
 
-    /// @notice Transfer a token between addresses while the CRE8OR is minting,
+    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
     ///     thus not resetting the cre8ing period.
     function safeTransferWhileCre8ing(
         address from,
@@ -418,6 +420,31 @@ contract Cre8ors is
         cre8ingTransfer = 2;
         safeTransferFrom(from, to, tokenId);
         cre8ingTransfer = 1;
+    }
+
+    /// @dev validation hook that fires before an exit from cre8ing
+    function _beforeCre8ingExit(uint256 tokenId) internal override {
+        _requireUnlocked(tokenId);
+    }
+
+    /////////////////////////////////////////////////
+    /// Lockup
+    /////////////////////////////////////////////////
+
+    /// @notice Set a new lockup contract
+    /// @param newLockup new lockup address to use
+    function setLockup(ILockup newLockup) external onlyAdmin {
+        lockup = newLockup;
+    }
+
+    /// @notice Lockup unlocked verification
+    function _requireUnlocked(uint256 tokenId) internal {
+        if (
+            address(lockup) != address(0) &&
+            lockup.isLocked(address(this), tokenId)
+        ) {
+            revert ILockup.Lockup_Locked();
+        }
     }
 
     /////////////////////////////////////////////////
