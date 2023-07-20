@@ -22,18 +22,43 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
         return super.supportsInterface(interfaceId);
     }
 
+    /////////////////////////////////////////////////
+    /// ERC721 overrides
+    /////////////////////////////////////////////////
     function balanceOf(
         address owner
     ) public view virtual override returns (uint256) {
         if (_useBalanceOfHook()) {
-            return _overrideBalanceOf();
+            return _balanceOfHook(owner);
         }
         return super.balanceOf(owner);
     }
 
-    function _requireCallerIsContractOwner() internal view virtual override {}
+    function ownerOf(
+        uint256 tokenId
+    ) public view virtual override returns (address) {
+        if (_useOwnerOfHook()) {
+            return _ownerOfHook(tokenId);
+        }
+        return super.ownerOf(tokenId);
+    }
 
-    function _overrideBalanceOf() internal view virtual returns (uint256) {}
+    /////////////////////////////////////////////////
+    /// ERC721 Hooks
+    /////////////////////////////////////////////////
+
+    /// @dev balanceOf - ERC721
+    function _balanceOfHook(address) internal view virtual returns (uint256) {}
 
     function _useBalanceOfHook() internal view virtual returns (bool) {}
+
+    /// @dev ownerOf - ERC721
+    function _ownerOfHook(uint256) internal view virtual returns (address) {}
+
+    function _useOwnerOfHook() internal view virtual returns (bool) {}
+
+    /////////////////////////////////////////////////
+    /// ERC721C Override
+    /////////////////////////////////////////////////
+    function _requireCallerIsContractOwner() internal view virtual override {}
 }

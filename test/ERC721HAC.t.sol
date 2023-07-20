@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
 import {ERC721HACMock} from "./utils/ERC721HACMock.sol";
+import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 
 contract ERC721ACHTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -33,7 +34,21 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
         assertEq(0, erc721Mock.balanceOf(DEFAULT_BUYER_ADDRESS));
+    }
+
+    function test_ownerOf(uint256 _mintQuantity) public {
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_mintQuantity < 10_000);
+
+        // Verify normal functionality
+        vm.expectRevert(IERC721A.OwnerQueryForNonexistentToken.selector);
+        assertEq(erc721Mock.ownerOf(_mintQuantity), address(0));
+        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
+        assertEq(DEFAULT_BUYER_ADDRESS, erc721Mock.ownerOf(_mintQuantity));
+
+        // Verify hook override
+        erc721Mock.setHooksEnabled(true);
+        assertEq(erc721Mock.ownerOf(_mintQuantity), address(0));
     }
 }
