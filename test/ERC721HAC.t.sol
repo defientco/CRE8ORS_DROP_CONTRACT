@@ -26,8 +26,14 @@ contract ERC721ACHTest is DSTest {
         vm.assume(_mintQuantity > 0);
         vm.assume(_mintQuantity < 10_000);
 
+        // Verify normal functionality
         assertEq(0, erc721Mock.balanceOf(DEFAULT_BUYER_ADDRESS));
         erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
         assertEq(_mintQuantity, erc721Mock.balanceOf(DEFAULT_BUYER_ADDRESS));
+
+        // Verify hook override
+        erc721Mock.setHooksEnabled(true);
+        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
+        assertEq(0, erc721Mock.balanceOf(DEFAULT_BUYER_ADDRESS));
     }
 }

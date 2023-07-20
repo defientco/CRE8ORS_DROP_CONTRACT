@@ -22,5 +22,18 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
         return super.supportsInterface(interfaceId);
     }
 
+    function balanceOf(
+        address owner
+    ) public view virtual override returns (uint256) {
+        if (_useBalanceOfHook()) {
+            return _overrideBalanceOf();
+        }
+        return super.balanceOf(owner);
+    }
+
     function _requireCallerIsContractOwner() internal view virtual override {}
+
+    function _overrideBalanceOf() internal view virtual returns (uint256) {}
+
+    function _useBalanceOfHook() internal view virtual returns (bool) {}
 }
