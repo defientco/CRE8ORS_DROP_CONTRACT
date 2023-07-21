@@ -26,83 +26,78 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         assertEq(address(cre8orsNFTBase.lockup()), address(0));
     }
 
-    function testSuccesfulMintWithoutLockup() public {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
-        assertTrue(
-            cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-                address(minter)
-            )
-        );
-        vm.stopPrank();
-        vm.startPrank(DEFAULT_OWNER_ADDRESS, DEFAULT_BUYER_ADDRESS);
-        assertTrue(!minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
-        minter.addDiscount(DEFAULT_BUYER_ADDRESS);
-        assertTrue(minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
-        uint256 tokenId = minter.mint(DEFAULT_BUYER_ADDRESS);
-        assertTrue(!minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
-        vm.stopPrank();
+    function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
+        vm.assume(_friendOrFamily != address(0));
+
+        // Setup Minter
+        _setupMinter();
+
+        // Apply Discount
+        _addDiscount(_friendOrFamily);
+
+        // Mint
+        uint256 tokenId = minter.mint(_friendOrFamily);
+
+        // Asserts
+        assertTrue(!minter.hasDiscount(_friendOrFamily));
         assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), DEFAULT_BUYER_ADDRESS);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
         assertEq(
-            cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints,
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
             1
         );
     }
 
-    function testSuccesfulMintWithLockup() public {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
-        assertTrue(
-            cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-                address(minter)
-            )
-        );
+    function testSuccesfulMintWithLockup(address _friendOrFamily) public {
+        // Setup Minter
+        _setupMinter();
+
+        // Setup Lockup
+        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setLockup(lockup);
-        vm.stopPrank();
 
-        vm.startPrank(DEFAULT_OWNER_ADDRESS, DEFAULT_BUYER_ADDRESS);
-        assertTrue(!minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
-        minter.addDiscount(DEFAULT_BUYER_ADDRESS);
-        assertTrue(minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
+        // Apply Discount
+        _addDiscount(_friendOrFamily);
 
-        uint256 tokenId = minter.mint(DEFAULT_BUYER_ADDRESS);
-        assertTrue(!minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
-        vm.stopPrank();
+        // Mint
+        uint256 tokenId = minter.mint(_friendOrFamily);
 
+        // Asserts
+        assertTrue(!minter.hasDiscount(_friendOrFamily));
         assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), DEFAULT_BUYER_ADDRESS);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
         assertEq(
-            cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints,
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
             1
         );
     }
 
-    function testRevertNoDiscount() public {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
+    function testRevertNoDiscount(address _buyer) public {
+        // Setup Minter
+        _setupMinter();
+
+        assertTrue(!minter.hasDiscount(_buyer));
+        vm.prank(_buyer);
+        vm.expectRevert(FriendsAndFamilyMinter.MissingDiscount.selector);
+        minter.mint(_buyer);
+    }
+
+    function _setupMinter() internal {
+        bytes32 role = cre8orsNFTBase.DEFAULT_ADMIN_ROLE();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(role, address(minter));
         assertTrue(
             cre8orsNFTBase.hasRole(
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(minter)
             )
         );
-        vm.stopPrank();
-        vm.startPrank(DEFAULT_BUYER_ADDRESS);
-        assertTrue(!minter.hasDiscount(DEFAULT_BUYER_ADDRESS));
-        vm.expectRevert(FriendsAndFamilyMinter.MissingDiscount.selector);
-        minter.mint(DEFAULT_BUYER_ADDRESS);
-        vm.stopPrank();
+    }
+
+    function _addDiscount(address _buyer) internal {
+        assertTrue(!minter.hasDiscount(_buyer));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        minter.addDiscount(_buyer);
+        assertTrue(minter.hasDiscount(_buyer));
     }
 }
