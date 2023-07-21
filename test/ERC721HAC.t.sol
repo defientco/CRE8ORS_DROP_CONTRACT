@@ -52,22 +52,22 @@ contract ERC721ACHTest is DSTest {
         assertEq(erc721Mock.ownerOf(_mintQuantity), address(0));
     }
 
-    // function test_approve(uint256 _mintQuantity) public {
-    //     vm.assume(_mintQuantity > 0);
-    //     vm.assume(_mintQuantity < 10_000);
+    function test_approve(uint256 _mintQuantity) public {
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_mintQuantity < 10_000);
 
-    //     // Mint some tokens first
-    //     erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
+        // Mint some tokens first
+        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
 
-    //     // Verify normal functionality
-    //     erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _mintQuantity);
-    //     assertEq(DEFAULT_OWNER_ADDRESS, erc721Mock.getApproved(_mintQuantity));
+        // Verify normal functionality
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _mintQuantity);
+        assertEq(DEFAULT_OWNER_ADDRESS, erc721Mock.getApproved(_mintQuantity));
 
-    //     // Verify hook override
-    //     erc721Mock.setHooksEnabled(true);
-    //     vm.expectRevert("Hook_Executed()");
-    //     vm.startPrank(DEFAULT_BUYER_ADDRESS);
-    //     erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _mintQuantity);
-    //     vm.stopPrank();
-    // }
+        // Verify hook override
+        erc721Mock.setHooksEnabled(true);
+        vm.expectRevert(ERC721HACMock.Hook_Executed.selector);
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _mintQuantity);
+    }
 }

@@ -24,6 +24,14 @@ contract ERC721HACMock is ERC721HAC {
     }
 
     /////////////////////////////////////////////////
+    /// Hooks
+    /////////////////////////////////////////////////
+
+    function _approveHook(address, uint256) internal virtual override {
+        revert Hook_Executed();
+    }
+
+    /////////////////////////////////////////////////
     /// Enable Hooks
     /////////////////////////////////////////////////
     function setHooksEnabled(bool _enabled) public {
@@ -31,12 +39,19 @@ contract ERC721HACMock is ERC721HAC {
     }
 
     function _useBalanceOfHook(
-        address owner
+        address
     ) internal view virtual override returns (bool) {
         return hooksEnabled;
     }
 
     function _useOwnerOfHook(
+        uint256
+    ) internal view virtual override returns (bool) {
+        return hooksEnabled;
+    }
+
+    function _useApproveHook(
+        address,
         uint256
     ) internal view virtual override returns (bool) {
         return hooksEnabled;
