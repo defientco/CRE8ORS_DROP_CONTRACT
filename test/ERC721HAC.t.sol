@@ -109,4 +109,25 @@ contract ERC721ACHTest is DSTest {
         vm.prank(DEFAULT_BUYER_ADDRESS);
         erc721Mock.setApprovalForAll(DEFAULT_OWNER_ADDRESS, true);
     }
+
+    function test_getApproved(uint256 _mintQuantity, uint256 _tokenId) public {
+        vm.assume(_tokenId > 0);
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_mintQuantity < 10_000);
+        vm.assume(_mintQuantity >= _tokenId);
+
+        // Mint some tokens first
+        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
+
+        // Verify normal functionality
+        assertEq(address(0), erc721Mock.getApproved(_tokenId));
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _tokenId);
+        assertEq(DEFAULT_OWNER_ADDRESS, erc721Mock.getApproved(_tokenId));
+
+        // Verify hook override
+        erc721Mock.setHooksEnabled(true);
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        assertEq(address(0), erc721Mock.getApproved(_tokenId));
+    }
 }

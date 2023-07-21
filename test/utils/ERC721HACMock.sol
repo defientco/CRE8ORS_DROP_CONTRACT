@@ -73,4 +73,10 @@ contract ERC721HACMock is ERC721HAC {
     ) internal view virtual override returns (bool) {
         return hooksEnabled;
     }
+
+    function _useGetApprovedHook(
+        uint256
+    ) internal view virtual override returns (bool) {
+        return hooksEnabled;
+    }
 }
