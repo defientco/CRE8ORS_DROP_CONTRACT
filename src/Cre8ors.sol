@@ -439,7 +439,7 @@ contract Cre8ors is
     }
 
     /// @notice Lockup unlocked verification
-    function _requireUnlocked(uint256 tokenId) internal {
+    function _requireUnlocked(uint256 tokenId) internal view {
         if (
             address(lockup) != address(0) &&
             lockup.isLocked(address(this), tokenId)
