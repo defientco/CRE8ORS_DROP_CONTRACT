@@ -73,6 +73,14 @@ contract MinterUtilities {
         return totalCost;
     }
 
+    function calculateLockupDate(uint8 tier) view returns (uint256) {
+        if (tier == 1) {
+            return 8 weeks;
+        } else if (tier == 2) {
+            return 52 weeks;
+        }
+    }
+
     function calculateTotalQuantity(
         Cart[] calldata carts
     ) view returns (uint256) {

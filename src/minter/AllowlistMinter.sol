@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 import {MinterUtilities} from "../utils/MinterUtilities.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
+import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 
 contract AllowlistMinter is MinterUtilities {
     address public cre8orsNFT;
@@ -42,10 +43,31 @@ contract AllowlistMinter is MinterUtilities {
             recipient,
             quantity
         );
+
+        uint256 firstId = startingTokenId;
+        ILockup lockup = ICre8ors(cre8orsNFT).lockup();
+        if (address(lockup) != address(0)) {
+            _lockUp(carts, recipient, firstId);
+        }
+        return firstId;
+    }
+
+    function _lockUp(
+        Cart[] calldata carts,
+        address recipient,
+        uint256 startingTokenId
+    ) internal {
         for (uint256 i = 0; i < carts.length; i++) {
-            ICre8ors(cre8orsNFT).adminMint(recipient, cart[i].quantity){
-                value: calculatePrice(cart[i].tier, cart[i].quantity)
-            };
+            if (carts[i].tier == 3) {
+                continue;
+            }
+            uint256 lockupDate = calculateLockupDate(cart[i].tier);
+            ICre8ors(cre8orsNFT).setUnlockInfo(
+                cre8orsNFT,
+                startingTokenId,
+                abi.encode(lockupDate, tierPrices[cart[i].tier])
+            );
+            startingTokenId += 1;
         }
     }
 }
