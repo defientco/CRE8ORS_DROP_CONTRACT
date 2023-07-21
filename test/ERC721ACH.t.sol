@@ -75,7 +75,7 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        vm.expectRevert(ERC721ACHMock.Hook_Executed.selector);
+        vm.expectRevert(ERC721ACHMock.ApproveHook_Executed.selector);
         vm.prank(DEFAULT_BUYER_ADDRESS);
         erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _tokenToApprove);
     }
