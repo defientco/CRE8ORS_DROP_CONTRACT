@@ -7,7 +7,7 @@ import {ILockup} from "../interfaces/ILockup.sol";
 
 contract FriendsAndFamilyMinter {
     mapping(address => bool) private _hasDiscount;
-
+    mapping(address => bool) public hasClaimedFreeMint;
     address public cre8orsNFT;
 
     uint256 private _week = 7 * 24 * 60 * 60;
@@ -21,6 +21,7 @@ contract FriendsAndFamilyMinter {
         require(_hasDiscount[recipient], "You do not have a discount");
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
         _hasDiscount[recipient] = false;
+        hasClaimedFreeMint[recipient] = true;
         ILockup lockup = ICre8ors(cre8orsNFT).lockup();
         if (address(lockup) != address(0)) {
             uint256 lockupDate = 8 * _week;
@@ -38,6 +39,7 @@ contract FriendsAndFamilyMinter {
         );
         require(!_hasDiscount[recipient], "You already have a discount");
         _hasDiscount[recipient] = true;
+        hasClaimedFreeMint[recipient] = false;
     }
 
     function removeDiscount(address recipient) external {
