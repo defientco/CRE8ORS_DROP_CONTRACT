@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ERC721HAC} from "./ERC721HAC.sol";
+import {ERC721ACH} from "./ERC721ACH.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
-import {IERC721HAC} from "./interfaces/IERC721HAC.sol";
+import {IERC721ACH} from "./interfaces/IERC721ACH.sol";
 import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
@@ -27,7 +27,7 @@ import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
  */
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8ors is
-    ERC721HAC,
+    ERC721ACH,
     Cre8ing,
     IERC2981,
     ReentrancyGuard,
@@ -36,7 +36,7 @@ contract Cre8ors is
     ERC721DropStorageV1,
     Cre8orsERC6551
 {
-    /// @dev This is the max mint batch size for the optimized ERC721HAC mint contract
+    /// @dev This is the max mint batch size for the optimized ERC721ACH mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
 
     /// @dev Gas limit to send funds
@@ -55,7 +55,7 @@ contract Cre8ors is
         SalesConfiguration memory _salesConfig,
         IMetadataRenderer _metadataRenderer
     )
-        ERC721HAC(_contractName, _contractSymbol)
+        ERC721ACH(_contractName, _contractSymbol)
         ReentrancyGuard()
         Cre8ing(_initialOwner)
     {
@@ -232,7 +232,7 @@ contract Cre8ors is
 
     /// @notice Function to mint NFTs
     /// @dev (important: Does not enforce max supply limit, enforce that limit earlier)
-    /// @dev This batches in size of 8 as per recommended by ERC721HAC creators
+    /// @dev This batches in size of 8 as per recommended by ERC721ACH creators
     /// @param to address to mint NFTs to
     /// @param quantity number of NFTs to mint
     function _mintNFTs(address to, uint256 quantity) internal {
@@ -606,13 +606,13 @@ contract Cre8ors is
     /// @param interfaceId interface id to check if supported
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(IERC165, ERC721HAC, AccessControl) returns (bool) {
+    ) public view override(IERC165, ERC721ACH, AccessControl) returns (bool) {
         return
             super.supportsInterface(interfaceId) ||
             type(IOwnable).interfaceId == interfaceId ||
             type(IERC2981).interfaceId == interfaceId ||
             type(IERC721Drop).interfaceId == interfaceId ||
-            type(IERC721HAC).interfaceId == interfaceId;
+            type(IERC721ACH).interfaceId == interfaceId;
     }
 
     /// @notice Simple override for owner interface.

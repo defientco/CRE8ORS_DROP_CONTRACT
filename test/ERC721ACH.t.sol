@@ -3,23 +3,23 @@ pragma solidity ^0.8.15;
 
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
-import {ERC721HACMock} from "./utils/ERC721HACMock.sol";
+import {ERC721ACHMock} from "./utils/ERC721ACHMock.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 
 contract ERC721ACHTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
-    ERC721HACMock erc721Mock;
+    ERC721ACHMock erc721Mock;
 
     function setUp() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        erc721Mock = new ERC721HACMock();
+        erc721Mock = new ERC721ACHMock();
         vm.stopPrank();
     }
 
     function test_Erc721() public {
-        assertEq("ERC-721HAC Mock", erc721Mock.name());
+        assertEq("ERC-721ACH Mock", erc721Mock.name());
         assertEq("MOCK", erc721Mock.symbol());
     }
 
@@ -75,7 +75,7 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        vm.expectRevert(ERC721HACMock.Hook_Executed.selector);
+        vm.expectRevert(ERC721ACHMock.Hook_Executed.selector);
         vm.prank(DEFAULT_BUYER_ADDRESS);
         erc721Mock.approve(DEFAULT_OWNER_ADDRESS, _tokenToApprove);
     }
@@ -105,7 +105,7 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        vm.expectRevert(ERC721HACMock.SetApprovalForAllHook_Executed.selector);
+        vm.expectRevert(ERC721ACHMock.SetApprovalForAllHook_Executed.selector);
         vm.prank(DEFAULT_BUYER_ADDRESS);
         erc721Mock.setApprovalForAll(DEFAULT_OWNER_ADDRESS, true);
     }
@@ -185,7 +185,7 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        vm.expectRevert(ERC721HACMock.TransferFromHook_Executed.selector);
+        vm.expectRevert(ERC721ACHMock.TransferFromHook_Executed.selector);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         erc721Mock.transferFrom(
             DEFAULT_OWNER_ADDRESS,
@@ -219,7 +219,7 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        vm.expectRevert(ERC721HACMock.SafeTransferFromHook_Executed.selector);
+        vm.expectRevert(ERC721ACHMock.SafeTransferFromHook_Executed.selector);
         vm.prank(DEFAULT_BUYER_ADDRESS);
         erc721Mock.safeTransferFrom(
             DEFAULT_BUYER_ADDRESS,
@@ -252,7 +252,7 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        vm.expectRevert(ERC721HACMock.SafeTransferFromHook_Executed.selector);
+        vm.expectRevert(ERC721ACHMock.SafeTransferFromHook_Executed.selector);
         vm.prank(DEFAULT_BUYER_ADDRESS);
         erc721Mock.safeTransferFrom(
             DEFAULT_BUYER_ADDRESS,

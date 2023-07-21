@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {IERC721HAC} from "./interfaces/IERC721HAC.sol";
+import {IERC721ACH} from "./interfaces/IERC721ACH.sol";
 import {ERC721AC} from "ERC721C/erc721c/ERC721AC.sol";
 
 /**
- * @title ERC721HAC
+ * @title ERC721ACH
  * @author Cre8ors Inc.
  * @notice Extends Limit Break's ERC721-AC implementation with Hook functionality, which
  *         allows the contract owner to override hooks associated with core ERC721 functions.
  */
-contract ERC721HAC is IERC721HAC, ERC721AC {
+contract ERC721ACH is IERC721ACH, ERC721AC {
     constructor(
         string memory _contractName,
         string memory _contractSymbol

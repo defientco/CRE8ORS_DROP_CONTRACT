@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ERC721HAC} from "../../src/ERC721HAC.sol";
+import {ERC721ACH} from "../../src/ERC721ACH.sol";
 
-contract ERC721HACMock is ERC721HAC {
-    constructor() ERC721HAC("ERC-721HAC Mock", "MOCK") {}
+contract ERC721ACHMock is ERC721ACH {
+    constructor() ERC721ACH("ERC-721ACH Mock", "MOCK") {}
 
     bool hooksEnabled;
 
@@ -22,7 +22,7 @@ contract ERC721HACMock is ERC721HAC {
         return 1;
     }
 
-    function _requireCallerIsContractOwner() internal view override(ERC721HAC) {
+    function _requireCallerIsContractOwner() internal view override(ERC721ACH) {
         // Derived contract's implementation here
     }
 
