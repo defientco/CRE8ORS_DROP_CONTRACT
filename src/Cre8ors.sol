@@ -8,7 +8,6 @@ import {IERC2981, IERC165} from "@openzeppelin/contracts/interfaces/IERC2981.sol
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
-import {IERC721ACH} from "./interfaces/IERC721ACH.sol";
 import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
@@ -611,8 +610,7 @@ contract Cre8ors is
             super.supportsInterface(interfaceId) ||
             type(IOwnable).interfaceId == interfaceId ||
             type(IERC2981).interfaceId == interfaceId ||
-            type(IERC721Drop).interfaceId == interfaceId ||
-            type(IERC721ACH).interfaceId == interfaceId;
+            type(IERC721Drop).interfaceId == interfaceId;
     }
 
     /// @notice Simple override for owner interface.
