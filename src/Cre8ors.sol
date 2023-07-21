@@ -424,7 +424,7 @@ contract Cre8ors is
     }
 
     /// @dev validation hook that fires before an exit from cre8ing
-    function _beforeCre8ingExit(uint256 tokenId) internal override {
+    function _beforeCre8ingExit(uint256 tokenId) internal view override {
         _requireUnlocked(tokenId);
     }
 

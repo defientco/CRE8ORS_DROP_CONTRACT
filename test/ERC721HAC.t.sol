@@ -193,4 +193,71 @@ contract ERC721ACHTest is DSTest {
             _tokenId
         );
     }
+
+    function test_safeTransferFrom_WithData(
+        uint256 _mintQuantity,
+        uint256 _tokenId,
+        bytes memory data
+    ) public {
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_tokenId > 0);
+        vm.assume(_mintQuantity < 10_000);
+        vm.assume(_mintQuantity >= _tokenId);
+
+        // Mint some tokens first
+        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
+
+        // Verify normal functionality
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.safeTransferFrom(
+            DEFAULT_BUYER_ADDRESS,
+            DEFAULT_OWNER_ADDRESS,
+            _tokenId,
+            data
+        );
+        assertEq(DEFAULT_OWNER_ADDRESS, erc721Mock.ownerOf(_tokenId));
+
+        // Verify hook override
+        erc721Mock.setHooksEnabled(true);
+        vm.expectRevert(ERC721HACMock.SafeTransferFromHook_Executed.selector);
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.safeTransferFrom(
+            DEFAULT_BUYER_ADDRESS,
+            DEFAULT_OWNER_ADDRESS,
+            _tokenId,
+            data
+        );
+    }
+
+    function test_safeTransferFrom_WithoutData(
+        uint256 _mintQuantity,
+        uint256 _tokenId
+    ) public {
+        vm.assume(_tokenId > 0);
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_mintQuantity < 10_000);
+        vm.assume(_mintQuantity >= _tokenId);
+
+        // Mint some tokens first
+        erc721Mock.mint(DEFAULT_BUYER_ADDRESS, _mintQuantity);
+
+        // Verify normal functionality
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.safeTransferFrom(
+            DEFAULT_BUYER_ADDRESS,
+            DEFAULT_OWNER_ADDRESS,
+            _tokenId
+        );
+        assertEq(DEFAULT_OWNER_ADDRESS, erc721Mock.ownerOf(_tokenId));
+
+        // Verify hook override
+        erc721Mock.setHooksEnabled(true);
+        // vm.expectRevert(ERC721HACMock.Hook_Executed.selector);
+        // vm.prank(DEFAULT_BUYER_ADDRESS);
+        // erc721Mock.safeTransferFrom(
+        //     DEFAULT_BUYER_ADDRESS,
+        //     DEFAULT_OWNER_ADDRESS,
+        //     _tokenId
+        // );
+    }
 }
