@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
+import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 
 contract FriendsAndFamilyMinter {
@@ -30,7 +31,7 @@ contract FriendsAndFamilyMinter {
         // Lockup (optional)
         ILockup lockup = ICre8ors(cre8orsNFT).lockup();
         if (address(lockup) != address(0)) {
-            uint256 lockupDate = 8 * _week;
+            uint256 lockupDate = 8 weeks;
             bytes memory data = abi.encode(lockupDate, 0.15 ether);
             lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
         }
@@ -54,7 +55,7 @@ contract FriendsAndFamilyMinter {
 
     modifier onlyAdmin() {
         if (!ICre8ors(cre8orsNFT).isAdmin(msg.sender)) {
-            revert ICre8ors.Access_OnlyAdmin();
+            revert IERC721Drop.Access_OnlyAdmin();
         }
 
         _;
