@@ -11,16 +11,6 @@ import {IERC721A} from "erc721a/contracts/IERC721A.sol";
  *         allows the contract owner to override hooks associated with core ERC721 functions.
  */
 contract ERC721ACH is ERC721AC {
-    /// @notice Emitted when balanceOf hook is used
-    /// @param owner The owner of the tokens
-    /// @param balance The balance of the owner
-    event BalanceOfHookUsed(address indexed owner, uint256 balance);
-
-    /// @notice Emitted when ownerOf hook is used
-    /// @param tokenId The ID of the token
-    /// @param owner The owner of the token
-    event OwnerOfHookUsed(uint256 indexed tokenId, address indexed owner);
-
     /// @notice Emitted when approve hook is used
     /// @param approved The address that got approved
     /// @param tokenId The token ID that got approved
@@ -34,24 +24,6 @@ contract ERC721ACH is ERC721AC {
         address indexed owner,
         address indexed operator,
         bool approved
-    );
-
-    /// @notice Emitted when getApproved hook is used
-    /// @param tokenId The ID of the token
-    /// @param approved The approved address
-    event GetApprovedHookUsed(
-        uint256 indexed tokenId,
-        address indexed approved
-    );
-
-    /// @notice Emitted when isApprovedForAll hook is used
-    /// @param owner The owner of the tokens
-    /// @param operator The operator
-    /// @param isApproved The approval status
-    event IsApprovedForAllHookUsed(
-        address indexed owner,
-        address indexed operator,
-        bool isApproved
     );
 
     /// @notice Emitted when transferFrom hook is used
