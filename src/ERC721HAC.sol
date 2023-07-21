@@ -109,6 +109,18 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
         }
     }
 
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public payable virtual override {
+        if (_useSafeTransferFromHook(msg.sender, from, to, tokenId, "")) {
+            _safeTransferFromHook(msg.sender, from, to, tokenId, "");
+        } else {
+            super.safeTransferFrom(from, to, tokenId);
+        }
+    }
+
     /////////////////////////////////////////////////
     /// ERC721 Hooks
     /////////////////////////////////////////////////

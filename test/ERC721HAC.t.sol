@@ -252,12 +252,12 @@ contract ERC721ACHTest is DSTest {
 
         // Verify hook override
         erc721Mock.setHooksEnabled(true);
-        // vm.expectRevert(ERC721HACMock.Hook_Executed.selector);
-        // vm.prank(DEFAULT_BUYER_ADDRESS);
-        // erc721Mock.safeTransferFrom(
-        //     DEFAULT_BUYER_ADDRESS,
-        //     DEFAULT_OWNER_ADDRESS,
-        //     _tokenId
-        // );
+        vm.expectRevert(ERC721HACMock.SafeTransferFromHook_Executed.selector);
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        erc721Mock.safeTransferFrom(
+            DEFAULT_BUYER_ADDRESS,
+            DEFAULT_OWNER_ADDRESS,
+            _tokenId
+        );
     }
 }
