@@ -74,6 +74,16 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
         return super.getApproved(tokenId);
     }
 
+    function isApprovedForAll(
+        address owner,
+        address operator
+    ) public view virtual override returns (bool) {
+        if (_useIsApprovedForAllHook(owner, operator)) {
+            return _isApprovedForAllHook(owner, operator);
+        }
+        return super.isApprovedForAll(owner, operator);
+    }
+
     /////////////////////////////////////////////////
     /// ERC721 Hooks
     /////////////////////////////////////////////////
@@ -116,6 +126,17 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
 
     function _useGetApprovedHook(
         uint256 tokenId
+    ) internal view virtual returns (bool) {}
+
+    /// @dev isApprovedForAll - ERC721
+    function _isApprovedForAllHook(
+        address owner,
+        address operator
+    ) internal view virtual returns (bool) {}
+
+    function _useIsApprovedForAllHook(
+        address owner,
+        address operator
     ) internal view virtual returns (bool) {}
 
     /////////////////////////////////////////////////
