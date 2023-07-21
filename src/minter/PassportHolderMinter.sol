@@ -6,10 +6,8 @@ import {ILockup} from "../interfaces/ILockup.sol";
 
 contract PassportHolderMinter {
     mapping(uint256 => bool) private _freeMintClaimed;
-
+    mapping(address => uint256) public quantityMinted;
     address private _passportContractAddress;
-    uint256 private _week = 7 * 24 * 60 * 60;
-    uint256 private _month = 4 * _week;
 
     constructor(address passportContractAddress) {
         _passportContractAddress = passportContractAddress;
@@ -30,10 +28,11 @@ contract PassportHolderMinter {
             "You do not own this passport"
         );
         uint256 pfpTokenId = ICre8ors(target).adminMint(recipient, 1);
+        quantityMinted[recipient] += 1;
 
         ILockup lockup = ICre8ors(target).lockup();
         if (address(lockup) != address(0)) {
-            uint256 lockupDate = 8 * _week;
+            uint256 lockupDate = 8 weeks;
             bytes memory data = abi.encode(lockupDate, 0.15 ether);
             lockup.setUnlockInfo(target, pfpTokenId, data);
         }
