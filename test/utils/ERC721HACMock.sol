@@ -11,6 +11,7 @@ contract ERC721HACMock is ERC721HAC {
     /// @notice error to verify hook was executed
     error Hook_Executed();
     error SetApprovalForAllHook_Executed();
+    error TransferFromHook_Executed();
 
     function mint(address to, uint256 quantity) external {
         _mint(to, quantity);
@@ -38,6 +39,14 @@ contract ERC721HACMock is ERC721HAC {
         bool
     ) internal virtual override {
         revert SetApprovalForAllHook_Executed();
+    }
+
+    function _transferFromHook(
+        address,
+        address,
+        uint256
+    ) internal virtual override {
+        revert TransferFromHook_Executed();
     }
 
     /////////////////////////////////////////////////
@@ -81,8 +90,16 @@ contract ERC721HACMock is ERC721HAC {
     }
 
     function _useIsApprovedForAllHook(
-        address owner,
-        address operator
+        address,
+        address
+    ) internal view virtual override returns (bool) {
+        return hooksEnabled;
+    }
+
+    function _useTransferFromHook(
+        address,
+        address,
+        uint256
     ) internal view virtual override returns (bool) {
         return hooksEnabled;
     }

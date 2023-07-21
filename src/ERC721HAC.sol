@@ -84,6 +84,18 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
         return super.isApprovedForAll(owner, operator);
     }
 
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public payable virtual override {
+        if (_useTransferFromHook(from, to, tokenId)) {
+            _transferFromHook(from, to, tokenId);
+        } else {
+            super.transferFrom(from, to, tokenId);
+        }
+    }
+
     /////////////////////////////////////////////////
     /// ERC721 Hooks
     /////////////////////////////////////////////////
@@ -137,6 +149,19 @@ contract ERC721HAC is IERC721HAC, ERC721AC {
     function _useIsApprovedForAllHook(
         address owner,
         address operator
+    ) internal view virtual returns (bool) {}
+
+    /// @dev transferFrom - ERC721
+    function _transferFromHook(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual {}
+
+    function _useTransferFromHook(
+        address from,
+        address to,
+        uint256 tokenId
     ) internal view virtual returns (bool) {}
 
     /////////////////////////////////////////////////
