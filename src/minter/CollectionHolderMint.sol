@@ -3,9 +3,12 @@ pragma solidity ^0.8.15;
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
+import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract CollectionHolderMint {
     mapping(uint256 => bool) public freeMintClaimed;
+    mapping(address => uint256) public quantityMinted;
+
     address public _collectionContractAddress;
 
     uint256 private _month = 4 weeks;
@@ -54,14 +57,28 @@ contract CollectionHolderMint {
     function mint(
         uint256 tokenId,
         address target,
-        address recipient
+        address recipient,
+        bytes32[] calldata merkleProof
     )
         external
         onlyTokenOwner(tokenId, recipient)
         hasFreeMint(tokenId)
         returns (uint256)
     {
+        bytes32[] merkleRoot = ICre8ors(_collectionContractAddress)
+            .salesConfig
+            .presaleMerkleRoot;
+        if (
+            MerkleProof.verify(
+                merkleProof,
+                merkleRoot,
+                keccak256(abi.encodePacked(tokenId, recipient))
+            )
+        ) {
+            revert("Invalid Merkle Proof");
+        }
         uint256 pfpTokenId = ICre8ors(target).adminMint(recipient, 1);
+        quantityMinted[recipient] += 1;
 
         ILockup lockup = ICre8ors(target).lockup();
         if (address(lockup) != address(0)) {
