@@ -14,8 +14,8 @@ contract CollectionHolderMint {
         _collectionContractAddress = collectionContractAddress;
     }
 
-    function mintPfp(
-        uint256 passportTokenId,
+    function mint(
+        uint256 tokenId,
         address target,
         address recipient
     ) external returns (uint256) {
