@@ -5,7 +5,7 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 
 contract CollectionHolderMint {
-    mapping(uint256 => bool) private _freeMintClaimed;
+    mapping(uint256 => bool) public freeMintClaimed;
     address public _collectionContractAddress;
 
     uint256 private _month = 4 weeks;
@@ -23,10 +23,7 @@ contract CollectionHolderMint {
             IERC721A(_collectionContractAddress).ownerOf(tokenId) == recipient,
             "CollectionHolderMint: Not owner of token"
         );
-        require(
-            _freeMintClaimed[tokenId] == false,
-            "Already claimed free mint"
-        );
+        require(freeMintClaimed[tokenId] == false, "Already claimed free mint");
         uint256 pfpTokenId = ICre8ors(target).adminMint(recipient, 1);
 
         ILockup lockup = ICre8ors(target).lockup();
@@ -36,11 +33,7 @@ contract CollectionHolderMint {
             lockup.setUnlockInfo(target, pfpTokenId, data);
         }
 
-        _freeMintClaimed[tokenId] = true;
+        freeMintClaimed[tokenId] = true;
         return pfpTokenId;
-    }
-
-    function freeMintClaimed(uint256 tokenId) external view returns (bool) {
-        return _freeMintClaimed[tokenId];
     }
 }
