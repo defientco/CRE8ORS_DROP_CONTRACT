@@ -117,7 +117,7 @@ contract CollectionHolderMintTest is DSTest {
         vm.startPrank(DEFAULT_BUYER_ADDRESS);
         cre8orsPassport.purchase(1);
         minter.mint(1, address(cre8orsNFTBase), DEFAULT_BUYER_ADDRESS);
-        vm.expectRevert("Already claimed free mint");
+        vm.expectRevert(CollectionHolderMint.AlreadyClaimedFreeMint.selector);
         minter.mint(1, address(cre8orsNFTBase), DEFAULT_BUYER_ADDRESS);
         vm.stopPrank();
     }
@@ -127,7 +127,7 @@ contract CollectionHolderMintTest is DSTest {
 
         vm.prank(DEFAULT_BUYER_ADDRESS, address(0x9898));
         cre8orsPassport.purchase(1);
-        vm.expectRevert("CollectionHolderMint: Not owner of token");
+        vm.expectRevert(CollectionHolderMint.NotOwnerOfToken.selector);
         minter.mint(1, address(cre8orsNFTBase), address(0x9898));
         vm.stopPrank();
     }
