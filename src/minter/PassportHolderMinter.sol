@@ -10,8 +10,8 @@ contract CollectionHolderMint {
     address private _passportContractAddress;
     uint256 private _month = 4 weeks;
 
-    constructor(address passportContractAddress) {
-        _passportContractAddress = passportContractAddress;
+    constructor(address collectionContractAddress) {
+        _collectionContractAddress = collectionContractAddress;
     }
 
     function mintPfp(
