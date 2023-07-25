@@ -8,8 +8,7 @@ contract CollectionHolderMint {
     mapping(uint256 => bool) private _freeMintClaimed;
 
     address private _passportContractAddress;
-    uint256 private _week = 7 * 24 * 60 * 60;
-    uint256 private _month = 4 * _week;
+    uint256 private _month = 4 weeks;
 
     constructor(address passportContractAddress) {
         _passportContractAddress = passportContractAddress;
