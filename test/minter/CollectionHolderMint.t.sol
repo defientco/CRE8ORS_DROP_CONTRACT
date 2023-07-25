@@ -125,7 +125,7 @@ contract CollectionHolderMintTest is DSTest {
     function testRevertNotOwnerOfPassport() public {
         _setUpMinter(_withLockup);
 
-        vm.prank(DEFAULT_BUYER_ADDRESS, address(0x9898));
+        vm.startPrank(DEFAULT_BUYER_ADDRESS, address(0x9898));
         cre8orsPassport.purchase(1);
         vm.expectRevert(CollectionHolderMint.NotOwnerOfToken.selector);
         minter.mint(1, address(cre8orsNFTBase), address(0x9898));
