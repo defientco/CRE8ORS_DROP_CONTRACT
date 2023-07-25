@@ -11,7 +11,7 @@ import {IMetadataRenderer} from "../interfaces/IMetadataRenderer.sol";
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
 */
-/// @notice Interface for ZORA Drops contract
+/// @notice Interface for Cre8ors Drop contract
 interface IERC721Drop {
     // Access errors
 
