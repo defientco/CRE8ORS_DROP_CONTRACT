@@ -6,8 +6,8 @@ import {ILockup} from "../interfaces/ILockup.sol";
 
 contract CollectionHolderMint {
     mapping(uint256 => bool) private _freeMintClaimed;
+    address public _collectionContractAddress;
 
-    address private _passportContractAddress;
     uint256 private _month = 4 weeks;
 
     constructor(address collectionContractAddress) {
@@ -20,30 +20,27 @@ contract CollectionHolderMint {
         address recipient
     ) external returns (uint256) {
         require(
-            !_freeMintClaimed[passportTokenId],
-            "This passport has already claimed a free mint"
+            IERC721A(_collectionContractAddress).ownerOf(tokenId) == recipient,
+            "CollectionHolderMint: Not owner of token"
         );
         require(
-            IERC721A(_passportContractAddress).ownerOf(passportTokenId) ==
-                recipient,
-            "You do not own this passport"
+            _freeMintClaimed[tokenId] == false,
+            "Already claimed free mint"
         );
         uint256 pfpTokenId = ICre8ors(target).adminMint(recipient, 1);
 
         ILockup lockup = ICre8ors(target).lockup();
         if (address(lockup) != address(0)) {
-            uint256 lockupDate = 8 * _week;
+            uint256 lockupDate = 8 weeks;
             bytes memory data = abi.encode(lockupDate, 0.15 ether);
             lockup.setUnlockInfo(target, pfpTokenId, data);
         }
 
-        _freeMintClaimed[passportTokenId] = true;
+        _freeMintClaimed[tokenId] = true;
         return pfpTokenId;
     }
 
-    function freeMintClaimed(
-        uint256 passportTokenId
-    ) external view returns (bool) {
-        return _freeMintClaimed[passportTokenId];
+    function freeMintClaimed(uint256 tokenId) external view returns (bool) {
+        return _freeMintClaimed[tokenId];
     }
 }
