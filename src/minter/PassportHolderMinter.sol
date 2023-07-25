@@ -4,7 +4,7 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 
-contract PassportHolderMinter {
+contract CollectionHolderMint {
     mapping(uint256 => bool) private _freeMintClaimed;
 
     address private _passportContractAddress;
