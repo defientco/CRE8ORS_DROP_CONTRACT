@@ -169,7 +169,7 @@ contract CollectionHolderMintTest is DSTest {
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(_mintQuantity);
         minter.mint(1, address(cre8orsPassport), _buyer);
-        vm.stopPrank(_buyer);
+        vm.stopPrank();
 
         assertTrue(minter.freeMintClaimed(1));
         vm.prank(DEFAULT_OWNER_ADDRESS);
