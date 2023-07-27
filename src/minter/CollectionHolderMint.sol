@@ -104,6 +104,14 @@ contract CollectionHolderMint {
     }
 
     /**
+     * @notice toggle the free mint claim status of a token
+     * @param tokenId passport token ID to toggle free mint claim status.
+     */
+    function toggleHasClaimedFreeMint(uint256 tokenId) external onlyAdmin {
+        freeMintClaimed[tokenId] = !freeMintClaimed[tokenId];
+    }
+
+    /**
      * @dev Modifier to check if the caller is the owner of a specific token.
      *
      * This modifier is used to validate whether the `recipient` address provided as an argument is the actual owner

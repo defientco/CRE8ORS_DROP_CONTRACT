@@ -156,6 +156,27 @@ contract CollectionHolderMintTest is DSTest {
         vm.stopPrank();
     }
 
+    function testManualPassportClaimToggle(
+        bool _withLockup,
+        address _buyer,
+        uint256 _mintQuantity
+    ) public {
+        vm.assume(_buyer != address(0));
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
+        _setUpMinter(_withLockup);
+
+        vm.startPrank(_buyer);
+        cre8orsPassport.purchase(_mintQuantity);
+        minter.mint(1, address(cre8orsPassport), _buyer);
+        vm.stopPrank(_buyer);
+
+        assertTrue(minter.freeMintClaimed(1));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        minter.toggleHasClaimedFreeMint(1);
+        assert(!minter.freeMintClaimed(1));
+    }
+
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(

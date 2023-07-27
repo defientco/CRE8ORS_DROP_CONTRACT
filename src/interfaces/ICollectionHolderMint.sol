@@ -25,4 +25,6 @@ interface ICollectionHolderMint {
     function setNewMinterUtilityContractAddress(
         address _newMinterUtilityContractAddress
     ) external;
+
+    function toggleHasClaimedFreeMint(uint256 tokenId) external;
 }
