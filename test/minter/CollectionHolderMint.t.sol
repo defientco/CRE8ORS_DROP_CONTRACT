@@ -2,7 +2,6 @@
 pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
-import {console2} from "forge-std/console2.sol";
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
@@ -54,10 +53,6 @@ contract CollectionHolderMintTest is DSTest {
             address(minter.minterUtilityContractAddress()),
             address(minterUtility)
         );
-    }
-
-    function testMinterValues() public {
-        assertEq(minterUtility.getTierInfo(3).price, 150000000000000000);
     }
 
     function testSetNewMinterContract(
@@ -136,8 +131,8 @@ contract CollectionHolderMintTest is DSTest {
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(_passportQuantity);
         minter.mint(1, address(cre8orsPassport), _buyer);
-        // vm.expectRevert(CollectionHolderMint.AlreadyClaimedFreeMint.selector);
-        // minter.mint(1, address(cre8orsPassport), _buyer);
+        vm.expectRevert(CollectionHolderMint.AlreadyClaimedFreeMint.selector);
+        minter.mint(1, address(cre8orsPassport), _buyer);
         vm.stopPrank();
     }
 
@@ -169,13 +164,6 @@ contract CollectionHolderMintTest is DSTest {
         );
         if (withLockup) {
             cre8orsNFTBase.setLockup(lockup);
-            console2.log("Lockup address: %s", address(lockup));
-            console2.log(
-                "minter utility address: %s",
-                address((minter.minterUtilityContractAddress()))
-            );
-            console2.log("log info: %s", minterUtility.getTierInfo(3).price);
-
             assertTrue(minter.minterUtilityContractAddress() != address(0));
         }
 

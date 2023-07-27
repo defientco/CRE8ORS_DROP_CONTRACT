@@ -14,8 +14,6 @@ interface ICollectionHolderMint {
 
     function minterUtilityContractAddress() external view returns (address);
 
-    function unlockPriceInWei() external view returns (uint256);
-
     function maxClaimedFree(address) external view returns (uint256);
 
     function mint(
