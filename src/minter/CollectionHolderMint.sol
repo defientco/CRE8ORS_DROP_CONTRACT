@@ -15,11 +15,14 @@ contract CollectionHolderMint {
 
     ///@notice The address of the minter utility contract that contains shared utility info.
     address public minterUtilityContractAddress;
-    ///@notice The price in wei for unlocking free mint.
-    uint256 public unlockPriceInWei = 150000000000000000; // 0.15 ether
 
+    ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public maxClaimedFree;
 
+    /**
+     * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
+     * @param _minterUtility The address of the minter utility contract that contains shared utility info.
+     */
     constructor(address _collectionContractAddress, address _minterUtility) {
         collectionContractAddress = _collectionContractAddress;
         minterUtilityContractAddress = _minterUtility;
@@ -77,10 +80,9 @@ contract CollectionHolderMint {
             IMinterUtilities minterUtility = IMinterUtilities(
                 minterUtilityContractAddress
             );
-            IMinterUtilities.TierInfo memory tierInfo = minterUtility
-                .getTierInfo(1);
-            uint256 lockupDate = block.timestamp + tierInfo.lockup;
-            uint256 unlockPrice = tierInfo.price;
+
+            uint256 lockupDate = block.timestamp + 8 weeks;
+            uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
             bytes memory data = abi.encode(lockupDate, unlockPrice);
             lockup.setUnlockInfo(collectionContractAddress, pfpTokenId, data);
         }
@@ -89,6 +91,12 @@ contract CollectionHolderMint {
         return pfpTokenId;
     }
 
+    /**
+     * @notice Set New Minter Utility Contract Address
+     * @notice Allows the admin to set a new address for the Minter Utility Contract.
+     * @param _newMinterUtilityContractAddress The address of the new Minter Utility Contract.
+     * @dev Only the admin can call this function.
+     */
     function setNewMinterUtilityContractAddress(
         address _newMinterUtilityContractAddress
     ) external onlyAdmin {

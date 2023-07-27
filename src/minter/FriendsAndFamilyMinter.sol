@@ -13,14 +13,16 @@ contract FriendsAndFamilyMinter {
 
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
-
+    ///@notice The address of the minter utility contract that contains shared utility info.
     address public minterUtilityContractAddress;
-    ///@notice The price in wei for unlocking free mint.
-    uint256 public unlockPriceInWei = 150000000000000000; // 0.15 ether
 
+    ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public maxClaimedFree;
 
+    ///@notice Emit Missing Discount error when a user attempts to claim a free mint or allocation, but they have not been given a discount.
     error MissingDiscount();
+
+    ///@notice Emit Existing Discount error when a user attempts to claim a free mint or allocation, but they have already done so previously.
     error ExistingDiscount();
 
     constructor(address _cre8orsNFT, address _minterUtilityContractAddress) {
@@ -44,10 +46,8 @@ contract FriendsAndFamilyMinter {
             IMinterUtilities minterUtility = IMinterUtilities(
                 minterUtilityContractAddress
             );
-            IMinterUtilities.TierInfo memory tierInfo = minterUtility
-                .getTierInfo(1);
-            uint256 lockupDate = tierInfo.lockup;
-            uint256 unlockPrice = tierInfo.price;
+            uint256 lockupDate = block.timestamp + 8 weeks;
+            uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
             bytes memory data = abi.encode(lockupDate, unlockPrice);
             lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
         }

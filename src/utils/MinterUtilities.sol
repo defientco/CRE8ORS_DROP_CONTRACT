@@ -8,30 +8,15 @@ import {FriendsAndFamilyMinter} from "../minter/FriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 
 contract MinterUtilities {
-    /**
-     * @dev Emitted when the price of a tier is updated.
-     * @param tier The tier whose price is updated.
-     * @param price The new price for the tier.
-     */
     event TierPriceUpdated(uint256 tier, uint256 price);
 
-    /**
-     * @dev Emitted when the lockup period of a tier is updated.
-     * @param tier The tier whose lockup period is updated.
-     * @param lockup The new lockup period for the tier.
-     */
     event TierLockupUpdated(uint256 tier, uint256 lockup);
 
-    /**
-     * @dev Represents pricing and lockup information for a specific tier.
-     */
     struct TierInfo {
         uint256 price;
         uint256 lockup;
     }
-    /**
-     * @dev Represents a tier and quantity of NFTs.
-     */
+
     struct Cart {
         uint8 tier;
         uint256 quantity;
@@ -53,17 +38,11 @@ contract MinterUtilities {
 
     constructor(address _collectionAddress) {
         collectionAddress = _collectionAddress;
-        tierInfo[1] = TierInfo(_tier1DefaultPrice, 8 weeks);
-        tierInfo[2] = TierInfo(_tier2DefaultPrice, 52 weeks);
+        tierInfo[1] = TierInfo(_tier1DefaultPrice, 32 weeks);
+        tierInfo[2] = TierInfo(_tier2DefaultPrice, 8 weeks);
         tierInfo[3] = TierInfo(_tier3DefaultPrice, 0 weeks);
     }
 
-    /**
-     * @dev Calculates the total price for a given quantity of NFTs in a specific tier.
-     * @param tier The tier to calculate the price for.
-     * @param quantity The quantity of NFTs to calculate the price for.
-     * @return The total price in wei for the given quantity in the specified tier.
-     */
     function calculatePrice(
         uint8 tier,
         uint256 quantity
@@ -72,23 +51,10 @@ contract MinterUtilities {
         return price;
     }
 
-    /**
-     * @dev Converts an amount from ether to gwei (1 ether = 10^9 gwei).
-     * @param value The amount in ether to convert to gwei.
-     * @return The equivalent amount in gwei.
-     */
     function etherToGwei(uint256 value) public pure returns (uint256) {
         return value * 10 ** 9;
     }
 
-    /**
-     * @dev Returns the quantity of NFTs left that can be minted by the given recipient.
-     * @param passportHolderMinter The address of the PassportHolderMinter contract.
-     * @param friendsAndFamilyMinter The address of the FriendsAndFamilyMinter contract.
-     * @param target The address of the target contract (ICre8ors contract).
-     * @param recipient The recipient's address.
-     * @return The quantity of NFTs that can still be minted by the recipient.
-     */
     function quantityLeft(
         address passportHolderMinter,
         address friendsAndFamilyMinter,
@@ -123,11 +89,6 @@ contract MinterUtilities {
         return maxPublicMintQuantity + startingPoint;
     }
 
-    /**
-     * @dev Calculates the total cost for a given list of NFTs in different tiers.
-     * @param carts An array of Cart struct representing the tiers and quantities.
-     * @return The total cost in wei for the given list of NFTs.
-     */
     function calculateTotalCost(
         Cart[] calldata carts
     ) external view returns (uint256) {
@@ -138,24 +99,10 @@ contract MinterUtilities {
         return totalCost;
     }
 
-    /**
-     * @dev Calculates the lockup period for a specific tier.
-     * @param tier The tier to calculate the lockup period for.
-     * @return The lockup period in seconds for the specified tier.
-     */
     function calculateLockupDate(uint8 tier) external view returns (uint256) {
-        if (tier == 1) {
-            return 8 weeks;
-        } else if (tier == 2) {
-            return 52 weeks;
-        }
+        return block.timestamp + tierInfo[tier].lockup;
     }
 
-    /**
-     * @dev Calculates the total quantity of NFTs in a given list of Cart structs.
-     * @param carts An array of Cart struct representing the tiers and quantities.
-     * @return The total quantity of NFTs in the given list of carts.
-     */
     function calculateTotalQuantity(
         Cart[] calldata carts
     ) public view returns (uint256) {
@@ -167,9 +114,22 @@ contract MinterUtilities {
     }
 
     /**
-     * @dev Updates the prices for all tiers in the MinterUtilities contract.
-     * @param tierPrices A bytes array representing the new prices for all tiers (in wei).
+     * @dev Calculates the unlock price for a given tier and minting option.
+     * @param tier The tier for which to calculate the unlock price.
+     * @param freeMint A boolean flag indicating whether the minting option is free or not.
+     * @return The calculated unlock price in wei.
      */
+    function calculateUnlockPrice(
+        uint8 tier,
+        bool freeMint
+    ) external view returns (uint256) {
+        if (freeMint) {
+            return tierInfo[3].price - tierInfo[1].price;
+        } else {
+            return tierInfo[3].price - tierInfo[tier].price;
+        }
+    }
+
     function updateAllTierPrices(bytes calldata tierPrices) external onlyAdmin {
         (uint256 tier1, uint256 tier2, uint256 tier3) = abi.decode(
             tierPrices,
@@ -180,37 +140,21 @@ contract MinterUtilities {
         tierInfo[3].price = tier3;
     }
 
-    /**
-     * @dev Updates the price for Tier 1.
-     * @param _tier1 The new price for Tier 1 (in gwei).
-     */
     function updateTierOnePrice(uint256 _tier1) external onlyAdmin {
         tierInfo[1].price = _tier1;
         emit TierPriceUpdated(1, _tier1);
     }
 
-    /**
-     * @dev Updates the price for Tier 2.
-     * @param _tier2 The new price for Tier 2 (in gwei).
-     */
     function updateTierTwoPrice(uint256 _tier2) external onlyAdmin {
         tierInfo[2].price = _tier2;
         emit TierPriceUpdated(2, _tier2);
     }
 
-    /**
-     * @dev Updates the price for Tier 3.
-     * @param _tier3 The new price for Tier 3 (in gwei).
-     */
     function updateTierThreePrice(uint256 _tier3) external onlyAdmin {
         tierInfo[3].price = _tier3;
         emit TierPriceUpdated(3, _tier3);
     }
 
-    /**
-     * @dev Sets new default lockup periods for all tiers.
-     * @param lockupInfo A bytes array representing the new lockup periods for all tiers (in weeks).
-     */
     function setNewDefaultLockups(
         bytes calldata lockupInfo
     ) external onlyAdmin {
@@ -227,28 +171,16 @@ contract MinterUtilities {
         return tierInfo[tier];
     }
 
-    /**
-     * @dev Updates the lockup period for Tier 1.
-     * @param _tier1 The new lockup period for Tier 1 (in weeks).
-     */
     function updateTierOneLockup(uint256 _tier1) external onlyAdmin {
         tierInfo[1].lockup = _tier1;
         emit TierLockupUpdated(1, _tier1);
     }
 
-    /**
-     * @dev Updates the lockup period for Tier 2.
-     * @param _tier2 The new lockup period for Tier 2 (in weeks).
-     */
     function updateTierTwoLockup(uint256 _tier2) external onlyAdmin {
         tierInfo[2].lockup = _tier2;
         emit TierLockupUpdated(2, _tier2);
     }
 
-    /**
-     * @dev Updates the maximum allowed quantity for the allowlist.
-     * @param _maxAllowlistQuantity The new maximum allowed quantity for the allowlist.
-     */
     function updateMaxAllowlistQuantity(
         uint256 _maxAllowlistQuantity
     ) external onlyAdmin {

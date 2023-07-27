@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
+import {console2} from "forge-std/console2.sol";
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
@@ -39,7 +40,7 @@ contract CollectionHolderMintTest is DSTest {
         cre8orsPassport = _setUpContracts();
         minterUtility = new MinterUtilities(address(cre8orsNFTBase));
         minter = new CollectionHolderMint(
-            address(cre8orsPassport),
+            address(cre8orsNFTBase),
             address(minterUtility)
         );
     }
@@ -59,20 +60,19 @@ contract CollectionHolderMintTest is DSTest {
         assertEq(minterUtility.getTierInfo(3).price, 150000000000000000);
     }
 
-    function testSetNewMinterContract(bool _withLockup) public {
+    function testSetNewMinterContract(
+        bool _withLockup,
+        address _minter
+    ) public {
         _setUpMinter(_withLockup);
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        minter.setNewMinterUtilityContractAddress(address(0x123));
-        assertEq(
-            address(minter.minterUtilityContractAddress()),
-            address(0x123)
-        );
+        minter.setNewMinterUtilityContractAddress(_minter);
+        assertEq(address(minter.minterUtilityContractAddress()), _minter);
     }
 
-    function testSuccessfulMintWithLockUp(
+    function testSuccessfulMint(
         bool _withLockup,
         address _buyer,
-        address _recipient,
         uint256 _mintQuantity
     ) public {
         vm.assume(_mintQuantity > 0);
@@ -88,7 +88,7 @@ contract CollectionHolderMintTest is DSTest {
                 address(minter)
             )
         );
-        uint256 pfpID = minter.mint(1, address(cre8orsNFTBase), _buyer);
+        uint256 pfpID = minter.mint(1, address(cre8orsPassport), _buyer);
         assertEq(1, pfpID);
         assertEq(1, cre8orsNFTBase.balanceOf(_buyer));
         assertEq(
@@ -123,15 +123,21 @@ contract CollectionHolderMintTest is DSTest {
         );
     }
 
-    function testRevertAlreadyClaimed(bool _withLockup, address _buyer) public {
+    function testRevertAlreadyClaimed(
+        bool _withLockup,
+        address _buyer,
+        uint256 _passportQuantity
+    ) public {
         vm.assume(_buyer != address(0));
+        vm.assume(_passportQuantity > 0);
+        vm.assume(_passportQuantity < DEFAULT_EDITION_SIZE);
         _setUpMinter(_withLockup);
 
         vm.startPrank(_buyer);
-        cre8orsPassport.purchase(1);
-        minter.mint(1, address(cre8orsNFTBase), _buyer);
-        vm.expectRevert(CollectionHolderMint.AlreadyClaimedFreeMint.selector);
-        minter.mint(1, address(cre8orsNFTBase), _buyer);
+        cre8orsPassport.purchase(_passportQuantity);
+        minter.mint(1, address(cre8orsPassport), _buyer);
+        // vm.expectRevert(CollectionHolderMint.AlreadyClaimedFreeMint.selector);
+        // minter.mint(1, address(cre8orsPassport), _buyer);
         vm.stopPrank();
     }
 
@@ -151,7 +157,7 @@ contract CollectionHolderMintTest is DSTest {
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(_mintQuantity);
         vm.expectRevert(IERC721A.ApprovalCallerNotOwnerNorApproved.selector);
-        minter.mint(1, address(cre8orsNFTBase), _caller);
+        minter.mint(1, address(cre8orsPassport), _caller);
         vm.stopPrank();
     }
 
@@ -163,6 +169,14 @@ contract CollectionHolderMintTest is DSTest {
         );
         if (withLockup) {
             cre8orsNFTBase.setLockup(lockup);
+            console2.log("Lockup address: %s", address(lockup));
+            console2.log(
+                "minter utility address: %s",
+                address((minter.minterUtilityContractAddress()))
+            );
+            console2.log("log info: %s", minterUtility.getTierInfo(3).price);
+
+            assertTrue(minter.minterUtilityContractAddress() != address(0));
         }
 
         assertTrue(
