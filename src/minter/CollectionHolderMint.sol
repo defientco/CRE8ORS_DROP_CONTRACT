@@ -3,22 +3,27 @@ pragma solidity ^0.8.15;
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
+import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
+import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 
 contract CollectionHolderMint {
+    ///@notice Mapping to track whether a specific uint256 value (token ID) has been claimed or not.
     mapping(uint256 => bool) public freeMintClaimed;
-    address public _collectionContractAddress;
 
-    uint256 private _month = 4 weeks;
+    ///@notice The address of the collection contract that mints and manages the tokens.
+    address public collectionContractAddress;
 
-    constructor(address collectionContractAddress) {
-        _collectionContractAddress = collectionContractAddress;
+    ///@notice The address of the minter utility contract that contains shared utility info.
+    address public minterUtilityContractAddress;
+    ///@notice The price in wei for unlocking free mint.
+    uint256 public unlockPriceInWei = 150000000000000000; // 0.15 ether
+
+    mapping(address => uint256) public maxClaimedFree;
+
+    constructor(address _collectionContractAddress, address _minterUtility) {
+        collectionContractAddress = _collectionContractAddress;
+        minterUtilityContractAddress = _minterUtility;
     }
-
-    /**
-    thrown when a user attempts to perform 
-    an action on a token or an asset that they do not own 
-    */
-    error NotOwnerOfToken();
 
     /**
     thrown when a user attempts to claim a free mint or allocation, 
@@ -41,7 +46,7 @@ contract CollectionHolderMint {
      *    includes the lockup duration (8 weeks) and the lockup amount (0.15 ether).
      *
      * @param tokenId The ID of the token to be minted.
-     * @param target The address of the `ICre8ors` contract that will handle the minting and PFP token creation.
+     * @param passportContract The address of the Passport contract that will check if owner of passport is same as recipient.
      * @param recipient The address to whom the newly minted token will be assigned.
      * @return pfpTokenId The ID of the corresponding PFP token that was minted for the `recipient`.
      *
@@ -53,25 +58,41 @@ contract CollectionHolderMint {
      */
     function mint(
         uint256 tokenId,
-        address target,
+        address passportContract,
         address recipient
     )
         external
-        onlyTokenOwner(tokenId, recipient)
+        onlyTokenOwner(passportContract, tokenId, recipient)
         hasFreeMint(tokenId)
         returns (uint256)
     {
-        uint256 pfpTokenId = ICre8ors(target).adminMint(recipient, 1);
+        uint256 pfpTokenId = ICre8ors(collectionContractAddress).adminMint(
+            recipient,
+            1
+        );
+        maxClaimedFree[recipient] += 1;
 
-        ILockup lockup = ICre8ors(target).lockup();
+        ILockup lockup = ICre8ors(collectionContractAddress).lockup();
         if (address(lockup) != address(0)) {
-            uint256 lockupDate = 8 weeks;
-            bytes memory data = abi.encode(lockupDate, 0.15 ether);
-            lockup.setUnlockInfo(target, pfpTokenId, data);
+            IMinterUtilities minterUtility = IMinterUtilities(
+                minterUtilityContractAddress
+            );
+            IMinterUtilities.TierInfo memory tierInfo = minterUtility
+                .getTierInfo(1);
+            uint256 lockupDate = block.timestamp + tierInfo.lockup;
+            uint256 unlockPrice = tierInfo.price;
+            bytes memory data = abi.encode(lockupDate, unlockPrice);
+            lockup.setUnlockInfo(collectionContractAddress, pfpTokenId, data);
         }
 
         freeMintClaimed[tokenId] = true;
         return pfpTokenId;
+    }
+
+    function setNewMinterUtilityContractAddress(
+        address _newMinterUtilityContractAddress
+    ) external onlyAdmin {
+        minterUtilityContractAddress = _newMinterUtilityContractAddress;
     }
 
     /**
@@ -87,12 +108,22 @@ contract CollectionHolderMint {
      * Requirements:
      * - The `recipient` address must be the current owner of the token specified by `tokenId`.
      */
-    modifier onlyTokenOwner(uint256 tokenId, address recipient) {
-        if (
-            IERC721A(_collectionContractAddress).ownerOf(tokenId) != recipient
-        ) {
-            revert NotOwnerOfToken();
+    modifier onlyTokenOwner(
+        address passportContract,
+        uint256 tokenId,
+        address recipient
+    ) {
+        if (IERC721A(passportContract).ownerOf(tokenId) != recipient) {
+            revert IERC721A.ApprovalCallerNotOwnerNorApproved();
         }
+        _;
+    }
+
+    modifier onlyAdmin() {
+        if (!ICre8ors(collectionContractAddress).isAdmin(msg.sender)) {
+            revert IERC721Drop.Access_OnlyAdmin();
+        }
+
         _;
     }
 

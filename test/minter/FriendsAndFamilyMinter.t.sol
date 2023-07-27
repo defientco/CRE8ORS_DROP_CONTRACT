@@ -11,15 +11,22 @@ import {Cre8ors} from "../../src/Cre8ors.sol";
 import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
 import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
 import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
+import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
+import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
+    MinterUtilities public minterUtility;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
-        minter = new FriendsAndFamilyMinter(address(cre8orsNFTBase));
+        minterUtility = new MinterUtilities(address(cre8orsNFTBase));
+        minter = new FriendsAndFamilyMinter(
+            address(cre8orsNFTBase),
+            address(minterUtility)
+        );
     }
 
     function testLockup() public {
