@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
+import {StdUtils} from "forge-std/StdUtils.sol";
 import {DSTest} from "ds-test/test.sol";
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
@@ -16,7 +17,7 @@ import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
 import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
 
-contract CollectionHolderMintTest is DSTest {
+contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
         uint256 price;
         uint256 lockup;
@@ -77,31 +78,39 @@ contract CollectionHolderMintTest is DSTest {
     function testSuccessfulMint(
         bool _withLockup,
         address _buyer,
-        uint256 _mintQuantity
+        uint256[] memory _tokenIds
     ) public {
-        vm.assume(_mintQuantity > 0);
         vm.assume(_buyer != address(0));
-        vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
-        uint256[] memory tokens = generateTokens(_mintQuantity);
+        vm.assume(_tokenIds.length <= 10);
+        vm.assume(_tokenIds.length > 0);
+        uint256 maxTokenId = 888;
+        // Add loop here to fuzz each token id
+        for (uint i = 0; i < _tokenIds.length; i++) {
+            _tokenIds[i] = _bound(_tokenIds[i], 1, maxTokenId); // Use your desired maximum and minimum value here
+        }
         _setUpMinter(_withLockup);
 
         vm.startPrank(_buyer);
-        cre8orsPassport.purchase(_mintQuantity);
+        cre8orsPassport.purchase(maxTokenId);
         assertTrue(
             cre8orsNFTBase.hasRole(
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(minter)
             )
         );
-        uint256 pfpID = minter.mint(tokens, address(cre8orsPassport), _buyer);
-        assertEq(tokens.length, pfpID);
-        assertEq(tokens.length, cre8orsNFTBase.balanceOf(_buyer));
+        uint256 pfpID = minter.mint(
+            _tokenIds,
+            address(cre8orsPassport),
+            _buyer
+        );
+        assertEq(_tokenIds.length, pfpID);
+        assertEq(_tokenIds.length, cre8orsNFTBase.balanceOf(_buyer));
         assertEq(
             0,
             cre8orsNFTBase.mintedPerAddress(address(minter)).totalMints
         );
         assertEq(
-            tokens.length,
+            _tokenIds.length,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
         vm.stopPrank();
@@ -154,6 +163,7 @@ contract CollectionHolderMintTest is DSTest {
     ) public {
         vm.assume(_mintQuantity > 0);
         vm.assume(_buyer != address(0));
+        vm.assume(_recipient != address(0));
         vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
 
         vm.startPrank(_buyer);
