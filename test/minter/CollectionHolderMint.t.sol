@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 import {Vm} from "forge-std/Vm.sol";
+import {StdUtils} from "forge-std/StdUtils.sol";
 import {DSTest} from "ds-test/test.sol";
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
@@ -16,7 +17,7 @@ import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
 import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
 
-contract CollectionHolderMintTest is DSTest {
+contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
         uint256 price;
         uint256 lockup;
@@ -82,13 +83,11 @@ contract CollectionHolderMintTest is DSTest {
         vm.assume(_buyer != address(0));
         vm.assume(_tokenIds.length <= 10);
         vm.assume(_tokenIds.length > 0);
+
         // Add loop here to fuzz each token id
         for (uint i = 0; i < _tokenIds.length; i++) {
-            _tokenIds[i] = bound(_tokenIds[i], 1, 888); // Use your desired maximum and minimum value here
+            _tokenIds[i] = _bound(_tokenIds[i], 1, 888); // Use your desired maximum and minimum value here
         }
-
-        emit log_string("SWEEETS-----------------------");
-        emit log_uint(_tokenIds[0]);
         _setUpMinter(_withLockup);
 
         vm.startPrank(_buyer);
@@ -294,48 +293,5 @@ contract CollectionHolderMintTest is DSTest {
                     presaleMerkleRoot: bytes32(0)
                 })
             });
-    }
-
-    function _bound(
-        uint256 x,
-        uint256 min,
-        uint256 max
-    ) internal pure virtual returns (uint256 result) {
-        require(
-            min <= max,
-            "StdUtils bound(uint256,uint256,uint256): Max is less than min."
-        );
-        // If x is between min and max, return x directly. This is to ensure that dictionary values
-        // do not get shifted if the min is nonzero. More info: https://github.com/foundry-rs/forge-std/issues/188
-        if (x >= min && x <= max) return x;
-
-        uint256 size = max - min + 1;
-
-        // If the value is 0, 1, 2, 3, wrap that to min, min+1, min+2, min+3. Similarly for the UINT256_MAX side.
-        // This helps ensure coverage of the min/max values.
-        if (x <= 3 && size > x) return min + x;
-        if (x >= type(uint256).max - 3 && size > type(uint256).max - x)
-            return max - (type(uint256).max - x);
-
-        // Otherwise, wrap x into the range [min, max], i.e. the range is inclusive.
-        if (x > max) {
-            uint256 diff = x - max;
-            uint256 rem = diff % size;
-            if (rem == 0) return max;
-            result = min + rem - 1;
-        } else if (x < min) {
-            uint256 diff = min - x;
-            uint256 rem = diff % size;
-            if (rem == 0) return min;
-            result = max - rem + 1;
-        }
-    }
-
-    function bound(
-        uint256 x,
-        uint256 min,
-        uint256 max
-    ) internal view virtual returns (uint256 result) {
-        result = _bound(x, min, max);
     }
 }
