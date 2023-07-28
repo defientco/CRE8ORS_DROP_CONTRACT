@@ -45,6 +45,7 @@ contract CollectionHolderMintTest is DSTest {
             address(cre8orsNFTBase),
             address(minterUtility)
         );
+
         minter = new CollectionHolderMint(
             address(cre8orsNFTBase),
             address(minterUtility),
@@ -101,6 +102,46 @@ contract CollectionHolderMintTest is DSTest {
         );
         assertEq(
             tokens.length,
+            cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
+        );
+        vm.stopPrank();
+    }
+
+    function testSuccessfulMintWithDiscount(
+        bool _withLockup,
+        address _buyer,
+        uint256 _mintQuantity
+    ) public {
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_buyer != address(0));
+        vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
+        uint256[] memory tokens = generateTokens(_mintQuantity);
+        _setUpMinter(_withLockup);
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            address(friendsAndFamilyMinter)
+        );
+        friendsAndFamilyMinter.addDiscount(_buyer);
+        vm.stopPrank();
+        vm.startPrank(_buyer);
+        cre8orsPassport.purchase(_mintQuantity);
+        assertTrue(
+            cre8orsNFTBase.hasRole(
+                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                address(minter)
+            )
+        );
+        uint256 pfpID = minter.mint(tokens, address(cre8orsPassport), _buyer);
+        assertEq(tokens.length + 1, pfpID);
+        assertEq(tokens.length + 1, cre8orsNFTBase.balanceOf(_buyer));
+        assertEq(
+            0,
+            cre8orsNFTBase.mintedPerAddress(address(minter)).totalMints
+        );
+        assertEq(
+            tokens.length + 1,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
         vm.stopPrank();
