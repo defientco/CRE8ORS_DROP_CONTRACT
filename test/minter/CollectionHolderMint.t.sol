@@ -78,20 +78,23 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     function testSuccessfulMint(
         bool _withLockup,
         address _buyer,
-        uint256[] memory _tokenIds
+        uint256[] memory _tokenIds,
+        uint256 maxTokenId
     ) public {
         vm.assume(_buyer != address(0));
         vm.assume(_tokenIds.length <= 10);
         vm.assume(_tokenIds.length > 0);
+        vm.assume(maxTokenId < 888);
+        vm.assume(maxTokenId > _tokenIds.length);
 
         // Add loop here to fuzz each token id
         for (uint i = 0; i < _tokenIds.length; i++) {
-            _tokenIds[i] = _bound(_tokenIds[i], 1, 888); // Use your desired maximum and minimum value here
+            _tokenIds[i] = _bound(_tokenIds[i], 1, maxTokenId); // Use your desired maximum and minimum value here
         }
         _setUpMinter(_withLockup);
 
         vm.startPrank(_buyer);
-        cre8orsPassport.purchase(888);
+        cre8orsPassport.purchase(maxTokenId);
         assertTrue(
             cre8orsNFTBase.hasRole(
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
