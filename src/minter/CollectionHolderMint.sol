@@ -5,6 +5,7 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 
 contract CollectionHolderMint {
     ///@notice Mapping to track whether a specific uint256 value (token ID) has been claimed or not.
@@ -16,6 +17,8 @@ contract CollectionHolderMint {
     ///@notice The address of the minter utility contract that contains shared utility info.
     address public minterUtilityContractAddress;
 
+    address public friendsAndFamilyMinter;
+
     ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public maxClaimedFree;
 
@@ -23,9 +26,14 @@ contract CollectionHolderMint {
      * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
      * @param _minterUtility The address of the minter utility contract that contains shared utility info.
      */
-    constructor(address _collectionContractAddress, address _minterUtility) {
+    constructor(
+        address _collectionContractAddress,
+        address _minterUtility,
+        address _friendsAndFamilyMinter
+    ) {
         collectionContractAddress = _collectionContractAddress;
         minterUtilityContractAddress = _minterUtility;
+        friendsAndFamilyMinter = _friendsAndFamilyMinter;
     }
 
     /**
@@ -33,6 +41,8 @@ contract CollectionHolderMint {
     but they have already done so previously.
     */
     error AlreadyClaimedFreeMint();
+
+    error NoTokensProvided();
 
     /**
      * @dev Mint function to create a new token, assign it to the specified recipient, and trigger additional actions.
@@ -48,7 +58,7 @@ contract CollectionHolderMint {
      *    the newly minted PFP token using the `setUnlockInfo` function of the `lockup` contract. The unlock information
      *    includes the lockup duration (8 weeks) and the lockup amount (0.15 ether).
      *
-     * @param tokenId The ID of the token to be minted.
+     * @param tokenIds The IDs of passports.
      * @param passportContract The address of the Passport contract that will check if owner of passport is same as recipient.
      * @param recipient The address to whom the newly minted token will be assigned.
      * @return pfpTokenId The ID of the corresponding PFP token that was minted for the `recipient`.
@@ -60,35 +70,43 @@ contract CollectionHolderMint {
      * Note: This function is external, which means it can only be called from outside the contract.
      */
     function mint(
-        uint256 tokenId,
+        uint256[] calldata tokenIds,
         address passportContract,
         address recipient
     )
         external
-        onlyTokenOwner(passportContract, tokenId, recipient)
-        hasFreeMint(tokenId)
+        tokensPresentInList(tokenIds)
+        onlyTokenOwner(passportContract, tokenIds, recipient)
+        hasFreeMint(tokenIds)
         returns (uint256)
     {
+        _friendsAndFamilyMint(recipient);
+
+        return _passportMint(tokenIds, recipient);
+    }
+
+    function _passportMint(
+        uint256[] calldata _tokenIds,
+        address recipient
+    ) internal returns (uint256) {
         uint256 pfpTokenId = ICre8ors(collectionContractAddress).adminMint(
             recipient,
-            1
+            _tokenIds.length
         );
-        maxClaimedFree[recipient] += 1;
-
-        ILockup lockup = ICre8ors(collectionContractAddress).lockup();
-        if (address(lockup) != address(0)) {
-            IMinterUtilities minterUtility = IMinterUtilities(
-                minterUtilityContractAddress
-            );
-
-            uint256 lockupDate = block.timestamp + 8 weeks;
-            uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
-            bytes memory data = abi.encode(lockupDate, unlockPrice);
-            lockup.setUnlockInfo(collectionContractAddress, pfpTokenId, data);
-        }
-
-        freeMintClaimed[tokenId] = true;
+        maxClaimedFree[recipient] += _tokenIds.length;
+        _lockUpTokens(_tokenIds);
+        _setTokenIdsToClaimed(_tokenIds);
         return pfpTokenId;
+    }
+
+    function _friendsAndFamilyMint(address buyer) internal {
+        IFriendsAndFamilyMinter ffMinter = IFriendsAndFamilyMinter(
+            friendsAndFamilyMinter
+        );
+
+        if (ffMinter.hasDiscount(buyer)) {
+            ffMinter.mint(buyer);
+        }
     }
 
     /**
@@ -101,6 +119,12 @@ contract CollectionHolderMint {
         address _newMinterUtilityContractAddress
     ) external onlyAdmin {
         minterUtilityContractAddress = _newMinterUtilityContractAddress;
+    }
+
+    function setFriendsAndFamilyMinter(
+        address _newfriendsAndFamilyMinterAddress
+    ) external onlyAdmin {
+        friendsAndFamilyMinter = _newfriendsAndFamilyMinterAddress;
     }
 
     /**
@@ -118,7 +142,7 @@ contract CollectionHolderMint {
      * of the token with the given `tokenId`. If the condition is not met, the modifier will revert the transaction
      * with the "NotOwnerOfToken()" error.
      *
-     * @param tokenId The ID of the token to check ownership for.
+     * @param tokenIds The ID of the token to check ownership for.
      * @param recipient The address that should be the owner of the token.
      *
      * Requirements:
@@ -126,11 +150,13 @@ contract CollectionHolderMint {
      */
     modifier onlyTokenOwner(
         address passportContract,
-        uint256 tokenId,
+        uint256[] calldata tokenIds,
         address recipient
     ) {
-        if (IERC721A(passportContract).ownerOf(tokenId) != recipient) {
-            revert IERC721A.ApprovalCallerNotOwnerNorApproved();
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (IERC721A(passportContract).ownerOf(tokenIds[i]) != recipient) {
+                revert IERC721A.ApprovalCallerNotOwnerNorApproved();
+            }
         }
         _;
     }
@@ -150,15 +176,50 @@ contract CollectionHolderMint {
      * It checks if the `tokenId` has already been claimed for a free mint by accessing the `freeMintClaimed` mapping.
      * If the token has already been claimed, the modifier will revert the transaction with the "AlreadyClaimedFreeMint()" error.
      *
-     * @param tokenId The ID of the token to check for free mint eligibility.
+     * @param tokenIds The ID of the token to check for free mint eligibility.
      *
      * Requirements:
      * - The `tokenId` must not have been claimed for a free mint.
      */
-    modifier hasFreeMint(uint256 tokenId) {
-        if (freeMintClaimed[tokenId]) {
-            revert AlreadyClaimedFreeMint();
+    modifier hasFreeMint(uint256[] calldata tokenIds) {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (freeMintClaimed[tokenIds[i]]) {
+                revert AlreadyClaimedFreeMint();
+            }
         }
         _;
+    }
+
+    modifier tokensPresentInList(uint256[] calldata tokenIds) {
+        if (tokenIds.length == 0) {
+            revert NoTokensProvided();
+        }
+        _;
+    }
+
+    /// Internal Functions
+    function _setTokenIdsToClaimed(uint256[] calldata tokenIds) internal {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            freeMintClaimed[tokenIds[i]] = true;
+        }
+    }
+
+    function _lockUpTokens(uint256[] calldata tokenIds) internal {
+        ILockup lockup = ICre8ors(collectionContractAddress).lockup();
+        if (address(lockup) != address(0)) {
+            for (uint256 i = 0; i < tokenIds.length; i++) {
+                _lockUpToken(tokenIds[i], lockup);
+            }
+        }
+    }
+
+    function _lockUpToken(uint256 _tokenId, ILockup _lockup) internal {
+        IMinterUtilities minterUtility = IMinterUtilities(
+            minterUtilityContractAddress
+        );
+        uint256 lockupDate = block.timestamp + 8 weeks;
+        uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
+        bytes memory data = abi.encode(lockupDate, unlockPrice);
+        _lockup.setUnlockInfo(collectionContractAddress, _tokenId, data);
     }
 }

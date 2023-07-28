@@ -6,6 +6,7 @@ interface ICollectionHolderMint {
     error AlreadyClaimedFreeMint();
     error IERC721A_ApprovalCallerNotOwnerNorApproved();
     error IERC721Drop_Access_OnlyAdmin();
+    error NoTokensProvided();
 
     // Functions
     function freeMintClaimed(uint256 tokenId) external view returns (bool);
@@ -17,7 +18,7 @@ interface ICollectionHolderMint {
     function maxClaimedFree(address) external view returns (uint256);
 
     function mint(
-        uint256 tokenId,
+        uint256[] calldata tokenIds,
         address passportContract,
         address recipient
     ) external returns (uint256);
@@ -27,4 +28,8 @@ interface ICollectionHolderMint {
     ) external;
 
     function toggleHasClaimedFreeMint(uint256 tokenId) external;
+
+    function setFriendsAndFamilyMinter(
+        address _newfriendsAndFamilyMinterAddress
+    ) external;
 }
