@@ -183,7 +183,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
             recipient,
             _tokenIds.length
         );
-        maxClaimedFree[recipient] += _tokenIds.length;
+        totalClaimed[recipient] += _tokenIds.length;
         _lockUpTokens(_tokenIds);
         _setTokenIdsToClaimed(_tokenIds);
         return pfpTokenId;

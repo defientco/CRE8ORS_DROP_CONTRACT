@@ -26,7 +26,7 @@ interface IFriendsAndFamilyMinter {
     /// @dev Retrieves the maximum number of tokens claimed for free by the specified recipient.
     /// @param recipient The address of the recipient to query for the maximum claimed free tokens.
     /// @return The maximum number of tokens claimed for free by the recipient.
-    function maxClaimedFree(address recipient) external view returns (uint256);
+    function totalClaimed(address recipient) external view returns (uint256);
 
     /// @dev Mints a new token for the specified recipient and returns the token ID.
     /// @param recipient The address of the recipient who will receive the minted token.

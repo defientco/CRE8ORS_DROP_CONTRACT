@@ -33,7 +33,7 @@ interface ICollectionHolderMint {
      * @dev Returns the maximum number of free mints claimed by an address
      * @return The maximum number of free mints claimed
      */
-    function maxClaimedFree(address) external view returns (uint256);
+    function totalClaimed(address) external view returns (uint256);
 
     /**
      * @dev Mints a batch of tokens and sends them to a recipient

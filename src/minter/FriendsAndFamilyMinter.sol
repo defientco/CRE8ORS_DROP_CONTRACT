@@ -18,7 +18,7 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     address public minterUtilityContractAddress;
 
     ///@notice mapping of address to quantity of free mints claimed.
-    mapping(address => uint256) public maxClaimedFree;
+    mapping(address => uint256) public totalClaimed;
 
     constructor(address _cre8orsNFT, address _minterUtilityContractAddress) {
         cre8orsNFT = _cre8orsNFT;
@@ -33,7 +33,7 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ) external onlyExistingDiscount(recipient) returns (uint256) {
         // Mint the token
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
-        maxClaimedFree[recipient] += 1;
+        totalClaimed[recipient] += 1;
 
         // Reset discount for the recipient
         hasDiscount[recipient] = false;

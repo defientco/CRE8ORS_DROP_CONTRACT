@@ -66,9 +66,9 @@ contract MinterUtilities is IMinterUtilities {
         );
 
         uint256 totalMints = cre8ors.mintedPerAddress(recipient).totalMints;
-        uint256 maxClaimedFree = passportMinter.maxClaimedFree(recipient) +
-            friendsAndFamily.maxClaimedFree(recipient);
-        uint256 maxQuantity = maxAllowedQuantity(maxClaimedFree);
+        uint256 totalClaimed = passportMinter.totalClaimed(recipient) +
+            friendsAndFamily.totalClaimed(recipient);
+        uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
         uint256 quantityRemaining = maxQuantity - totalMints;
 
         if (quantityRemaining < 0) {
