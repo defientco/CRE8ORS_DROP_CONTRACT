@@ -5,44 +5,57 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
+import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 
-contract FriendsAndFamilyMinter {
-    mapping(address => uint256) public quantityClaimedFree;
+contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
+    ///@notice Mapping to track whether an address has discount for free mint.
     mapping(address => bool) public hasDiscount;
 
+    ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
+    ///@notice The address of the minter utility contract that contains shared utility info.
+    address public minterUtilityContractAddress;
 
-    error MissingDiscount();
-    error ExistingDiscount();
+    ///@notice mapping of address to quantity of free mints claimed.
+    mapping(address => uint256) public totalClaimed;
 
-    uint256 private _month = 4 weeks;
-
-    constructor(address _cre8orsNFT) {
+    constructor(address _cre8orsNFT, address _minterUtilityContractAddress) {
         cre8orsNFT = _cre8orsNFT;
+        minterUtilityContractAddress = _minterUtilityContractAddress;
     }
 
+    /// @dev Mints a new token for the specified recipient and performs additional actions, such as setting the lockup (if applicable).
+    /// @param recipient The address of the recipient who will receive the minted token.
+    /// @return The token ID of the minted token.
     function mint(
         address recipient
     ) external onlyExistingDiscount(recipient) returns (uint256) {
-        // Mint
+        // Mint the token
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
-        quantityClaimedFree[recipient] += 1;
+        totalClaimed[recipient] += 1;
 
-        // Reset discount
+        // Reset discount for the recipient
         hasDiscount[recipient] = false;
 
-        // Lockup (optional)
+        // Set lockup information (optional)
         ILockup lockup = ICre8ors(cre8orsNFT).lockup();
         if (address(lockup) != address(0)) {
-            uint256 lockupDate = 8 weeks;
-            bytes memory data = abi.encode(lockupDate, 0.15 ether);
+            IMinterUtilities minterUtility = IMinterUtilities(
+                minterUtilityContractAddress
+            );
+            uint256 lockupDate = block.timestamp + 8 weeks;
+            uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
+            bytes memory data = abi.encode(lockupDate, unlockPrice);
             lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
         }
 
-        // Return tokenId
+        // Return the token ID of the minted token
         return pfpTokenId;
     }
 
+    /// @dev Grants a discount to the specified recipient, allowing them to mint tokens without paying the regular price.
+    /// @param recipient The address of the recipient who will receive the discount.
     function addDiscount(address recipient) external onlyAdmin {
         if (hasDiscount[recipient]) {
             revert ExistingDiscount();
@@ -50,25 +63,36 @@ contract FriendsAndFamilyMinter {
         hasDiscount[recipient] = true;
     }
 
+    /// @dev Removes the discount from the specified recipient, preventing them from minting tokens with a discount.
+    /// @param recipient The address of the recipient whose discount will be removed.
     function removeDiscount(
         address recipient
     ) external onlyAdmin onlyExistingDiscount(recipient) {
         hasDiscount[recipient] = false;
     }
 
+    /// @dev Sets a new address for the MinterUtilities contract.
+    /// @param _newMinterUtilityContractAddress The address of the new MinterUtilities contract.
+    function setNewMinterUtilityContractAddress(
+        address _newMinterUtilityContractAddress
+    ) external onlyAdmin {
+        minterUtilityContractAddress = _newMinterUtilityContractAddress;
+    }
+
+    /// @dev Modifier that restricts access to only the contract's admin.
     modifier onlyAdmin() {
         if (!ICre8ors(cre8orsNFT).isAdmin(msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
         }
-
         _;
     }
 
+    /// @dev Modifier that checks if the specified recipient has a discount.
+    /// @param recipient The address of the recipient to check for the discount.
     modifier onlyExistingDiscount(address recipient) {
         if (!hasDiscount[recipient]) {
             revert MissingDiscount();
         }
-
         _;
     }
 }
