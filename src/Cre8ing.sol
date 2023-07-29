@@ -5,6 +5,7 @@ import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IAfterLeaveWarehouseHook} from "./interfaces/IAfterLeaveWarehouseHook.sol";
 import {IBeforeLeaveWarehouseHook} from "./interfaces/IBeforeLeaveWarehouseHook.sol";
+import {ICre8ingHooks} from "./interfaces/ICre8ingHooks.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -15,10 +16,10 @@ import {IBeforeLeaveWarehouseHook} from "./interfaces/IBeforeLeaveWarehouseHook.
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
-contract Cre8ing is Cre8iveAdmin, ICre8ing {
+contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
 
-    IBeforeLeaveWarehouseHook public beforeLeaveWarehouseHook;
-    IAfterLeaveWarehouseHook public afterLeaveWarehouseHook;
+    mapping(HookType => address) public hooks;
+
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
@@ -27,6 +28,9 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 internal cre8ingTransfer = 1;
+
+    event UpdatedHook(address indexed setter, HookType hookType, address indexed hookAddress);
+
 
     constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
@@ -105,6 +109,7 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
 
     /// @dev validation hook that fires before an exit from cre8ing
     function _beforeLeaveWarehouse(uint256 tokenId) internal virtual {
+        IBeforeLeaveWarehouseHook beforeLeaveWarehouseHook = IBeforeLeaveWarehouseHook(hooks[HookType.BeforeLeaveWarehouse]);
         if (
             address(beforeLeaveWarehouseHook) != address(0) &&
             beforeLeaveWarehouseHook.useBeforeLeaveWarehouseHook(tokenId)
@@ -114,12 +119,34 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     }
 
      function _afterLeaveWarehouse(uint256 tokenId) internal virtual {
+        IAfterLeaveWarehouseHook afterLeaveWarehouseHook = IAfterLeaveWarehouseHook(hooks[HookType.AfterLeaveWarehouse]);
         if (
             address(afterLeaveWarehouseHook) != address(0) &&
             afterLeaveWarehouseHook.useAfterLeaveWarehouseHook(tokenId)
         ) {
             afterLeaveWarehouseHook.afterLeaveWarehouseOverrideHook(tokenId);
         }
+    }
+
+
+    /**
+        * @notice Returns the contract address for a specified hook type.
+        * @param hookType The type of hook to retrieve, as defined in the HookType enum.
+        * @return The address of the contract implementing the hook interface.
+    */
+    function getHook(HookType hookType) external view returns (address) {
+        return hooks[hookType];
+    }
+
+
+    /**
+        * @notice Sets the contract address for a specified hook type.
+        * @param hookType The type of hook to set, as defined in the HookType enum.
+        * @param hookAddress The address of the contract implementing the hook interface.
+    */
+    function setHook(HookType hookType, address hookAddress) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+        hooks[hookType] = hookAddress;
+        emit UpdatedHook(msg.sender, hookType, hookAddress);
     }
 
 }
