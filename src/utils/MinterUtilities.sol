@@ -41,7 +41,10 @@ contract MinterUtilities is IMinterUtilities {
         uint8 tier,
         uint256 quantity
     ) public view returns (uint256) {
-        uint256 price = tierInfo[tier].price * quantity;
+        uint256 tierPrice = tier > 0 && tier < 4
+            ? tierInfo[tier].price
+            : tierInfo[3].price;
+        uint256 price = tierPrice * quantity;
         return price;
     }
 
