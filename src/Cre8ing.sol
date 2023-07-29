@@ -3,6 +3,8 @@ pragma solidity ^0.8.15;
 
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
+import {IAfterLeaveWarehouseHook} from "./interfaces/IAfterLeaveWarehouseHook.sol";
+import {IBeforeLeaveWarehouseHook} from "./interfaces/IBeforeLeaveWarehouseHook.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -14,6 +16,9 @@ import {ICre8ing} from "./interfaces/ICre8ing.sol";
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
 contract Cre8ing is Cre8iveAdmin, ICre8ing {
+
+    IBeforeLeaveWarehouseHook public beforeLeaveWarehouseHook;
+    IAfterLeaveWarehouseHook public afterLeaveWarehouseHook;
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
@@ -90,13 +95,31 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     /// @notice exit a CRE8OR from the warehouse
     /// @param tokenId token to exit from the warehouse
     function leaveWarehouse(uint256 tokenId) internal {
-        _beforeCre8ingExit(tokenId);
+        _beforeLeaveWarehouse(tokenId);
         uint256 start = cre8ingStarted[tokenId];
         cre8ingTotal[tokenId] += block.timestamp - start;
         cre8ingStarted[tokenId] = 0;
         emit Uncre8ed(tokenId);
+        _afterLeaveWarehouse(tokenId);
     }
 
-    /// @dev Optional validation hook that fires before an exit from cre8ing
-    function _beforeCre8ingExit(uint256 tokenId) internal virtual {}
+    /// @dev validation hook that fires before an exit from cre8ing
+    function _beforeLeaveWarehouse(uint256 tokenId) internal virtual {
+        if (
+            address(beforeLeaveWarehouseHook) != address(0) &&
+            beforeLeaveWarehouseHook.useBeforeLeaveWarehouseHook(tokenId)
+        ) {
+            beforeLeaveWarehouseHook.beforeLeaveWarehouseOverrideHook(tokenId);
+        }
+    }
+
+     function _afterLeaveWarehouse(uint256 tokenId) internal virtual {
+        if (
+            address(afterLeaveWarehouseHook) != address(0) &&
+            afterLeaveWarehouseHook.useAfterLeaveWarehouseHook(tokenId)
+        ) {
+            afterLeaveWarehouseHook.afterLeaveWarehouseOverrideHook(tokenId);
+        }
+    }
+
 }
