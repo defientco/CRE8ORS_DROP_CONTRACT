@@ -129,7 +129,6 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
         }
     }
 
-
     /**
         * @notice Returns the contract address for a specified hook type.
         * @param hookType The type of hook to retrieve, as defined in the HookType enum.
@@ -138,7 +137,6 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
     function getHook(HookType hookType) external view returns (address) {
         return hooks[hookType];
     }
-
 
     /**
         * @notice Sets the contract address for a specified hook type.

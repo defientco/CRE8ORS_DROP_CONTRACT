@@ -3,16 +3,15 @@ pragma solidity ^0.8.15;
 
 
 interface ICre8ingHooks {
- 
 
     /**
         * @dev Enumerated list of all available hook types for the ERC721ACH contract.
     */
      enum HookType {
         
-        /// @notice Hook for custom logic before a token transfer occurs.
+        /// @notice Hook for custom logic before a token leaves warehouse.
         BeforeLeaveWarehouse,
-        /// @notice Hook for custom logic after a token transfer occurs.
+        /// @notice Hook for custom logic after token leaves warehouse.
         AfterLeaveWarehouse
        
     }
