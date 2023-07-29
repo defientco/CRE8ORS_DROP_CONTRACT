@@ -22,7 +22,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
     address public friendsAndFamilyMinter;
 
     ///@notice mapping of address to quantity of free mints claimed.
-    mapping(address => uint256) public maxClaimedFree;
+    mapping(address => uint256) public totalClaimed;
 
     /**
      * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
