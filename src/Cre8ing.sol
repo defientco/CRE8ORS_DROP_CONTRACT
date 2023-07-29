@@ -18,8 +18,8 @@ import {ICre8ingHooks} from "./interfaces/ICre8ingHooks.sol";
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
 contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
 
+    /// @dev Mapping of hook types to their respective contract addresses.
     mapping(HookType => address) public hooks;
-
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
@@ -118,6 +118,7 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
         }
     }
 
+    /// @dev validation hook that fires after an exit from cre8ing
      function _afterLeaveWarehouse(uint256 tokenId) internal virtual {
         IAfterLeaveWarehouseHook afterLeaveWarehouseHook = IAfterLeaveWarehouseHook(hooks[HookType.AfterLeaveWarehouse]);
         if (
