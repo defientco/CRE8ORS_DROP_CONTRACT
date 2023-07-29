@@ -12,7 +12,8 @@ import {ILockup} from "./ILockup.sol";
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
 */
-/// @notice Interface for ZORA Drops contract
+/// @notice Interface for Cre8ors Drop contract
 interface ICre8ors is IERC721Drop {
     function lockup() external view returns (ILockup);
+
 }
