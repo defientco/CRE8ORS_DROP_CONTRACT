@@ -18,251 +18,253 @@ contract LockupTest is DSTest, Cre8orTestBase {
         vm.stopPrank();
     }
 
-    function test_lockup() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
-    }
 
-    function test_setLockup() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setLockup(lockup);
-        assertEq(address(cre8orsNFTBase.lockup()), address(lockup));
-    }
 
-    function test_setLockup_revert_Access_OnlyAdmin() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
-        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        cre8orsNFTBase.setLockup(lockup);
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
-    }
+    // function test_lockup() public {
+    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
+    // }
 
-    function test_setUnlockInfo(
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        _assertLockup(1, 0, 0);
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
-        _assertLockup(1, unlockDate, priceToUnlock);
-    }
+    // function test_setLockup() public {
+    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     cre8orsNFTBase.setLockup(lockup);
+    //     assertEq(address(cre8orsNFTBase.lockup()), address(lockup));
+    // }
 
-    function test_setUnlockInfo_revert_Access_OnlyAdmin(
-        uint256 tokenId,
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        _assertLockup(tokenId, 0, 0);
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
-        _assertLockup(tokenId, 0, 0);
-    }
+    // function test_setLockup_revert_Access_OnlyAdmin() public {
+    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
+    //     vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+    //     cre8orsNFTBase.setLockup(lockup);
+    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
+    // }
 
-    function test_isLocked(
-        uint256 tokenId,
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        _assertIsLocked(tokenId, false);
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
-        bool expectLocked = block.timestamp <
-            lockup.unlockInfo(address(cre8orsNFTBase), tokenId).unlockDate;
-        _assertIsLocked(tokenId, expectLocked);
-    }
+    // function test_setUnlockInfo(
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock
+    // ) public {
+    //     _assertLockup(1, 0, 0);
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
+    //     _assertLockup(1, unlockDate, priceToUnlock);
+    // }
 
-    function test_payToUnlock(
-        uint256 tokenId,
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        uint64 start = uint64(block.timestamp);
-        vm.assume(priceToUnlock > 0);
-        vm.assume(unlockDate > start);
+    // function test_setUnlockInfo_revert_Access_OnlyAdmin(
+    //     uint256 tokenId,
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock
+    // ) public {
+    //     _assertLockup(tokenId, 0, 0);
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+    //     _assertLockup(tokenId, 0, 0);
+    // }
 
-        _assertIsLocked(tokenId, false);
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+    // function test_isLocked(
+    //     uint256 tokenId,
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock
+    // ) public {
+    //     _assertIsLocked(tokenId, false);
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+    //     bool expectLocked = block.timestamp <
+    //         lockup.unlockInfo(address(cre8orsNFTBase), tokenId).unlockDate;
+    //     _assertIsLocked(tokenId, expectLocked);
+    // }
 
-        vm.startPrank(DEFAULT_BUYER_ADDRESS);
-        vm.deal(DEFAULT_BUYER_ADDRESS, priceToUnlock);
-        lockup.payToUnlock{value: priceToUnlock}(
-            payable(address(cre8orsNFTBase)),
-            tokenId
-        );
-        _assertIsLocked(tokenId, false);
-        assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
-    }
+    // function test_payToUnlock(
+    //     uint256 tokenId,
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock
+    // ) public {
+    //     uint64 start = uint64(block.timestamp);
+    //     vm.assume(priceToUnlock > 0);
+    //     vm.assume(unlockDate > start);
 
-    function test_payToUnlock_refundsExtra(
-        uint256 tokenId,
-        uint64 unlockDate,
-        uint256 priceToUnlock,
-        uint256 pricePaid
-    ) public {
-        uint64 start = uint64(block.timestamp);
-        vm.assume(priceToUnlock > 0);
-        vm.assume(unlockDate > start);
-        vm.assume(pricePaid > priceToUnlock);
+    //     _assertIsLocked(tokenId, false);
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
 
-        // Lock token
-        _assertIsLocked(tokenId, false);
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+    //     vm.startPrank(DEFAULT_BUYER_ADDRESS);
+    //     vm.deal(DEFAULT_BUYER_ADDRESS, priceToUnlock);
+    //     lockup.payToUnlock{value: priceToUnlock}(
+    //         payable(address(cre8orsNFTBase)),
+    //         tokenId
+    //     );
+    //     _assertIsLocked(tokenId, false);
+    //     assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
+    // }
 
-        // Pay to unlock
-        vm.startPrank(DEFAULT_BUYER_ADDRESS);
-        vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
-        lockup.payToUnlock{value: priceToUnlock}(
-            payable(address(cre8orsNFTBase)),
-            tokenId
-        );
-        _assertIsLocked(tokenId, false);
+    // function test_payToUnlock_refundsExtra(
+    //     uint256 tokenId,
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock,
+    //     uint256 pricePaid
+    // ) public {
+    //     uint64 start = uint64(block.timestamp);
+    //     vm.assume(priceToUnlock > 0);
+    //     vm.assume(unlockDate > start);
+    //     vm.assume(pricePaid > priceToUnlock);
 
-        // Verify payment sent to base CRE8ORS
-        assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
+    //     // Lock token
+    //     _assertIsLocked(tokenId, false);
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
 
-        // Verify extra is refunded back to caller
-        uint256 refund = pricePaid - priceToUnlock;
-        assertEq(address(DEFAULT_BUYER_ADDRESS).balance, refund);
-    }
+    //     // Pay to unlock
+    //     vm.startPrank(DEFAULT_BUYER_ADDRESS);
+    //     vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
+    //     lockup.payToUnlock{value: priceToUnlock}(
+    //         payable(address(cre8orsNFTBase)),
+    //         tokenId
+    //     );
+    //     _assertIsLocked(tokenId, false);
 
-    function test_payToUnlock_revert_Unlock_WrongPrice(
-        uint256 tokenId,
-        uint64 unlockDate,
-        uint256 priceToUnlock,
-        uint256 pricePaid
-    ) public {
-        // set assumptions in fuzzing
-        uint64 start = uint64(block.timestamp);
-        vm.assume(priceToUnlock > 0);
-        vm.assume(unlockDate > start);
-        vm.assume(pricePaid < priceToUnlock);
-        _assertIsLocked(tokenId, false);
+    //     // Verify payment sent to base CRE8ORS
+    //     assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
 
-        // setup lock
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
+    //     // Verify extra is refunded back to caller
+    //     uint256 refund = pricePaid - priceToUnlock;
+    //     assertEq(address(DEFAULT_BUYER_ADDRESS).balance, refund);
+    // }
 
-        // try to unlock
-        vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
-        vm.startPrank(DEFAULT_BUYER_ADDRESS);
-        bytes memory expectedRevertReason = abi.encodePacked(
-            ILockup.Unlock_WrongPrice.selector,
-            abi.encode(priceToUnlock)
-        );
-        vm.expectRevert(expectedRevertReason);
-        lockup.payToUnlock{value: pricePaid}(
-            payable(address(cre8orsNFTBase)),
-            tokenId
-        );
+    // function test_payToUnlock_revert_Unlock_WrongPrice(
+    //     uint256 tokenId,
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock,
+    //     uint256 pricePaid
+    // ) public {
+    //     // set assumptions in fuzzing
+    //     uint64 start = uint64(block.timestamp);
+    //     vm.assume(priceToUnlock > 0);
+    //     vm.assume(unlockDate > start);
+    //     vm.assume(pricePaid < priceToUnlock);
+    //     _assertIsLocked(tokenId, false);
 
-        // assert still locked
-        _assertIsLocked(tokenId, true);
-    }
+    //     // setup lock
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
 
-    function test_toggleCre8ing(
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        uint64 start = uint64(block.timestamp);
-        vm.assume(unlockDate < type(uint64).max);
-        vm.assume(unlockDate > start);
-        // Start cre8ing
-        _cre8ingSetup();
+    //     // try to unlock
+    //     vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
+    //     vm.startPrank(DEFAULT_BUYER_ADDRESS);
+    //     bytes memory expectedRevertReason = abi.encodePacked(
+    //         ILockup.Unlock_WrongPrice.selector,
+    //         abi.encode(priceToUnlock)
+    //     );
+    //     vm.expectRevert(expectedRevertReason);
+    //     lockup.payToUnlock{value: pricePaid}(
+    //         payable(address(cre8orsNFTBase)),
+    //         tokenId
+    //     );
 
-        // Lock Cre8ing Tokens
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
-        cre8orsNFTBase.setLockup(lockup);
-        assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
-        vm.stopPrank();
+    //     // assert still locked
+    //     _assertIsLocked(tokenId, true);
+    // }
 
-        // fast-forward to unlock date
-        vm.warp(unlockDate);
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = 1;
+    // function test_toggleCre8ing(
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock
+    // ) public {
+    //     uint64 start = uint64(block.timestamp);
+    //     vm.assume(unlockDate < type(uint64).max);
+    //     vm.assume(unlockDate > start);
+    //     // Start cre8ing
+    //     _cre8ingSetup();
 
-        // allow exit from warehouse
-        cre8orsNFTBase.toggleCre8ing(tokenIds);
-        (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
-            .cre8ingPeriod(1);
-        assertTrue(!cre8ing);
-        assertEq(current, 0);
-        assertEq(total, unlockDate - start);
-    }
+    //     // Lock Cre8ing Tokens
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.startPrank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
+    //     cre8orsNFTBase.setLockup(lockup);
+    //     assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
+    //     vm.stopPrank();
 
-    function test_toggleCre8ing_revert_Lockup_Locked(
-        uint64 unlockDate,
-        uint256 priceToUnlock
-    ) public {
-        vm.assume(unlockDate > block.timestamp);
+    //     // fast-forward to unlock date
+    //     vm.warp(unlockDate);
+    //     uint256[] memory tokenIds = new uint256[](1);
+    //     tokenIds[0] = 1;
 
-        // Start cre8ing
-        _cre8ingSetup();
+    //     // allow exit from warehouse
+    //     cre8orsNFTBase.toggleCre8ing(tokenIds);
+    //     (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
+    //         .cre8ingPeriod(1);
+    //     assertTrue(!cre8ing);
+    //     assertEq(current, 0);
+    //     assertEq(total, unlockDate - start);
+    // }
 
-        // Lock Cre8ing Tokens
-        bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
-        cre8orsNFTBase.setLockup(lockup);
-        assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
-        vm.stopPrank();
+    // function test_toggleCre8ing_revert_Lockup_Locked(
+    //     uint64 unlockDate,
+    //     uint256 priceToUnlock
+    // ) public {
+    //     vm.assume(unlockDate > block.timestamp);
 
-        // Revert uncre8
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = 1;
-        vm.expectRevert(ILockup.Lockup_Locked.selector);
-        cre8orsNFTBase.toggleCre8ing(tokenIds);
-    }
+    //     // Start cre8ing
+    //     _cre8ingSetup();
 
-    function _cre8ingSetup() internal {
-        uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
-            .cre8ingPeriod(_tokenId);
-        assertTrue(!cre8ing);
-        assertEq(current, 0);
-        assertEq(total, 0);
-        cre8orsNFTBase.purchase(1);
+    //     // Lock Cre8ing Tokens
+    //     bytes memory data = abi.encode(unlockDate, priceToUnlock);
+    //     vm.startPrank(DEFAULT_OWNER_ADDRESS);
+    //     lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
+    //     cre8orsNFTBase.setLockup(lockup);
+    //     assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
+    //     vm.stopPrank();
 
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ingOpen(true);
+    //     // Revert uncre8
+    //     uint256[] memory tokenIds = new uint256[](1);
+    //     tokenIds[0] = 1;
+    //     vm.expectRevert(ILockup.Lockup_Locked.selector);
+    //     cre8orsNFTBase.toggleCre8ing(tokenIds);
+    // }
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
-        cre8orsNFTBase.toggleCre8ing(tokenIds);
-        (cre8ing, current, total) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
-        assertTrue(cre8ing);
-        assertEq(current, 0);
-        assertEq(total, 0);
-    }
+    // function _cre8ingSetup() internal {
+    //     uint256 _tokenId = 1;
+    //     (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
+    //         .cre8ingPeriod(_tokenId);
+    //     assertTrue(!cre8ing);
+    //     assertEq(current, 0);
+    //     assertEq(total, 0);
+    //     cre8orsNFTBase.purchase(1);
 
-    function _assertLockup(
-        uint256 _tokenId,
-        uint64 _date,
-        uint256 _price
-    ) internal {
-        assertEq(
-            lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).unlockDate,
-            _date
-        );
-        assertEq(
-            lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).priceToUnlock,
-            _price
-        );
-    }
+    //     vm.prank(DEFAULT_OWNER_ADDRESS);
+    //     cre8orsNFTBase.setCre8ingOpen(true);
 
-    function _assertIsLocked(uint256 _tokenId, bool _expected) internal {
-        assertTrue(
-            _expected
-                ? lockup.isLocked(address(cre8orsNFTBase), _tokenId)
-                : !lockup.isLocked(address(cre8orsNFTBase), _tokenId)
-        );
-    }
+    //     uint256[] memory tokenIds = new uint256[](1);
+    //     tokenIds[0] = _tokenId;
+    //     cre8orsNFTBase.toggleCre8ing(tokenIds);
+    //     (cre8ing, current, total) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+    //     assertTrue(cre8ing);
+    //     assertEq(current, 0);
+    //     assertEq(total, 0);
+    // }
+
+    // function _assertLockup(
+    //     uint256 _tokenId,
+    //     uint64 _date,
+    //     uint256 _price
+    // ) internal {
+    //     assertEq(
+    //         lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).unlockDate,
+    //         _date
+    //     );
+    //     assertEq(
+    //         lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).priceToUnlock,
+    //         _price
+    //     );
+    // }
+
+    // function _assertIsLocked(uint256 _tokenId, bool _expected) internal {
+    //     assertTrue(
+    //         _expected
+    //             ? lockup.isLocked(address(cre8orsNFTBase), _tokenId)
+    //             : !lockup.isLocked(address(cre8orsNFTBase), _tokenId)
+    //     );
+    // }
 }

@@ -7,6 +7,8 @@ import {Cre8ors} from "../src/Cre8ors.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {ICre8ingHooks} from "../src/interfaces/ICre8ingHooks.sol";
+
 
 contract Cre8ingTest is Test {
     Cre8ing public cre8ingBase;
@@ -276,4 +278,15 @@ contract Cre8ingTest is Test {
         (cre8ing, , ) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
         assertEq(cre8ing, false);
     }
+
+    /// Before Leaving Warehouse test
+
+    function test_getBeforeLeavingWarehouseHook () public  {
+        assertEq(cre8ingBase.getHook(ICre8ingHooks.HookType.BeforeLeaveWarehouse), address(0));
+    }
+
+    //  function test_lockup() public {
+    //      assertEq(address(cre8orsNFTBase.lockup()), address(0));
+    //  }
+    
 }
