@@ -8,7 +8,7 @@ import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ICre8ingHooks} from "../src/interfaces/ICre8ingHooks.sol";
-import {BeforeLeaveWarehouseHookMock} from "./utils/hooks/BeforeLeaveWarehouseHookMock.sol";
+import {BeforeLeaveWarehouseHook} from "../src/utils/BeforeLeaveWarehouseHook.sol";
 
 contract Cre8ingTest is Test {
     Cre8ing public cre8ingBase;
@@ -286,13 +286,13 @@ contract Cre8ingTest is Test {
     }
 
     function testFail_setHookAsNonOwner () public {
-        BeforeLeaveWarehouseHookMock beforeLeaveWarehouse = new BeforeLeaveWarehouseHookMock();
+        BeforeLeaveWarehouseHook beforeLeaveWarehouse = new BeforeLeaveWarehouseHook(DEFAULT_OWNER_ADDRESS);
         vm.expectRevert("AdminAccess_MissingRoleOrAdmin");
         cre8ingBase.setHook(ICre8ingHooks.HookType.BeforeLeaveWarehouse, address(beforeLeaveWarehouse));
     } 
 
     function test_assignBeforeLeavingWarehouseHook () public {
-        BeforeLeaveWarehouseHookMock beforeLeaveWarehouse = new BeforeLeaveWarehouseHookMock();
+        BeforeLeaveWarehouseHook beforeLeaveWarehouse = new BeforeLeaveWarehouseHook(DEFAULT_OWNER_ADDRESS);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setHook(ICre8ingHooks.HookType.BeforeLeaveWarehouse, address(beforeLeaveWarehouse));
         assertEq(cre8ingBase.getHook(ICre8ingHooks.HookType.BeforeLeaveWarehouse), address(beforeLeaveWarehouse));

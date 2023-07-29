@@ -7,36 +7,39 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
 import {Cre8orTestBase} from "./Cre8orTestBase.sol";
 import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
+import {BeforeLeaveWarehouseHook} from "../../src/utils/BeforeLeaveWarehouseHook.sol";
+import {console2} from "forge-std/console2.sol";
 
 contract LockupTest is DSTest, Cre8orTestBase {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
+    BeforeLeaveWarehouseHook public beforeLeaveWarehouseHook;
+    address lockOwner = address(0x1234);
 
     function setUp() public {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        beforeLeaveWarehouseHook = new BeforeLeaveWarehouseHook(lockOwner);
         Cre8orTestBase.cre8orSetup();
-        vm.stopPrank();
     }
 
 
 
-    // function test_lockup() public {
-    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
-    // }
+    function test_lockup() public {
+        assertEq(address(beforeLeaveWarehouseHook.lockup()), address(0));
+    }
 
-    // function test_setLockup() public {
-    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
-    //     vm.prank(DEFAULT_OWNER_ADDRESS);
-    //     cre8orsNFTBase.setLockup(lockup);
-    //     assertEq(address(cre8orsNFTBase.lockup()), address(lockup));
-    // }
+    function test_setLockup() public {
+        assertEq(address(beforeLeaveWarehouseHook.lockup()), address(0));
+        vm.prank(lockOwner);
+        beforeLeaveWarehouseHook.setLockup(lockup, address(cre8orsNFTBase));
+        assertEq(address(beforeLeaveWarehouseHook.lockup()), address(lockup));
+    }
 
-    // function test_setLockup_revert_Access_OnlyAdmin() public {
-    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
-    //     vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-    //     cre8orsNFTBase.setLockup(lockup);
-    //     assertEq(address(cre8orsNFTBase.lockup()), address(0));
-    // }
+    function testFail_setLockup_revert_Access_OnlyOwner() public {
+        assertEq(address(beforeLeaveWarehouseHook.lockup()), address(0));
+        beforeLeaveWarehouseHook.setLockup(lockup, address(cre8orsNFTBase));
+        vm.expectRevert("Requires owner role");
+        assertEq(address(beforeLeaveWarehouseHook.lockup()), address(0));
+    }
 
     // function test_setUnlockInfo(
     //     uint64 unlockDate,

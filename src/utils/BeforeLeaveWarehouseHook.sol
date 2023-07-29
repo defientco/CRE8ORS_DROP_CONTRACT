@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {IBeforeLeaveWarehouseHook} from "../../../src/interfaces/IBeforeLeaveWarehouseHook.sol";
-import {ILockup} from "../../../src/interfaces/ILockup.sol";
+import { IBeforeLeaveWarehouseHook } from "../interfaces/IBeforeLeaveWarehouseHook.sol";
+import { ILockup } from "../interfaces/ILockup.sol";
+import { OwnableSkeleton } from "./OwnableSkeleton.sol";
 
-contract BeforeLeaveWarehouseHookMock is IBeforeLeaveWarehouseHook  {
+contract BeforeLeaveWarehouseHook is IBeforeLeaveWarehouseHook, OwnableSkeleton  {
 
+    address public cre8ors;
     ILockup public lockup;
     bool public hookEnabled;
 
+    constructor (address _initialOwner) {
+        _setOwner(_initialOwner);
+    }
     
 
     function setHookEnabled(bool _enabled) public {
@@ -22,7 +27,7 @@ contract BeforeLeaveWarehouseHookMock is IBeforeLeaveWarehouseHook  {
         _requireUnlocked(tokenId);
     }
 
-    function setLockup(ILockup newLockup) external  {
+    function setLockup(ILockup newLockup, address cre8ors) external onlyOwner {
         lockup = newLockup;
     }
 
@@ -35,5 +40,13 @@ contract BeforeLeaveWarehouseHookMock is IBeforeLeaveWarehouseHook  {
         }
     }
 
+    function setOwner(address newAddress) public onlyOwner {
+        _setOwner(newAddress);
+    }
+
+    modifier onlyOwner() {
+        require(owner() == msg.sender, "Requires owner role");
+        _;
+    }
 
 }
