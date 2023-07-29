@@ -158,21 +158,21 @@ contract CollectionHolderMint is ICollectionHolderMint {
 
     function _lockUpTokens(uint256[] calldata tokenIds) internal {
         ILockup lockup = ICre8ors(collectionContractAddress).lockup();
-        if (address(lockup) != address(0)) {
-            for (uint256 i = 0; i < tokenIds.length; i++) {
-                _lockUpToken(tokenIds[i], lockup);
-            }
-        }
-    }
-
-    function _lockUpToken(uint256 _tokenId, ILockup _lockup) internal {
         IMinterUtilities minterUtility = IMinterUtilities(
             minterUtilityContractAddress
         );
         uint256 lockupDate = block.timestamp + 8 weeks;
         uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
         bytes memory data = abi.encode(lockupDate, unlockPrice);
-        _lockup.setUnlockInfo(collectionContractAddress, _tokenId, data);
+        if (address(lockup) != address(0)) {
+            for (uint256 i = 0; i < tokenIds.length; i++) {
+                lockup.setUnlockInfo(
+                    collectionContractAddress,
+                    tokenIds[i],
+                    data
+                );
+            }
+        }
     }
 
     function _passportMint(
