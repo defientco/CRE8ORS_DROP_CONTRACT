@@ -6,8 +6,9 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 
-contract FriendsAndFamilyMinter {
+contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ///@notice Mapping to track whether an address has discount for free mint.
     mapping(address => bool) public hasDiscount;
 
@@ -19,28 +20,25 @@ contract FriendsAndFamilyMinter {
     ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public maxClaimedFree;
 
-    ///@notice Emit Missing Discount error when a user attempts to claim a free mint or allocation, but they have not been given a discount.
-    error MissingDiscount();
-
-    ///@notice Emit Existing Discount error when a user attempts to claim a free mint or allocation, but they have already done so previously.
-    error ExistingDiscount();
-
     constructor(address _cre8orsNFT, address _minterUtilityContractAddress) {
         cre8orsNFT = _cre8orsNFT;
         minterUtilityContractAddress = _minterUtilityContractAddress;
     }
 
+    /// @dev Mints a new token for the specified recipient and performs additional actions, such as setting the lockup (if applicable).
+    /// @param recipient The address of the recipient who will receive the minted token.
+    /// @return The token ID of the minted token.
     function mint(
         address recipient
     ) external onlyExistingDiscount(recipient) returns (uint256) {
-        // Mint
+        // Mint the token
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
         maxClaimedFree[recipient] += 1;
 
-        // Reset discount
+        // Reset discount for the recipient
         hasDiscount[recipient] = false;
 
-        // Lockup (optional)
+        // Set lockup information (optional)
         ILockup lockup = ICre8ors(cre8orsNFT).lockup();
         if (address(lockup) != address(0)) {
             IMinterUtilities minterUtility = IMinterUtilities(
@@ -52,10 +50,12 @@ contract FriendsAndFamilyMinter {
             lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
         }
 
-        // Return tokenId
+        // Return the token ID of the minted token
         return pfpTokenId;
     }
 
+    /// @dev Grants a discount to the specified recipient, allowing them to mint tokens without paying the regular price.
+    /// @param recipient The address of the recipient who will receive the discount.
     function addDiscount(address recipient) external onlyAdmin {
         if (hasDiscount[recipient]) {
             revert ExistingDiscount();
@@ -63,31 +63,36 @@ contract FriendsAndFamilyMinter {
         hasDiscount[recipient] = true;
     }
 
+    /// @dev Removes the discount from the specified recipient, preventing them from minting tokens with a discount.
+    /// @param recipient The address of the recipient whose discount will be removed.
     function removeDiscount(
         address recipient
     ) external onlyAdmin onlyExistingDiscount(recipient) {
         hasDiscount[recipient] = false;
     }
 
+    /// @dev Sets a new address for the MinterUtilities contract.
+    /// @param _newMinterUtilityContractAddress The address of the new MinterUtilities contract.
     function setNewMinterUtilityContractAddress(
         address _newMinterUtilityContractAddress
     ) external onlyAdmin {
         minterUtilityContractAddress = _newMinterUtilityContractAddress;
     }
 
+    /// @dev Modifier that restricts access to only the contract's admin.
     modifier onlyAdmin() {
         if (!ICre8ors(cre8orsNFT).isAdmin(msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
         }
-
         _;
     }
 
+    /// @dev Modifier that checks if the specified recipient has a discount.
+    /// @param recipient The address of the recipient to check for the discount.
     modifier onlyExistingDiscount(address recipient) {
         if (!hasDiscount[recipient]) {
             revert MissingDiscount();
         }
-
         _;
     }
 }

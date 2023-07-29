@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
-import {Vm} from "forge-std/Vm.sol";
+// Forge Imports
 import {DSTest} from "ds-test/test.sol";
-import {Lockup} from "../../src/utils/Lockup.sol";
-import {ILockup} from "../../src/interfaces/ILockup.sol";
+import {Vm} from "forge-std/Vm.sol";
+// interface imports
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
-import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
 import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
+import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
+import {ILockup} from "../../src/interfaces/ILockup.sol";
+import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
+// contract imports
 import {Cre8ors} from "../../src/Cre8ors.sol";
-import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
 import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
 import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
+import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
+import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
-import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
@@ -22,7 +25,12 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
-        minterUtility = new MinterUtilities(address(cre8orsNFTBase));
+        minterUtility = new MinterUtilities(
+            address(cre8orsNFTBase),
+            50000000000000000,
+            100000000000000000,
+            150000000000000000
+        );
         minter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
@@ -85,7 +93,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
         assertTrue(!minter.hasDiscount(_buyer));
         vm.prank(_buyer);
-        vm.expectRevert(FriendsAndFamilyMinter.MissingDiscount.selector);
+        vm.expectRevert(IFriendsAndFamilyMinter.MissingDiscount.selector);
         minter.mint(_buyer);
     }
 

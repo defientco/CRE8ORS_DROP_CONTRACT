@@ -1,21 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
-import {Vm} from "forge-std/Vm.sol";
-import {StdUtils} from "forge-std/StdUtils.sol";
+// Forge Imports
 import {DSTest} from "ds-test/test.sol";
-import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
-import {Lockup} from "../../src/utils/Lockup.sol";
-import {ILockup} from "../../src/interfaces/ILockup.sol";
+import {StdUtils} from "forge-std/StdUtils.sol";
+import {Vm} from "forge-std/Vm.sol";
+// interface imports
+import {ICollectionHolderMint} from "../../src/interfaces/ICollectionHolderMint.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
-import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
-import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "../../lib/ERC721A/contracts/interfaces/IERC721A.sol";
-import {Cre8ors} from "../../src/Cre8ors.sol";
-import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
-import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
-import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
+import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
+import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
+import {ILockup} from "../../src/interfaces/ILockup.sol";
+// contract imports
+import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
+import {Cre8ors} from "../../src/Cre8ors.sol";
+import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
+import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
 import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
+import {Lockup} from "../../src/utils/Lockup.sol";
+import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -41,7 +45,12 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
         cre8orsPassport = _setUpContracts();
-        minterUtility = new MinterUtilities(address(cre8orsNFTBase));
+        minterUtility = new MinterUtilities(
+            address(cre8orsNFTBase),
+            50000000000000000,
+            100000000000000000,
+            150000000000000000
+        );
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
@@ -195,7 +204,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(_passportQuantity);
         minter.mint(tokens, address(cre8orsPassport), _buyer);
-        vm.expectRevert(CollectionHolderMint.AlreadyClaimedFreeMint.selector);
+        vm.expectRevert(ICollectionHolderMint.AlreadyClaimedFreeMint.selector);
         minter.mint(tokens, address(cre8orsPassport), _buyer);
         vm.stopPrank();
     }

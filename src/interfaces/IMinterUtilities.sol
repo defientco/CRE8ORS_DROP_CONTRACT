@@ -48,13 +48,6 @@ interface IMinterUtilities {
     ) external view returns (uint256);
 
     /**
-     * @notice Converts an amount from ether to gwei (1 ether = 10^9 gwei).
-     * @param value The amount in ether to convert to gwei.
-     * @return The equivalent amount in gwei.
-     */
-    function etherToGwei(uint256 value) external pure returns (uint256);
-
-    /**
      * @notice Returns the quantity of NFTs left that can be minted by the given recipient.
      * @param passportHolderMinter The address of the PassportHolderMinter contract.
      * @param friendsAndFamilyMinter The address of the FriendsAndFamilyMinter contract.
@@ -141,7 +134,5 @@ interface IMinterUtilities {
      * @param tierId The ID of the tier to get information for.
      * @return TierInfo tier information struct containing lockup duration and unlock price in wei.
      */
-    function getTierInfo(
-        uint256 tierId
-    ) external view returns (TierInfo memory);
+    function getTierInfo(uint8 tierId) external view returns (TierInfo memory);
 }
