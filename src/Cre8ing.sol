@@ -25,9 +25,9 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     mapping(uint256 => uint256) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(uint256 => uint256) internal cre8ingTotal;
+
     ILockup public lockup;
     Cre8ors public cre8ors;
-
 
     constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
