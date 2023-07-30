@@ -6,12 +6,11 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
-import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {IAllowlistMinter} from "../interfaces/IAllowlistMinter.sol";
 import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol";
 
-contract AllowlistMinter is IAllowlistMinter, SharedPaidMinterFunctions {
+contract PublicMinter is IAllowlistMinter, SharedPaidMinterFunctions {
     constructor(address _cre8orsNFT, address _minterUtility) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
@@ -21,56 +20,51 @@ contract AllowlistMinter is IAllowlistMinter, SharedPaidMinterFunctions {
         address recipient,
         IMinterUtilities.Cart[] memory carts,
         address passportHolderMinter,
-        address friendsAndFamilyMinter,
-        bytes32[] calldata merkleProof
+        address friendsAndFamilyMinter
     )
         external
         payable
-        checkProof(recipient, merkleProof)
         verifyCost(carts)
+        inactiveSale(recipient)
         returns (uint256)
     {
-        uint256 quantity = IMinterUtilities(minterUtility)
-            .calculateTotalQuantity(carts);
-        address _recipient = recipient; /// @dev to avoid stack too deep error
+        IMinterUtilities minterUtilities = IMinterUtilities(minterUtility);
+
+        uint256 quantity = minterUtilities.calculateTotalQuantity(carts);
+
         if (
             quantity >
             IMinterUtilities(minterUtility).quantityLeft(
                 passportHolderMinter,
                 friendsAndFamilyMinter,
                 cre8orsNFT,
-                _recipient
+                recipient
             )
         ) {
-            revert IERC721Drop.Presale_TooManyForAddress();
+            revert IERC721Drop.Purchase_TooManyForAddress();
         }
 
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(
-            _recipient,
+            recipient,
             quantity
         );
         payable(address(cre8orsNFT)).call{value: msg.value}("");
-
         _lockUp(carts, pfpTokenId - quantity + 1);
-
         return pfpTokenId;
     }
 
-    modifier checkProof(address _recipient, bytes32[] calldata merkleProof) {
+    modifier inactiveSale(address recipient) {
+        /**  @dev This is the only change from AllowlistMinter
+         * This is so that anyone with a
+         *                 pfp can mint from the public sale
+         *                 which before public sale being active
+         *                 should be only discount/passport holders
+         */
         if (
-            !MerkleProof.verify(
-                merkleProof,
-                IERC721Drop(cre8orsNFT).saleDetails().presaleMerkleRoot,
-                keccak256(
-                    abi.encode(
-                        _recipient,
-                        uint256(8),
-                        uint256(150000000000000000)
-                    )
-                )
-            )
+            !ICre8ors(cre8orsNFT).saleDetails().publicSaleActive &&
+            ICre8ors(cre8orsNFT).mintedPerAddress(recipient).totalMints == 0
         ) {
-            revert IERC721Drop.Presale_MerkleNotApproved();
+            revert IERC721Drop.Sale_Inactive();
         }
         _;
     }

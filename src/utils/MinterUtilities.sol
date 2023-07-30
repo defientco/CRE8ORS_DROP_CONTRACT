@@ -193,6 +193,10 @@ contract MinterUtilities is IMinterUtilities {
         return tierInfo[tier];
     }
 
+    function getTierInfo() external view returns (bytes memory) {
+        return abi.encode(tierInfo[1], tierInfo[2], tierInfo[3]);
+    }
+
     /// @dev Updates the lockup period for Tier 1.
     /// @param _tier1 The new lockup period for Tier 1.
     /// @notice This function can only be called by the contract's admin.

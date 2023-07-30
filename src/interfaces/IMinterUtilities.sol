@@ -135,4 +135,10 @@ interface IMinterUtilities {
      * @return TierInfo tier information struct containing lockup duration and unlock price in wei.
      */
     function getTierInfo(uint8 tierId) external view returns (TierInfo memory);
+
+    /**
+     * @notice Retrieves all tier information.
+     * @return bytes data of tier information struct containing lockup duration and unlock price in wei.
+     */
+    function getTierInfo() external view returns (bytes memory);
 }
