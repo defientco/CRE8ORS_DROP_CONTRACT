@@ -188,7 +188,7 @@ contract Cre8ors is
         onlyRoleOrAdmin(MINTER_ROLE)
         canMintTokens(quantity)
         returns (uint256)
-    {
+    {   
         _mintNFTs(recipient, quantity);
 
         return _lastMintedTokenId();

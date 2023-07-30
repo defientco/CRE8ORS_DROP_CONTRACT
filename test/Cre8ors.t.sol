@@ -10,6 +10,9 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
+import {console2} from "forge-std/console2.sol";
+
+
 
 contract Cre8orTest is DSTest {
     Cre8ors public cre8orsNFTBase;
@@ -19,6 +22,7 @@ contract Cre8orTest is DSTest {
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;
+    Cre8ing public cre8ingBase;
 
 
 
@@ -42,6 +46,13 @@ contract Cre8orTest is DSTest {
                 presaleMerkleRoot: bytes32(0)
             })
         });
+        cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
+
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8ingBase.setCre8or(cre8orsNFTBase);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        vm.stopPrank();
 
         _;
     }
@@ -224,7 +235,7 @@ contract Cre8orTest is DSTest {
         cre8orsNFTBase.withdraw();
     }
 
-    function test_AdminMint() public setupCre8orsNFTBase(10) {
+    function test_AdminMintX() public setupCre8orsNFTBase(10) {
         address minter = address(0x32402);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, 1);
@@ -232,7 +243,10 @@ contract Cre8orTest is DSTest {
             cre8orsNFTBase.balanceOf(DEFAULT_OWNER_ADDRESS) == 1,
             "Wrong balance"
         );
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), minter);
+        
+        bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
+        console2.logBytes32(minterRole);
+        cre8orsNFTBase.grantRole(minterRole, minter);
         vm.stopPrank();
         vm.prank(minter);
         cre8orsNFTBase.adminMint(minter, 1);
