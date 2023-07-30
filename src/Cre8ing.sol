@@ -132,6 +132,8 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
         }
     }
 
+    /// @notice array of staked tokenIDs
+    /// @dev used in cre8ors ui to quickly get list of staked NFTs.
     function cre8ingTokens()
         external
         view
@@ -164,6 +166,7 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
         }
     }
 
+    ///Is sales manager role the correct permissions for this function?
     function setCre8or(Cre8ors _cre8ors) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         cre8ors = _cre8ors;
     }

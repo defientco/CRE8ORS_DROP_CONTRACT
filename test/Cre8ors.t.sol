@@ -10,7 +10,6 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
-import {console2} from "forge-std/console2.sol";
 
 
 
@@ -245,7 +244,6 @@ contract Cre8orTest is DSTest {
         );
         
         bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
-        console2.logBytes32(minterRole);
         cre8orsNFTBase.grantRole(minterRole, minter);
         vm.stopPrank();
         vm.prank(minter);

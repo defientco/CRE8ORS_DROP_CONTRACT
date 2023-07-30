@@ -16,7 +16,6 @@ import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 import {Cre8ing} from "./Cre8ing.sol";
 import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
-import {console2} from "forge-std/console2.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -497,7 +496,6 @@ contract Cre8ors is
 
         _;
     }
-
 
     /// @notice Allows user to mint tokens at a quantity
     modifier canMintTokens(uint256 quantity) {
