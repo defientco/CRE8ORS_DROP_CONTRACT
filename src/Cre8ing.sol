@@ -6,6 +6,10 @@ import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IAfterLeaveWarehouseHook} from "./interfaces/IAfterLeaveWarehouseHook.sol";
 import {IBeforeLeaveWarehouseHook} from "./interfaces/IBeforeLeaveWarehouseHook.sol";
 import {ICre8ingHooks} from "./interfaces/ICre8ingHooks.sol";
+import { Cre8ors } from "./Cre8ors.sol";
+import {ERC721AC} from "ERC721C/erc721c/ERC721AC.sol";
+
+
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -25,6 +29,7 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(uint256 => uint256) internal cre8ingTotal;
 
+    Cre8ors public cre8ors;
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 internal cre8ingTransfer = 1;
@@ -129,6 +134,82 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
         }
     }
 
+    /////////////////////////////////////////////////
+    /// CRE8ING
+    /////////////////////////////////////////////////
+
+    /// @notice Changes the CRE8ORs' cre8ing statuss (what's the plural of status?
+    ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
+    ///     plural of status).
+    /// @dev Changes the CRE8ORs' cre8ing sheep (see @notice).
+
+    function toggleCre8ingTokens(uint256[] calldata tokenIds) external {
+        uint256 n = tokenIds.length;
+        for (uint256 i = 0; i < n; ++i) {
+            _toggleCre8ingToken(tokenIds[i]);
+        }    
+    }
+
+    /// @notice Changes the CRE8OR's cre8ing status.
+    /// @param tokenId token to toggle cre8ing status
+    function _toggleCre8ingToken(
+        uint256 tokenId
+    ) internal onlyApprovedOrOwner(tokenId) {
+        uint256 start = cre8ingStarted[tokenId];
+        if (start == 0) {
+            enterWarehouse(tokenId);
+        } else {
+            leaveWarehouse(tokenId);
+        }
+    }
+
+    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
+    ///     thus not resetting the cre8ing period.
+    function safeTransferWhileCre8ing(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external {
+        if (cre8ors.ownerOf(tokenId) != _msgSender()) {
+            revert Access_OnlyOwner();
+        }
+        cre8ingTransfer = 2;
+        cre8ors.safeTransferFrom(from, to, tokenId);
+        cre8ingTransfer = 1;
+    }
+
+    /// @dev Block transfers while cre8ing.
+    function _beforeTokenTransfers(
+        address from,
+        address to,
+        uint256 startTokenId,
+        uint256 quantity
+    ) internal  {
+        uint256 tokenId = startTokenId;
+        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
+            if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
+                revert Cre8ing_Cre8ing();
+            }
+        }
+        // ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
+    }
+
+
+    function cre8ingTokens()
+        external
+        view
+        returns (uint256[] memory stakedTokens)
+    {
+        uint256 size = cre8ors._lastMintedTokenId();
+        stakedTokens = new uint256[](size);
+        for (uint256 i = 1; i < size + 1; ++i) {
+            uint256 start = cre8ingStarted[i];
+            if (start != 0) {
+                stakedTokens[i - 1] = i;
+            }
+        }
+    }
+
     /**
         * @notice Returns the contract address for a specified hook type.
         * @param hookType The type of hook to retrieve, as defined in the HookType enum.
@@ -146,6 +227,22 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing, ICre8ingHooks {
     function setHook(HookType hookType, address hookAddress) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         hooks[hookType] = hookAddress;
         emit UpdatedHook(msg.sender, hookType, hookAddress);
+    }
+
+    function setCre8or(Cre8ors _cre8ors) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+        cre8ors = _cre8ors;
+    }
+
+    /// @notice Requires that msg.sender owns or is approved for the token.
+    modifier onlyApprovedOrOwner(uint256 tokenId) {
+        if (
+            cre8ors.ownerOf(tokenId) != _msgSender() &&
+            cre8ors.getApproved(tokenId) != _msgSender()
+        ) {
+            revert Access_MissingOwnerOrApproved();
+        }
+
+        _;
     }
 
 }

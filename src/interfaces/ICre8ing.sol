@@ -18,6 +18,11 @@ interface ICre8ing {
     /// @notice Cre8ing Closed
     error Cre8ing_Cre8ingClosed();
 
+    /// @notice Access only owner
+    error Access_OnlyOwner();
+
+    error Access_MissingOwnerOrApproved();
+
     /// @notice Cre8ing
     error Cre8ing_Cre8ing();
 
