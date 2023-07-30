@@ -10,8 +10,6 @@ import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 
 
 
-
-
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
 ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
@@ -29,9 +27,7 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     mapping(uint256 => uint256) internal cre8ingTotal;
     ILockup public lockup;
     Cre8ors public cre8ors;
-    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
-    uint256 internal cre8ingTransfer = 1;
+
 
     constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
 
@@ -136,38 +132,6 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
         }
     }
 
-    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
-    ///     thus not resetting the cre8ing period.
-    function safeTransferWhileCre8ing(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external {
-        if (cre8ors.ownerOf(tokenId) != _msgSender()) {
-            revert IERC721Drop.Access_OnlyOwner();
-        }
-        cre8ingTransfer = 2;
-        cre8ors.safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer = 1;
-    }
-
-    /// @dev Block transfers while cre8ing.
-    function _beforeTokenTransfers(
-        address from,
-        address to,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal  {
-        uint256 tokenId = startTokenId;
-        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
-                revert Cre8ing_Cre8ing();
-            }
-        }
-        // ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
-    }
-
-
     function cre8ingTokens()
         external
         view
@@ -202,6 +166,10 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
 
     function setCre8or(Cre8ors _cre8ors) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         cre8ors = _cre8ors;
+    }
+
+    function getCre8ingStarted(uint256 tokenId) external view returns (uint256) {
+        return cre8ingStarted[tokenId];
     }
 
     /// @notice Requires that msg.sender owns or is approved for the token.

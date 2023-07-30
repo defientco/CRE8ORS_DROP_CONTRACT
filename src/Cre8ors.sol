@@ -14,6 +14,10 @@ import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
+import {Cre8ing} from "./Cre8ing.sol";
+import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
+import {console2} from "forge-std/console2.sol";
+
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
 ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
@@ -38,6 +42,12 @@ contract Cre8ors is
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
+
+    Cre8ing public cre8ing;
+
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
+    uint256 internal cre8ingTransfer = 1;
 
 
     constructor(
@@ -417,6 +427,7 @@ contract Cre8ors is
         }
     }
 
+
     /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
     /////////////////////////////////////////////////
@@ -439,23 +450,44 @@ contract Cre8ors is
             salesConfig.presaleStart <= block.timestamp &&
             salesConfig.presaleEnd > block.timestamp;
     }
+    
+    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
+    ///     thus not resetting the cre8ing period.
+    function safeTransferWhileCre8ing(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external {
+        if (ownerOf(tokenId) != _msgSender()) {
+            revert Access_OnlyOwner();
+        }
+        cre8ingTransfer = 2;
+        safeTransferFrom(from, to, tokenId);
+        cre8ingTransfer = 1;
+    }
 
-    // /// @dev Block transfers while cre8ing.
-    // function _beforeTokenTransfers(
-    //     address from,
-    //     address to,
-    //     uint256 startTokenId,
-    //     uint256 quantity
-    // ) internal override {
-    //     uint256 tokenId = startTokenId;
-    //     for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-    //         if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
-    //             revert Cre8ing_Cre8ing();
-    //         }
-    //     }
-    //     ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
-    // }
+    /// @dev Block transfers while cre8ing.
+    function _beforeTokenTransfers(
+        address from,
+        address to,
+        uint256 startTokenId,
+        uint256 quantity
+    ) internal override {
+        uint256 tokenId = startTokenId;
+        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
+            if (cre8ing.getCre8ingStarted(tokenId) != 0 && cre8ingTransfer != 2) {
+                revert ICre8ing.Cre8ing_Cre8ing();
+            }
+        }
+        ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
+    }
 
+
+
+    
+    function setCre8ing(Cre8ing _cre8ing) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+        cre8ing = _cre8ing;
+    }
     /////////////////////////////////////////////////
     /// MODIFIERS
     /////////////////////////////////////////////////
