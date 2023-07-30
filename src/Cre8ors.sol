@@ -376,51 +376,6 @@ contract Cre8ors is
     }
 
     /////////////////////////////////////////////////
-    /// CRE8ING
-    /////////////////////////////////////////////////
-
-    /// @notice Changes the CRE8ORs' cre8ing statuss (what's the plural of status?
-    ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
-    ///     plural of status).
-    /// @dev Changes the CRE8ORs' cre8ing sheep (see @notice).
-    // function toggleCre8ing(uint256[] calldata tokenIds) external {
-    //     uint256 n = tokenIds.length;
-    //     for (uint256 i = 0; i < n; ++i) {
-    //         toggleCre8ing(tokenIds[i]);
-    //     }
-    // }
-
-    // /// @notice Changes the CRE8OR's cre8ing status.
-    // /// @param tokenId token to toggle cre8ing status
-    // function toggleCre8ing(
-    //     uint256 tokenId
-    // ) internal onlyApprovedOrOwner(tokenId) {
-    //     uint256 start = cre8ingStarted[tokenId];
-    //     if (start == 0) {
-    //         enterWarehouse(tokenId);
-    //     } else {
-    //         leaveWarehouse(tokenId);
-    //     }
-    // }
-
-    // /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
-    // ///     thus not resetting the cre8ing period.
-    // function safeTransferWhileCre8ing(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) external {
-    //     if (ownerOf(tokenId) != _msgSender()) {
-    //         revert Access_OnlyOwner();
-    //     }
-    //     cre8ingTransfer = 2;
-    //     safeTransferFrom(from, to, tokenId);
-    //     cre8ingTransfer = 1;
-    // }
-
-  
-
-    /////////////////////////////////////////////////
     /// ERC6551 - token bound accounts
     /////////////////////////////////////////////////
 
@@ -499,23 +454,6 @@ contract Cre8ors is
     //         }
     //     }
     //     ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
-    // }
-
-    /// @notice array of staked tokenIDs
-    // /// @dev used in cre8ors ui to quickly get list of staked NFTs.
-    // function cre8ingTokens()
-    //     external
-    //     view
-    //     returns (uint256[] memory stakedTokens)
-    // {
-    //     uint256 size = _lastMintedTokenId();
-    //     stakedTokens = new uint256[](size);
-    //     for (uint256 i = 1; i < size + 1; ++i) {
-    //         uint256 start = cre8ingStarted[i];
-    //         if (start != 0) {
-    //             stakedTokens[i - 1] = i;
-    //         }
-    //     }
     // }
 
     /////////////////////////////////////////////////
