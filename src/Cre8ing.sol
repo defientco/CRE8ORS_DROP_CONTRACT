@@ -151,14 +151,14 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     /// LOCK UP
     /////////////////////////////////////////////////
 
-    function setLockup(ILockup newLockup, address cre8ors) external  onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+    function setLockup(ILockup newLockup) external  onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         lockup = newLockup;
     }
 
     function _requireUnlocked(uint256 tokenId) internal {
         if (
             address(lockup) != address(0) &&
-            lockup.isLocked(address(this), tokenId)
+            lockup.isLocked(address(cre8ors), tokenId)
         ) {
             revert ILockup.Lockup_Locked();
         }
