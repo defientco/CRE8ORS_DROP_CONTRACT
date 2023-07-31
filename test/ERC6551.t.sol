@@ -14,7 +14,7 @@ import {Account} from "lib/tokenbound/src/Account.sol";
 import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
-
+import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 
 error NotAuthorized();
 
@@ -62,10 +62,8 @@ contract ERC6551Test is DSTest {
             address(guardian),
             address(entryPoint)
         );
-        cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
-
+        cre8ingBase = new Cre8ing();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8ingBase.setCre8or(cre8orsNFTBase);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
         vm.stopPrank();
     }

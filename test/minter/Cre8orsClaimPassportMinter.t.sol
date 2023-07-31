@@ -12,7 +12,7 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../../src/interfaces/IOwnable.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
-
+import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
 
 contract Cre8orsClaimPassportMinterTest is DSTest {
     Cre8ing public cre8ingBase;
@@ -73,10 +73,8 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
             address(cre8orsNFTBase),
             address(cre8orsPassport)
         );
-        cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
-
+        cre8ingBase = new Cre8ing();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8ingBase.setCre8or(cre8orsNFTBase);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
         cre8orsPassport.setCre8ing(cre8ingBase);
         vm.stopPrank();

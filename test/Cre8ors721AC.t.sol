@@ -12,7 +12,6 @@ import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {ERC721AC} from "lib/creator-token-contracts/contracts/erc721c/ERC721AC.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
 
-
 contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     CreatorTokenTransferValidator public transferValidator;
@@ -27,9 +26,7 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
         );
         whitelistedOperator = vm.addr(2);
         transferValidator.addOperatorToWhitelist(1, whitelistedOperator);
-        cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
-
-        cre8ingBase.setCre8or(cre8orsNFTBase);
+        cre8ingBase = new Cre8ing();
         cre8orsNFTBase.setCre8ing(cre8ingBase);
         vm.stopPrank();
     }

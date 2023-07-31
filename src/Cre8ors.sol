@@ -42,12 +42,11 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
-    Cre8ing public cre8ing;
+    ICre8ing public cre8ing;
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 internal cre8ingTransfer = 1;
-
 
     constructor(
         string memory _contractName,
@@ -187,7 +186,7 @@ contract Cre8ors is
         onlyRoleOrAdmin(MINTER_ROLE)
         canMintTokens(quantity)
         returns (uint256)
-    {   
+    {
         _mintNFTs(recipient, quantity);
 
         return _lastMintedTokenId();
@@ -441,7 +440,6 @@ contract Cre8ors is
         }
     }
 
-
     /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
     /////////////////////////////////////////////////
@@ -474,16 +472,22 @@ contract Cre8ors is
     ) internal override {
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (cre8ing.getCre8ingStarted(tokenId) != 0 && cre8ingTransfer != 2) {
+            if (
+                cre8ing.getCre8ingStarted(address(this), tokenId) != 0 &&
+                cre8ingTransfer != 2
+            ) {
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
         ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
     }
-    
-    function setCre8ing(Cre8ing _cre8ing) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+
+    function setCre8ing(
+        ICre8ing _cre8ing
+    ) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         cre8ing = _cre8ing;
     }
+
     /////////////////////////////////////////////////
     /// MODIFIERS
     /////////////////////////////////////////////////
