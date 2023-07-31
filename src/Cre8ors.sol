@@ -42,7 +42,7 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
-    Cre8ing public cre8ing;
+    ICre8ing public cre8ing;
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
@@ -483,7 +483,7 @@ contract Cre8ors is
     }
 
     function setCre8ing(
-        Cre8ing _cre8ing
+        ICre8ing _cre8ing
     ) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         cre8ing = _cre8ing;
     }
