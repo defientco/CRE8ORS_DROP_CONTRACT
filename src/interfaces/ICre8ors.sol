@@ -13,7 +13,7 @@ import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
 */
-/// @notice Interface for ZORA Drops contract
+/// @notice Interface for Cre8ors Drops contract
 interface ICre8ors is IERC721Drop, IERC721A {
     /// @notice Getter for Lockup interface
     function lockup() external view returns (ILockup);
