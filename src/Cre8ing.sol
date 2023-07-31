@@ -3,12 +3,10 @@ pragma solidity ^0.8.15;
 
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
-import { Cre8ors } from "./Cre8ors.sol";
-import {ERC721AC} from "ERC721C/erc721c/ERC721AC.sol";
-import { ILockup } from "./interfaces/ILockup.sol";
+import {ICre8ors} from "./interfaces/ICre8ors.sol";
+import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
-
-
+import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -19,21 +17,19 @@ import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
-contract Cre8ing is Cre8iveAdmin, ICre8ing {
-
+contract Cre8ing is ICre8ing {
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
-    mapping(uint256 => uint256) internal cre8ingStarted;
+    mapping(address => mapping(uint256 => uint256)) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
-    mapping(uint256 => uint256) internal cre8ingTotal;
+    mapping(address => mapping(uint256 => uint256)) internal cre8ingTotal;
 
-    ILockup public lockup;
-    Cre8ors public cre8ors;
-
-    constructor(address _initialOwner) Cre8iveAdmin(_initialOwner) {}
+    /// @dev Lockup for target.
+    mapping(address => ILockup) public lockup;
+    ICre8ors public cre8ors;
 
     /// @notice Whether cre8ing is currently allowed.
     /// @dev If false then cre8ing is blocked, but uncre8ing is always allowed.
-    bool public cre8ingOpen = false;
+    mapping(address => bool) public cre8ingOpen;
 
     /// @notice Returns the length of time, in seconds, that the CRE8OR has cre8ed.
     /// @dev Cre8ing is tied to a specific CRE8OR, not to the owner, so it doesn't
@@ -45,21 +41,23 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     /// @return total Total period of time for which the CRE8OR has cre8ed across
     ///     its life, including the current period.
     function cre8ingPeriod(
+        address _target,
         uint256 tokenId
     ) external view returns (bool cre8ing, uint256 current, uint256 total) {
-        uint256 start = cre8ingStarted[tokenId];
+        uint256 start = cre8ingStarted[_target][tokenId];
         if (start != 0) {
             cre8ing = true;
             current = block.timestamp - start;
         }
-        total = current + cre8ingTotal[tokenId];
+        total = current + cre8ingTotal[_target][tokenId];
     }
 
     /// @notice Toggles the `cre8ingOpen` flag.
     function setCre8ingOpen(
+        address _target,
         bool open
-    ) external onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
-        cre8ingOpen = open;
+    ) external onlyAdmin(_target) {
+        cre8ingOpen[_target] = open;
     }
 
     /// @notice Admin-only ability to expel a CRE8OR from the Warehouse.
@@ -72,35 +70,38 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     ///     because cre8ing would then be all-or-nothing for all of a particular owner's
     ///     CRE8OR.
     function expelFromWarehouse(
+        address _target,
         uint256 tokenId
-    ) external onlyRole(EXPULSION_ROLE) {
-        if (cre8ingStarted[tokenId] == 0) {
-            revert CRE8ING_NotCre8ing(tokenId);
+    ) external onlyAdmin(_target) {
+        if (cre8ingStarted[_target][tokenId] == 0) {
+            revert CRE8ING_NotCre8ing(_target, tokenId);
         }
-        cre8ingTotal[tokenId] += block.timestamp - cre8ingStarted[tokenId];
-        cre8ingStarted[tokenId] = 0;
-        emit Uncre8ed(tokenId);
-        emit Expelled(tokenId);
+        cre8ingTotal[_target][tokenId] +=
+            block.timestamp -
+            cre8ingStarted[_target][tokenId];
+        cre8ingStarted[_target][tokenId] = 0;
+        emit Uncre8ed(_target, tokenId);
+        emit Expelled(_target, tokenId);
     }
 
     /// @notice put a CRE8OR in the warehouse
     /// @param tokenId token to put in the Warehouse
-    function enterWarehouse(uint256 tokenId) internal {
-        if (!cre8ingOpen) {
+    function enterWarehouse(address _target, uint256 tokenId) internal {
+        if (!cre8ingOpen[_target]) {
             revert Cre8ing_Cre8ingClosed();
         }
-        cre8ingStarted[tokenId] = block.timestamp;
-        emit Cre8ed(tokenId);
+        cre8ingStarted[_target][tokenId] = block.timestamp;
+        emit Cre8ed(_target, tokenId);
     }
 
     /// @notice exit a CRE8OR from the warehouse
     /// @param tokenId token to exit from the warehouse
-    function leaveWarehouse(uint256 tokenId) internal {
-        _requireUnlocked(tokenId);
-        uint256 start = cre8ingStarted[tokenId];
-        cre8ingTotal[tokenId] += block.timestamp - start;
-        cre8ingStarted[tokenId] = 0;
-        emit Uncre8ed(tokenId);
+    function leaveWarehouse(address _target, uint256 tokenId) internal {
+        _requireUnlocked(_target, tokenId);
+        uint256 start = cre8ingStarted[_target][tokenId];
+        cre8ingTotal[_target][tokenId] += block.timestamp - start;
+        cre8ingStarted[_target][tokenId] = 0;
+        emit Uncre8ed(_target, tokenId);
     }
 
     /////////////////////////////////////////////////
@@ -111,38 +112,39 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
     ///     plural of status).
     /// @dev Changes the CRE8ORs' cre8ing sheep (see @notice).
-
-    function toggleCre8ingTokens(uint256[] calldata tokenIds) external {
+    function toggleCre8ingTokens(
+        address _target,
+        uint256[] calldata tokenIds
+    ) external {
         uint256 n = tokenIds.length;
         for (uint256 i = 0; i < n; ++i) {
-            _toggleCre8ingToken(tokenIds[i]);
-        }    
+            _toggleCre8ingToken(_target, tokenIds[i]);
+        }
     }
 
     /// @notice Changes the CRE8OR's cre8ing status.
     /// @param tokenId token to toggle cre8ing status
     function _toggleCre8ingToken(
+        address _target,
         uint256 tokenId
-    ) internal onlyApprovedOrOwner(tokenId) {
-        uint256 start = cre8ingStarted[tokenId];
+    ) internal onlyApprovedOrOwner(_target, tokenId) {
+        uint256 start = cre8ingStarted[_target][tokenId];
         if (start == 0) {
-            enterWarehouse(tokenId);
+            enterWarehouse(_target, tokenId);
         } else {
-            leaveWarehouse(tokenId);
+            leaveWarehouse(_target, tokenId);
         }
     }
 
     /// @notice array of staked tokenIDs
     /// @dev used in cre8ors ui to quickly get list of staked NFTs.
-    function cre8ingTokens()
-        external
-        view
-        returns (uint256[] memory stakedTokens)
-    {
-        uint256 size = cre8ors._lastMintedTokenId();
+    function cre8ingTokens(
+        address _target
+    ) external view returns (uint256[] memory stakedTokens) {
+        uint256 size = ICre8ors(_target)._lastMintedTokenId();
         stakedTokens = new uint256[](size);
         for (uint256 i = 1; i < size + 1; ++i) {
-            uint256 start = cre8ingStarted[i];
+            uint256 start = cre8ingStarted[_target][i];
             if (start != 0) {
                 stakedTokens[i - 1] = i;
             }
@@ -153,33 +155,34 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
     /// LOCK UP
     /////////////////////////////////////////////////
 
-    function setLockup(ILockup newLockup) external  onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
-        lockup = newLockup;
+    function setLockup(
+        address _target,
+        ILockup newLockup
+    ) external onlyAdmin(_target) {
+        lockup[_target] = newLockup;
     }
 
-    function _requireUnlocked(uint256 tokenId) internal {
+    function _requireUnlocked(address _target, uint256 tokenId) internal {
         if (
-            address(lockup) != address(0) &&
-            lockup.isLocked(address(cre8ors), tokenId)
+            address(lockup[_target]) != address(0) &&
+            lockup[_target].isLocked(_target, tokenId)
         ) {
             revert ILockup.Lockup_Locked();
         }
     }
 
-    ///Is sales manager role the correct permissions for this function?
-    function setCre8or(Cre8ors _cre8ors) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
-        cre8ors = _cre8ors;
-    }
-
-    function getCre8ingStarted(uint256 tokenId) external view returns (uint256) {
-        return cre8ingStarted[tokenId];
+    function getCre8ingStarted(
+        address _target,
+        uint256 tokenId
+    ) external view returns (uint256) {
+        return cre8ingStarted[_target][tokenId];
     }
 
     /// @notice Requires that msg.sender owns or is approved for the token.
-    modifier onlyApprovedOrOwner(uint256 tokenId) {
+    modifier onlyApprovedOrOwner(address _target, uint256 tokenId) {
         if (
-            cre8ors.ownerOf(tokenId) != _msgSender() &&
-            cre8ors.getApproved(tokenId) != _msgSender()
+            ICre8ors(_target).ownerOf(tokenId) != msg.sender &&
+            ICre8ors(_target).getApproved(tokenId) != msg.sender
         ) {
             revert IERC721Drop.Access_MissingOwnerOrApproved();
         }
@@ -187,4 +190,19 @@ contract Cre8ing is Cre8iveAdmin, ICre8ing {
         _;
     }
 
+    /// @notice Only allow for users with admin access
+    modifier onlyAdmin(address _target) {
+        if (!isAdmin(_target, msg.sender)) {
+            revert IERC721Drop.Access_OnlyAdmin();
+        }
+
+        _;
+    }
+
+    /// @notice Getter for admin role associated with the contract to handle minting
+    /// @param user user address
+    /// @return boolean if address is admin
+    function isAdmin(address _target, address user) public view returns (bool) {
+        return IERC721Drop(_target).isAdmin(user);
+    }
 }
