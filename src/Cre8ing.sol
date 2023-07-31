@@ -21,10 +21,8 @@ contract Cre8ing is ICre8ing {
     mapping(address => mapping(uint256 => uint256)) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(address => mapping(uint256 => uint256)) internal cre8ingTotal;
-
     /// @dev Lockup for target.
     mapping(address => ILockup) public lockup;
-    ICre8ors public cre8ors;
 
     /// @notice Whether cre8ing is currently allowed.
     /// @dev If false then cre8ing is blocked, but uncre8ing is always allowed.
