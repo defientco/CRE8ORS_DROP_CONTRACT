@@ -13,11 +13,17 @@ import {ERC6551Registry} from "lib/ERC6551/src/ERC6551Registry.sol";
 import {Account} from "lib/tokenbound/src/Account.sol";
 import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
+import {Hooks} from "../src/utils/Hooks.sol";
+
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import "forge-std/console.sol";
+
 
 error NotAuthorized();
 
 contract ERC6551Test is DSTest {
     Cre8ors public cre8orsNFTBase;
+    Hooks public hooks;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     ERC6551Registry erc6551Registry;
     AccountGuardian guardian;
@@ -59,6 +65,7 @@ contract ERC6551Test is DSTest {
             address(guardian),
             address(entryPoint)
         );
+        hooks = new Hooks(DEFAULT_OWNER_ADDRESS);
     }
 
     function test_Erc6551Registry() public {
@@ -77,6 +84,14 @@ contract ERC6551Test is DSTest {
     }
 
     function test_createAccount() public setupErc6551 {
+
+        hooks.setAfterTokenTransfersEnabled(true);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setHook(IERC721ACH.HookType.AfterTokenTransfers, address(hooks));
+
+        console.log("address real %s", address(hooks));
+        console.log("hook set from contract %s", cre8orsNFTBase.getHook(IERC721ACH.HookType.AfterTokenTransfers));
+
         address tokenBoundAccount = getTBA(1);
 
         // MINT REGISTERS WITH ERC6511

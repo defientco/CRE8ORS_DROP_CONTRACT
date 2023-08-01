@@ -4,13 +4,19 @@ pragma solidity ^0.8.15;
 import "forge-std/Test.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
 import {Cre8ors} from "../src/Cre8ors.sol";
+import {Hooks} from "../src/utils/Hooks.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
+
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import "forge-std/console.sol";
 
 contract Cre8ingTest is Test {
     Cre8ing public cre8ingBase;
     Cre8ors public cre8orsNFTBase;
+    Hooks public hooks;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
 
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
@@ -19,6 +25,8 @@ contract Cre8ingTest is Test {
 
     function setUp() public {
         cre8ingBase = new Cre8ing(DEFAULT_OWNER_ADDRESS);
+        hooks = new Hooks(DEFAULT_OWNER_ADDRESS);
+        
     }
 
     modifier setupCre8orsNFTBase() {
@@ -40,7 +48,10 @@ contract Cre8ingTest is Test {
                 maxSalePurchasePerAddress: 0,
                 presaleMerkleRoot: bytes32(0)
             })
+
         });
+
+        
 
         _;
     }
@@ -140,6 +151,15 @@ contract Cre8ingTest is Test {
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ingOpen(true);
+
+        // activate hooks
+        // hooks.setBeforeTokenTransfersEnabled(true);
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setHook(IERC721ACH.HookType.BeforeTokenTransfers, address(hooks));
+
+        console.log("address real %s", address(hooks));
+        console.log("address fake %s", cre8orsNFTBase.getHook(IERC721ACH.HookType.BeforeTokenTransfers));
 
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;

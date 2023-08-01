@@ -17,6 +17,8 @@ import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8ing} from "./Cre8ing.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 
+
+
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
 ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
@@ -452,18 +454,18 @@ contract Cre8ors is
     /// ERC6551 - token bound accounts
     /////////////////////////////////////////////////
 
-    /// @dev Register ERC6551 token bound account onMint.
-    function _afterTokenTransfers(
-        address from,
-        address to,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal override {
-        if (from == address(0) && erc6551Registry != address(0)) {
-            createTokenBoundAccounts(startTokenId, quantity);
-        }
-        ERC721ACH._afterTokenTransfers(from, to, startTokenId, quantity);
-    }
+    // /// @dev Register ERC6551 token bound account onMint.
+    // function _afterTokenTransfers(
+    //     address from,
+    //     address to,
+    //     uint256 startTokenId,
+    //     uint256 quantity
+    // ) internal override {
+    //     if (from == address(0) && erc6551Registry != address(0)) {
+    //         createTokenBoundAccounts(startTokenId, quantity);
+    //     }
+       
+    // }
 
     /// @notice Set ERC6551 registry
     /// @param _registry ERC6551 registry
@@ -513,21 +515,21 @@ contract Cre8ors is
             salesConfig.presaleEnd > block.timestamp;
     }
 
-    /// @dev Block transfers while cre8ing.
-    function _beforeTokenTransfers(
-        address from,
-        address to,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal override {
-        uint256 tokenId = startTokenId;
-        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
-                revert Cre8ing_Cre8ing();
-            }
-        }
-        ERC721ACH._beforeTokenTransfers(from, to, startTokenId, quantity);
-    }
+    // @dev Block transfers while cre8ing.
+    // function _beforeTokenTransfers(
+    //     address from,
+    //     address to,
+    //     uint256 startTokenId,
+    //     uint256 quantity
+    // ) internal override {
+    //     uint256 tokenId = startTokenId;
+    //     for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
+    //         if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
+    //             revert Cre8ing_Cre8ing();
+    //         }
+    //     }
+        
+    // }
 
     /// @notice array of staked tokenIDs
     /// @dev used in cre8ors ui to quickly get list of staked NFTs.
