@@ -44,10 +44,26 @@ const testDataInput = [
     ],
   },
   {
-    name: "test-max-count",
+    name: "pre-mint-defient",
     entries: [
-      { minter: makeAddress(0x10), maxCount: 2, price: parseEther("0.1") },
-      { minter: makeAddress(0x10), maxCount: 2, price: parseEther("0.2") },
+      {
+        // sidneyswift.eth
+        minter: getAddress("0xa061fbfa7dc7ee9f838a717e8b55fbc34641bf6e"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
+      {
+        // sweetman.eth
+        minter: getAddress("0xcfbf34d385ea2d5eb947063b67ea226dcda3dc38"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
+      {
+        // crazzywizard.eth
+        minter: getAddress("0x273e6894b238f83413fc545605098dd704395813"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
     ],
   },
   {

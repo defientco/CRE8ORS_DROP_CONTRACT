@@ -96,27 +96,40 @@ contract MerkleData {
     }));
     
     
-    data["test-max-count"].root = 0xb7d8ff9be4b222c3049431d7b5982cbd3e64e5902f0ca4a2e3527be999a12d87;
+    data["pre-mint-defient"].root = 0xda31d85ae06d4b1e58baea66356d4a6d03c9308e5cbf596f965631566f11f2c3;
     
-    proof = new bytes32[](1);
+    proof = new bytes32[](2);
     
-    proof[0] = bytes32(0xcd1f92f2177fa8f6c51829045204caf23439f3e448bb0b94e5134e5b9f11ea4c);
+    proof[0] = bytes32(0xf99cae6c9d347071bdd0316e09b7b9340264b3d9275887f86a6ce994176e6baf);
     
-    data["test-max-count"].entries.push(MerkleEntry({
-      user: 0x0000000000000000000000000000000000000010,
-      maxMint: 2,
-      mintPrice: 100000000000000000,
+    proof[1] = bytes32(0x0444d94b73d61a47ba88bb4ab672130591533f4c59bf38c4455e1059030ece76);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0xa061fBfa7dC7Ee9f838a717e8B55Fbc34641Bf6e,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
       proof: proof 
     }));
     
-    proof = new bytes32[](1);
+    proof = new bytes32[](2);
     
-    proof[0] = bytes32(0xbabae39e08c9636595a1a4edd5850334f105c1cedb96c37659d1a9e39cb48615);
+    proof[0] = bytes32(0x8b99fd372f2b84004d913a8ee40935e8d5c5f80540cf31a7a124d2a2caa03f22);
     
-    data["test-max-count"].entries.push(MerkleEntry({
-      user: 0x0000000000000000000000000000000000000010,
-      maxMint: 2,
-      mintPrice: 200000000000000000,
+    proof[1] = bytes32(0x0444d94b73d61a47ba88bb4ab672130591533f4c59bf38c4455e1059030ece76);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0xcfBf34d385EA2d5Eb947063b67eA226dcDA3DC38,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0x273e6894B238f83413fC545605098DD704395813,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
       proof: proof 
     }));
     
