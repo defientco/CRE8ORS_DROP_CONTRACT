@@ -157,7 +157,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
     }
 
     function _lockUpTokens(uint256[] calldata tokenIds) internal {
-        ILockup lockup = ICre8ors(collectionContractAddress).lockup();
+        ILockup lockup = ICre8ors(collectionContractAddress).cre8ing().lockUp(collectionContractAddress);
         IMinterUtilities minterUtility = IMinterUtilities(
             minterUtilityContractAddress
         );

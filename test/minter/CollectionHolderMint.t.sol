@@ -44,6 +44,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
+    
 
     function setUp() public {
 
@@ -69,6 +70,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
+        cre8orsPassport.setCre8ing(cre8ingBase);
         vm.stopPrank();
     }
 
@@ -252,7 +254,9 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         uint256[] memory tokens = generateTokens(_mintQuantity);
 
         cre8orsPassport.purchase(_mintQuantity);
+
         minter.mint(tokens, address(cre8orsPassport), _buyer);
+
         vm.stopPrank();
 
         assertTrue(minter.freeMintClaimed(1));

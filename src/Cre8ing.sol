@@ -175,6 +175,10 @@ contract Cre8ing is ICre8ing {
         return cre8ingStarted[_target][tokenId];
     }
 
+    function lockUp(address _address) external view returns (ILockup) {
+        return lockup[_address];
+    }
+
     /// @notice Requires that msg.sender owns or is approved for the token.
     modifier onlyApprovedOrOwner(address _target, uint256 tokenId) {
         if (

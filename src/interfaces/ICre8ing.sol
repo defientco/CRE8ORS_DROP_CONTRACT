@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {ILockup} from "./ILockup.sol";
+
 interface ICre8ing {
+    /// @notice Getter for Lockup interface
+    function lockUp(address) external view returns (ILockup);
     /// @dev Emitted when a CRE8OR begins cre8ing.
     event Cre8ed(address, uint256 indexed tokenId);
 
