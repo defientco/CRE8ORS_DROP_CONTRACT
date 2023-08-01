@@ -218,6 +218,60 @@ contract PublicMinterTest is DSTest, StdUtils {
         vm.stopPrank();
     }
 
+    function testRevertPublicSaleInactiveOfWalletWithTransferedMintedDiscount(
+        IMinterUtilities.Cart[] memory _carts,
+        bool _withLockUp,
+        address _buyer
+    ) public {
+        vm.assume(_carts.length > 0);
+        vm.assume(_carts.length < 4);
+        vm.assume(_buyer != address(0));
+        _setUpMinter(_withLockUp);
+        // set public sale start to sometime in future
+        _updatePublicSaleStart(uint64(block.timestamp + 1000000));
+        for (uint i = 0; i < _carts.length; i++) {
+            uint256 tier = bound(1, 1, 3);
+            _carts[i].tier = uint8(tier);
+            _carts[i].quantity = bound(_carts[i].quantity, 1, 8);
+        }
+        vm.assume(
+            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
+                _carts
+            ) < 8
+        );
+        // grant family minter admin role
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            address(friendsAndFamilyMinter)
+        );
+        address transferred = address(0x1988789);
+        // add discount to buyer
+        friendsAndFamilyMinter.addDiscount(_buyer);
+        vm.stopPrank();
+        // transfer minted pfp from buyer to transferred
+        vm.startPrank(_buyer);
+        friendsAndFamilyMinter.mint(_buyer);
+        cre8orsNFTBase.transferFrom(_buyer, transferred, 1);
+        assertEq(cre8orsNFTBase.mintedPerAddress(transferred).totalMints, 0);
+        vm.stopPrank();
+        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
+            .calculateTotalQuantity(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
+
+        // transferred tries to mint with transferred pfp prior to sale.
+        vm.deal(transferred, totalPrice);
+        vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
+        vm.prank(transferred);
+        uint256 tokenId = minter.mintPfp{value: totalPrice}(
+            transferred,
+            _carts,
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
+        );
+    }
+
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
