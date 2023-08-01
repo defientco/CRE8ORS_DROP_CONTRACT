@@ -257,7 +257,7 @@ contract MinterUtilities is IMinterUtilities {
             block.timestamp <
             ICre8ors(collectionAddress).saleDetails().publicSaleStart
         ) {
-            return maxAllowlistQuantity + maxPublicMintQuantity + startingPoint;
+            return maxAllowlistQuantity + startingPoint;
         }
         return maxPublicMintQuantity + startingPoint;
     }
