@@ -72,6 +72,7 @@ contract MinterUtilities is IMinterUtilities {
         uint256 totalClaimed = passportMinter.totalClaimed(recipient) +
             friendsAndFamily.totalClaimed(recipient);
         uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
+
         uint256 quantityRemaining = maxQuantity - totalMints;
 
         if (quantityRemaining < 0) {
@@ -248,17 +249,21 @@ contract MinterUtilities is IMinterUtilities {
     //////////////////////////
 
     /// @dev Calculates the maximum allowed quantity based on the current timestamp and the public sale start time.
-    /// @param startingPoint The base starting point for calculating the maximum allowed quantity.
+    /// @param totalClaimedFree The base starting point for calculating the maximum allowed quantity.
     /// @return The maximum allowed quantity based on the current timestamp and the public sale start time.
     function maxAllowedQuantity(
-        uint256 startingPoint
+        uint256 totalClaimedFree
     ) internal view returns (uint256) {
         if (
             block.timestamp <
             ICre8ors(collectionAddress).saleDetails().publicSaleStart
         ) {
-            return maxAllowlistQuantity + startingPoint;
+            return maxAllowlistQuantity + totalClaimedFree;
         }
-        return maxPublicMintQuantity + startingPoint;
+        if (totalClaimedFree > 0) {
+            return
+                maxAllowlistQuantity + maxPublicMintQuantity + totalClaimedFree;
+        }
+        return maxPublicMintQuantity + totalClaimedFree;
     }
 }
