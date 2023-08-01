@@ -20,6 +20,8 @@ import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
 import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
+
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -34,6 +36,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     uint64 DEFAULT_EDITION_SIZE = 10_000;
     uint16 DEFAULT_ROYALTY_BPS = 888;
     Cre8ors public cre8orsNFTBase;
+    Cre8ing public cre8ingBase;
     Cre8ors public cre8orsPassport;
     MinterUtilities public minterUtility;
     CollectionHolderMint public minter;
@@ -41,8 +44,10 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
+    
 
     function setUp() public {
+
         cre8orsNFTBase = _setUpContracts();
         cre8orsPassport = _setUpContracts();
         minterUtility = new MinterUtilities(
@@ -61,10 +66,16 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             address(minterUtility),
             address(friendsAndFamilyMinter)
         );
+        cre8ingBase = new Cre8ing();
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        cre8orsPassport.setCre8ing(cre8ingBase);
+        vm.stopPrank();
     }
 
     function testLockup() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
+        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
     }
 
     function testMintingUtility() public {
@@ -243,7 +254,9 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         uint256[] memory tokens = generateTokens(_mintQuantity);
 
         cre8orsPassport.purchase(_mintQuantity);
+
         minter.mint(tokens, address(cre8orsPassport), _buyer);
+
         vm.stopPrank();
 
         assertTrue(minter.freeMintClaimed(1));
@@ -259,7 +272,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             address(minter)
         );
         if (withLockup) {
-            cre8orsNFTBase.setLockup(lockup);
+            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtilityContractAddress() != address(0));
         }
 

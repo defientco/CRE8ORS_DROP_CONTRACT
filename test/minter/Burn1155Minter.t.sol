@@ -11,8 +11,11 @@ import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../../src/interfaces/IOwnable.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
+import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
 
 contract Burn1155MinterTest is DSTest {
+    Cre8ing public cre8ingBase;
     Cre8ors public cre8orsNFTBase;
     Cre8orRewards1155 public burn1155;
     Burn1155Minter public minter;
@@ -47,6 +50,11 @@ contract Burn1155MinterTest is DSTest {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         burn1155 = new Cre8orRewards1155("uri");
         minter = new Burn1155Minter();
+
+        cre8ingBase = new Cre8ing();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        vm.stopPrank();
     }
 
     function test_isAdmin() public {

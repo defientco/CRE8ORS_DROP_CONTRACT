@@ -39,7 +39,7 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         hasDiscount[recipient] = false;
 
         // Set lockup information (optional)
-        ILockup lockup = ICre8ors(cre8orsNFT).lockup();
+        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
         if (address(lockup) != address(0)) {
             IMinterUtilities minterUtility = IMinterUtilities(
                 minterUtilityContractAddress

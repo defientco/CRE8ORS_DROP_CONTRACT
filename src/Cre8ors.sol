@@ -9,12 +9,13 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
-import {ILockup} from "./interfaces/ILockup.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
-import {Cre8ing} from "./Cre8ing.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
+import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
+import {Cre8ing} from "./Cre8ing.sol";
+import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -26,8 +27,8 @@ import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
  */
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8ors is
+    Cre8iveAdmin,
     ERC721AC,
-    Cre8ing,
     IERC2981,
     ReentrancyGuard,
     IERC721Drop,
@@ -41,8 +42,11 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
-    /// @dev Lockup Contract
-    ILockup public lockup;
+    ICre8ing public cre8ing;
+
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
+    uint256 internal cre8ingTransfer = 1;
 
     constructor(
         string memory _contractName,
@@ -56,7 +60,7 @@ contract Cre8ors is
     )
         ERC721AC(_contractName, _contractSymbol)
         ReentrancyGuard()
-        Cre8ing(_initialOwner)
+        Cre8iveAdmin(_initialOwner)
     {
         // Set ownership to original sender of contract call
         _setOwner(_initialOwner);
@@ -379,34 +383,6 @@ contract Cre8ors is
         }
     }
 
-    /////////////////////////////////////////////////
-    /// CRE8ING
-    /////////////////////////////////////////////////
-
-    /// @notice Changes the CRE8ORs' cre8ing statuss (what's the plural of status?
-    ///     statii? statuses? status? The plural of sheep is sheep; maybe it's also the
-    ///     plural of status).
-    /// @dev Changes the CRE8ORs' cre8ing sheep (see @notice).
-    function toggleCre8ing(uint256[] calldata tokenIds) external {
-        uint256 n = tokenIds.length;
-        for (uint256 i = 0; i < n; ++i) {
-            toggleCre8ing(tokenIds[i]);
-        }
-    }
-
-    /// @notice Changes the CRE8OR's cre8ing status.
-    /// @param tokenId token to toggle cre8ing status
-    function toggleCre8ing(
-        uint256 tokenId
-    ) internal onlyApprovedOrOwner(tokenId) {
-        uint256 start = cre8ingStarted[tokenId];
-        if (start == 0) {
-            enterWarehouse(tokenId);
-        } else {
-            leaveWarehouse(tokenId);
-        }
-    }
-
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
     ///     thus not resetting the cre8ing period.
     function safeTransferWhileCre8ing(
@@ -420,31 +396,6 @@ contract Cre8ors is
         cre8ingTransfer = 2;
         safeTransferFrom(from, to, tokenId);
         cre8ingTransfer = 1;
-    }
-
-    /// @dev validation hook that fires before an exit from cre8ing
-    function _beforeCre8ingExit(uint256 tokenId) internal override {
-        _requireUnlocked(tokenId);
-    }
-
-    /////////////////////////////////////////////////
-    /// Lockup
-    /////////////////////////////////////////////////
-
-    /// @notice Set a new lockup contract
-    /// @param newLockup new lockup address to use
-    function setLockup(ILockup newLockup) external onlyAdmin {
-        lockup = newLockup;
-    }
-
-    /// @notice Lockup unlocked verification
-    function _requireUnlocked(uint256 tokenId) internal {
-        if (
-            address(lockup) != address(0) &&
-            lockup.isLocked(address(this), tokenId)
-        ) {
-            revert ILockup.Lockup_Locked();
-        }
     }
 
     /////////////////////////////////////////////////
@@ -494,7 +445,7 @@ contract Cre8ors is
     /////////////////////////////////////////////////
 
     /// @notice Getter for last minted token ID (gets next token id and subtracts 1)
-    function _lastMintedTokenId() internal view returns (uint256) {
+    function _lastMintedTokenId() public view returns (uint256) {
         return _nextTokenId() - 1;
     }
 
@@ -521,28 +472,20 @@ contract Cre8ors is
     ) internal override {
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (cre8ingStarted[tokenId] != 0 && cre8ingTransfer != 2) {
-                revert Cre8ing_Cre8ing();
+            if (
+                cre8ing.getCre8ingStarted(address(this), tokenId) != 0 &&
+                cre8ingTransfer != 2
+            ) {
+                revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
         ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
     }
 
-    /// @notice array of staked tokenIDs
-    /// @dev used in cre8ors ui to quickly get list of staked NFTs.
-    function cre8ingTokens()
-        external
-        view
-        returns (uint256[] memory stakedTokens)
-    {
-        uint256 size = _lastMintedTokenId();
-        stakedTokens = new uint256[](size);
-        for (uint256 i = 1; i < size + 1; ++i) {
-            uint256 start = cre8ingStarted[i];
-            if (start != 0) {
-                stakedTokens[i - 1] = i;
-            }
-        }
+    function setCre8ing(
+        ICre8ing _cre8ing
+    ) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+        cre8ing = _cre8ing;
     }
 
     /////////////////////////////////////////////////
@@ -553,18 +496,6 @@ contract Cre8ors is
     modifier onlyAdmin() {
         if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             revert Access_OnlyAdmin();
-        }
-
-        _;
-    }
-
-    /// @notice Requires that msg.sender owns or is approved for the token.
-    modifier onlyApprovedOrOwner(uint256 tokenId) {
-        if (
-            _ownershipOf(tokenId).addr != _msgSender() &&
-            getApproved(tokenId) != _msgSender()
-        ) {
-            revert Access_MissingOwnerOrApproved();
         }
 
         _;
