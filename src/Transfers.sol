@@ -6,7 +6,9 @@ import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 
 contract TransferHook is Cre8orsERC6551 {
+    /// @notice is ERC721 using afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
+    /// @notice is ERC721 using beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
 
     /// @notice Set ERC6551 registry
@@ -63,6 +65,7 @@ contract TransferHook is Cre8orsERC6551 {
     }
 
     /// @notice Only allow for users with admin access
+    /// @param _target target ERC721 contract
     modifier onlyAdmin(address _target) {
         if (!isAdmin(_target, msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
@@ -72,6 +75,7 @@ contract TransferHook is Cre8orsERC6551 {
     }
 
     /// @notice Getter for admin role associated with the contract to handle minting
+    /// @param _target target ERC721 contract
     /// @param user user address
     /// @return boolean if address is admin
     function isAdmin(address _target, address user) public view returns (bool) {
