@@ -96,27 +96,57 @@ contract MerkleData {
     }));
     
     
-    data["test-max-count"].root = 0xb7d8ff9be4b222c3049431d7b5982cbd3e64e5902f0ca4a2e3527be999a12d87;
+    data["pre-mint-defient"].root = 0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e;
     
-    proof = new bytes32[](1);
+    proof = new bytes32[](2);
     
-    proof[0] = bytes32(0xcd1f92f2177fa8f6c51829045204caf23439f3e448bb0b94e5134e5b9f11ea4c);
+    proof[0] = bytes32(0xd987eb760785050d5dd294efcfa1421716ed231d3e9f8cc48b88e60b78896c2e);
     
-    data["test-max-count"].entries.push(MerkleEntry({
-      user: 0x0000000000000000000000000000000000000010,
-      maxMint: 2,
-      mintPrice: 100000000000000000,
+    proof[1] = bytes32(0xf320bae2fd47cb734e6f8e6ca2319456e0ac63079c2b02750c43d6ca3a7c8fd0);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0xa061fBfa7dC7Ee9f838a717e8B55Fbc34641Bf6e,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
       proof: proof 
     }));
     
-    proof = new bytes32[](1);
+    proof = new bytes32[](2);
     
-    proof[0] = bytes32(0xbabae39e08c9636595a1a4edd5850334f105c1cedb96c37659d1a9e39cb48615);
+    proof[0] = bytes32(0x8b99fd372f2b84004d913a8ee40935e8d5c5f80540cf31a7a124d2a2caa03f22);
     
-    data["test-max-count"].entries.push(MerkleEntry({
-      user: 0x0000000000000000000000000000000000000010,
-      maxMint: 2,
-      mintPrice: 200000000000000000,
+    proof[1] = bytes32(0xf320bae2fd47cb734e6f8e6ca2319456e0ac63079c2b02750c43d6ca3a7c8fd0);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0xEc11a95acA582F5ECF614695D2825b353Daf2454,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](2);
+    
+    proof[0] = bytes32(0x74830be68e345dc4dedb0913a3f66f96fea1ec51d96a89cabf8c266d0a4ad4cc);
+    
+    proof[1] = bytes32(0x120fca78c4c80b783ab2d47d061270e8bfb9a41751d408ef70044057c7a8efee);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0xcfBf34d385EA2d5Eb947063b67eA226dcDA3DC38,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](2);
+    
+    proof[0] = bytes32(0xf99cae6c9d347071bdd0316e09b7b9340264b3d9275887f86a6ce994176e6baf);
+    
+    proof[1] = bytes32(0x120fca78c4c80b783ab2d47d061270e8bfb9a41751d408ef70044057c7a8efee);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0x45a3143dC8e28A6d73ad6c6Fd78d80a4CAA17524,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
       proof: proof 
     }));
     

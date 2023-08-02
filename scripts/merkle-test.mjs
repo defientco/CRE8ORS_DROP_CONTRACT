@@ -51,6 +51,35 @@ const testDataInput = [
     ]
   },
   {
+    name: 'pre-mint-defient',
+    entries: [
+      {
+        // sidneyswift.eth
+        minter: getAddress('0xa061fbfa7dc7ee9f838a717e8b55fbc34641bf6e'),
+        maxCount: 8,
+        price: parseEther('0.15')
+      },
+      {
+        // katee
+        minter: getAddress('0xEc11a95acA582F5ECF614695D2825b353Daf2454'),
+        maxCount: 8,
+        price: parseEther('0.15')
+      },
+      {
+        // sweetman.eth
+        minter: getAddress('0xcfbf34d385ea2d5eb947063b67ea226dcda3dc38'),
+        maxCount: 8,
+        price: parseEther('0.15')
+      },
+      {
+        // sameer
+        minter: getAddress('0x45a3143dC8e28A6d73ad6c6Fd78d80a4CAA17524'),
+        maxCount: 8,
+        price: parseEther('0.15')
+      }
+    ]
+  },
+  {
     name: 'test-88-founders',
     entries: [
       { minter: makeAddress(0x100), maxCount: 1, price: parseEther('0.0') },
