@@ -1,4 +1,4 @@
-import { retryDeploy } from "./contract.mjs";
+import { retryDeploy } from "../contract.mjs";
 import dotenv from "dotenv";
 
 dotenv.config({
