@@ -3,6 +3,8 @@ pragma solidity ^0.8.15;
 
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
+
+import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import "forge-std/console.sol";
 
 
@@ -15,11 +17,14 @@ contract TransferHook is  Cre8orsERC6551, Cre8iveAdmin  {
     
     bool public afterTokenTransfersHookEnabled;
     bool public beforeTokenTransfersHookEnabled;
-    address public owner;
+    
 
-    address public baseContract;
+    ICre8ors baseContract;
 
-    constructor( address _owner) Cre8iveAdmin(_owner) {}
+    constructor( address _owner, address _baseContract) Cre8iveAdmin(_owner) {
+        
+        baseContract = ICre8ors(_baseContract);
+    }
 
     /// @notice Only allow for users with admin access
     modifier onlyAdmin() {
@@ -28,6 +33,10 @@ contract TransferHook is  Cre8orsERC6551, Cre8iveAdmin  {
         }
 
         _;
+    }
+
+    function ownerOf(uint256 tokenId) public view  returns (address) {
+        return baseContract.ownerOf(tokenId);
     }
 
 
@@ -79,6 +88,8 @@ contract TransferHook is  Cre8orsERC6551, Cre8iveAdmin  {
             createTokenBoundAccounts(startTokenId, quantity);
         }
     }
+
+ 
 
 
 

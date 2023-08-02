@@ -68,7 +68,7 @@ contract ERC6551Test is DSTest {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(DEFAULT_OWNER_ADDRESS);
+        transferHook = new TransferHook(DEFAULT_OWNER_ADDRESS, address(cre8orsNFTBase));
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
         cre8orsNFTBase.setHook(IERC721ACH.HookType.AfterTokenTransfers, address(transferHook));
