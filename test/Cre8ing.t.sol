@@ -9,16 +9,39 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 
+import {TransferHook} from "../src/Transfers.sol";
+
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+
+
+
 contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
+    TransferHook public transferHook;
+
     address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
+        transferHook = new TransferHook();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
+        transferHook.setBeforeTokenTransfersEnabled(
+            address(cre8orsNFTBase),
+            true
+        );
+        transferHook.setCre8ing(
+            address(cre8orsNFTBase),
+            ICre8ing(cre8ingBase)
+        );
+        vm.stopPrank();
+        
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {

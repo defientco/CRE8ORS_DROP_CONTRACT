@@ -32,6 +32,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     EntryPoint entryPoint;
     Account erc6551Implementation;
     TransferHook public transferHook;
+
     address constant DEAD_ADDRESS =
         address(0x000000000000000000000000000000000000dEaD);
 

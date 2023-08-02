@@ -432,24 +432,7 @@ contract Cre8ors is
             salesConfig.presaleEnd > block.timestamp;
     }
 
-    /// @dev Block transfers while cre8ing.
-    function _beforeTokenTransfers(
-        address from,
-        address to,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal override {
-        uint256 tokenId = startTokenId;
-        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (
-                cre8ing.getCre8ingStarted(address(this), tokenId) != 0 &&
-                cre8ingTransfer != 2
-            ) {
-                revert ICre8ing.Cre8ing_Cre8ing();
-            }
-        }
-        super._beforeTokenTransfers(from, to, startTokenId, quantity);
-    }
+
 
     function setCre8ing(
         ICre8ing _cre8ing
