@@ -53,6 +53,14 @@ contract PublicMinter is IAllowlistMinter, SharedPaidMinterFunctions {
         return pfpTokenId;
     }
 
+    /// @dev Sets a new address for the MinterUtilities contract.
+    /// @param _newMinterUtilityContractAddress The address of the new MinterUtilities contract.
+    function setNewMinterUtilityContractAddress(
+        address _newMinterUtilityContractAddress
+    ) external onlyAdmin {
+        minterUtilityContractAddress = _newMinterUtilityContractAddress;
+    }
+
     modifier inactiveSale(address recipient) {
         /**  @dev This is the only change from AllowlistMinter
          * This is so that anyone with a

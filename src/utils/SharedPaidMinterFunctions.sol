@@ -3,10 +3,14 @@ pragma solidity ^0.8.15;
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
+import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
+import {ICre8ing} from "../interfaces/ICre8ing.sol";
 
 contract SharedPaidMinterFunctions {
     address public cre8orsNFT;
     address public minterUtility;
+
+    error InvalidTier();
     modifier verifyCost(IMinterUtilities.Cart[] memory carts) {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(
             carts
@@ -14,12 +18,25 @@ contract SharedPaidMinterFunctions {
         require(msg.value >= totalCost, "Not enough ETH sent");
         _;
     }
+    modifier onlyValidTier(uint256 tier) {
+        if (tier < 1 || tier > 3) {
+            revert InvalidTier();
+        }
+        _;
+    }
+    /// @dev Modifier that restricts access to only the contract's admin.
+    modifier onlyAdmin() {
+        if (!ICre8ors(cre8orsNFT).isAdmin(msg.sender)) {
+            revert IERC721Drop.Access_OnlyAdmin();
+        }
+        _;
+    }
 
     function _lockUp(
         IMinterUtilities.Cart[] memory carts,
         uint256 startingTokenId
     ) internal {
-        ILockup lockup = ICre8ors(cre8orsNFT).lockup();
+        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
         if (address(lockup) == address(0)) {
             return;
         }
@@ -42,31 +59,16 @@ contract SharedPaidMinterFunctions {
 
     function _getLockUpDateAndPrice(
         uint256 tier
-    ) internal view returns (bytes memory) {
-        (
-            IMinterUtilities.TierInfo memory tier1,
-            IMinterUtilities.TierInfo memory tier2,
-            IMinterUtilities.TierInfo memory tier3
-        ) = abi.decode(
-                IMinterUtilities(minterUtility).getTierInfo(),
-                (
-                    IMinterUtilities.TierInfo,
-                    IMinterUtilities.TierInfo,
-                    IMinterUtilities.TierInfo
-                )
-            );
-        uint256 lockupDate;
-        uint256 tierPrice;
-        if (tier == 1) {
-            lockupDate = block.timestamp + tier1.lockup;
-            tierPrice = tier1.price;
-        } else if (tier == 2) {
-            lockupDate = block.timestamp + tier2.lockup;
-            tierPrice = tier2.price;
-        } else {
-            lockupDate = block.timestamp + tier3.lockup;
-            tierPrice = tier3.price;
-        }
+    ) internal view onlyValidTier(tier) returns (bytes memory) {
+        IMinterUtilities.TierInfo[] memory tiers = abi.decode(
+            IMinterUtilities(minterUtility).getTierInfo(),
+            (IMinterUtilities.TierInfo[])
+        );
+
+        IMinterUtilities.TierInfo memory selectedTier = tiers[tier - 1];
+        uint256 lockupDate = block.timestamp + selectedTier.lockup;
+        uint256 tierPrice = selectedTier.price;
+
         return abi.encode(lockupDate, tierPrice);
     }
 }

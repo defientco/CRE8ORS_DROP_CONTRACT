@@ -73,12 +73,12 @@ contract MinterUtilities is IMinterUtilities {
             friendsAndFamily.totalClaimed(recipient);
         uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
 
-        uint256 quantityRemaining = maxQuantity - totalMints;
+        int256 quantityRemaining = int256(maxQuantity) - int256(totalMints);
 
         if (quantityRemaining < 0) {
             return 0;
         }
-        return quantityRemaining;
+        return uint256(quantityRemaining);
     }
 
     /// @dev Calculates the total cost of all items in the given carts array.
@@ -146,30 +146,6 @@ contract MinterUtilities is IMinterUtilities {
         tierInfo[3].price = tier3;
     }
 
-    /// @dev Updates the price for Tier 1.
-    /// @param _tier1 The new price for Tier 1.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierOnePrice(uint256 _tier1) external onlyAdmin {
-        tierInfo[1].price = _tier1;
-        emit TierPriceUpdated(1, _tier1);
-    }
-
-    /// @dev Updates the price for Tier 2.
-    /// @param _tier2 The new price for Tier 2.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierTwoPrice(uint256 _tier2) external onlyAdmin {
-        tierInfo[2].price = _tier2;
-        emit TierPriceUpdated(2, _tier2);
-    }
-
-    /// @dev Updates the price for Tier 3.
-    /// @param _tier3 The new price for Tier 3.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierThreePrice(uint256 _tier3) external onlyAdmin {
-        tierInfo[3].price = _tier3;
-        emit TierPriceUpdated(3, _tier3);
-    }
-
     /// @dev Sets new default lockup periods for all tiers.
     /// @param lockupInfo A bytes array containing the new lockup periods for tier 1, tier 2, and tier 3.
     ///                   The bytes array should be encoded using the `abi.encode` function with three uint256 values
@@ -196,22 +172,6 @@ contract MinterUtilities is IMinterUtilities {
 
     function getTierInfo() external view returns (bytes memory) {
         return abi.encode(tierInfo[1], tierInfo[2], tierInfo[3]);
-    }
-
-    /// @dev Updates the lockup period for Tier 1.
-    /// @param _tier1 The new lockup period for Tier 1.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierOneLockup(uint256 _tier1) external onlyAdmin {
-        tierInfo[1].lockup = _tier1;
-        emit TierLockupUpdated(1, _tier1);
-    }
-
-    /// @dev Updates the lockup period for Tier 2.
-    /// @param _tier2 The new lockup period for Tier 2.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierTwoLockup(uint256 _tier2) external onlyAdmin {
-        tierInfo[2].lockup = _tier2;
-        emit TierLockupUpdated(2, _tier2);
     }
 
     /// @dev Updates the maximum allowed quantity for the whitelist.
@@ -254,10 +214,11 @@ contract MinterUtilities is IMinterUtilities {
     function maxAllowedQuantity(
         uint256 totalClaimedFree
     ) internal view returns (uint256) {
-        if (
-            block.timestamp <
-            ICre8ors(collectionAddress).saleDetails().publicSaleStart
-        ) {
+        uint256 currentTimestamp = block.timestamp;
+        uint256 publicSaleStart = ICre8ors(collectionAddress)
+            .saleDetails()
+            .publicSaleStart;
+        if (currentTimestamp < publicSaleStart) {
             return maxAllowlistQuantity + totalClaimedFree;
         }
         if (totalClaimedFree > 0) {

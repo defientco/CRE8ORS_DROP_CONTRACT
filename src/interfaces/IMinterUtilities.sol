@@ -106,24 +106,6 @@ interface IMinterUtilities {
     function updateAllTierPrices(bytes calldata tierPrices) external;
 
     /**
-     * @notice Updates the price for Tier 1.
-     * @param _tier1 The new price for Tier 1 (in wei).
-     */
-    function updateTierOnePrice(uint256 _tier1) external;
-
-    /**
-     * @notice Updates the price for Tier 2.
-     * @param _tier2 The new price for Tier 2 (in wei).
-     */
-    function updateTierTwoPrice(uint256 _tier2) external;
-
-    /**
-     * @notice Updates the price for Tier 3.
-     * @param _tier3 The new price for Tier 3 (in wei).
-     */
-    function updateTierThreePrice(uint256 _tier3) external;
-
-    /**
      * @notice Sets new default lockup periods for all tiers.
      * @param lockupInfo A bytes array representing the new lockup periods for all tiers (in seconds).
      */
