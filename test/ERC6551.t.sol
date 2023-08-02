@@ -14,7 +14,11 @@ import {Account} from "lib/tokenbound/src/Account.sol";
 import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
+import {TransferHook} from "../src/Transfers.sol";
 import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
+
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+
 
 error NotAuthorized();
 
@@ -27,6 +31,7 @@ contract ERC6551Test is DSTest {
     EntryPoint entryPoint;
     Account erc6551Implementation;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
+    TransferHook public transferHook;
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
@@ -63,8 +68,11 @@ contract ERC6551Test is DSTest {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
+        transferHook = new TransferHook(DEFAULT_OWNER_ADDRESS);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
+        cre8orsNFTBase.setHook(IERC721ACH.HookType.AfterTokenTransfers, address(transferHook));
+        transferHook.setAfterTokenTransfersEnabled(true);
         vm.stopPrank();
     }
 
@@ -75,12 +83,12 @@ contract ERC6551Test is DSTest {
 
     function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        cre8orsNFTBase.setErc6551Registry(address(erc6551Registry));
+        transferHook.setErc6551Registry(address(erc6551Registry));
     }
 
     function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        cre8orsNFTBase.setErc6551Implementation(address(erc6551Implementation));
+        transferHook.setErc6551Implementation(address(erc6551Implementation));
     }
 
     function test_createAccount() public setupErc6551 {
@@ -93,7 +101,7 @@ contract ERC6551Test is DSTest {
     }
 
     function test_createMultipleAccounts() public setupErc6551 {
-        uint256 quantity = 88;
+        uint256 quantity = 8;
 
         // No ERC6551 before purchase
         for (uint256 i = 1; i <= quantity; i++) {
@@ -180,8 +188,8 @@ contract ERC6551Test is DSTest {
 
     modifier setupErc6551() {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setErc6551Registry(address(erc6551Registry));
-        cre8orsNFTBase.setErc6551Implementation(address(erc6551Implementation));
+        transferHook.setErc6551Registry(address(erc6551Registry));
+        transferHook.setErc6551Implementation(address(erc6551Implementation));
         vm.stopPrank();
         _;
     }

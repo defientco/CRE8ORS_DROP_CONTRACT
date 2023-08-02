@@ -7,7 +7,7 @@ import "forge-std/console.sol";
 
 
 
-contract Hooks is  Cre8orsERC6551, Cre8iveAdmin  {
+contract TransferHook is  Cre8orsERC6551, Cre8iveAdmin  {
 
     
     /// @notice Only admin can access this function
@@ -48,7 +48,7 @@ contract Hooks is  Cre8orsERC6551, Cre8iveAdmin  {
 
     /// @notice Toggle afterTokenTransfers hook.
     /// add admin only 
-    function setAfterTokenTransfersEnabled(bool _enabled) public  {
+    function setAfterTokenTransfersEnabled(bool _enabled) public onlyAdmin {
         afterTokenTransfersHookEnabled = _enabled;
     }
 
