@@ -46,17 +46,17 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(
-            DEFAULT_OWNER_ADDRESS,
-            address(cre8orsNFTBase)
-        );
+        transferHook = new TransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
-        transferHook.setAfterTokenTransfersEnabled(true);
+        transferHook.setAfterTokenTransfersEnabled(
+            address(cre8orsNFTBase),
+            true
+        );
         vm.stopPrank();
     }
 
@@ -67,12 +67,18 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
 
     function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Registry(address(erc6551Registry));
+        transferHook.setErc6551Registry(
+            address(cre8orsNFTBase),
+            address(erc6551Registry)
+        );
     }
 
     function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Implementation(address(erc6551Implementation));
+        transferHook.setErc6551Implementation(
+            address(cre8orsNFTBase),
+            address(erc6551Implementation)
+        );
     }
 
     function test_createAccount(uint256 _quantity) public setupErc6551 {
@@ -204,8 +210,14 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
 
     modifier setupErc6551() {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setErc6551Registry(address(erc6551Registry));
-        transferHook.setErc6551Implementation(address(erc6551Implementation));
+        transferHook.setErc6551Registry(
+            address(cre8orsNFTBase),
+            address(erc6551Registry)
+        );
+        transferHook.setErc6551Implementation(
+            address(cre8orsNFTBase),
+            address(erc6551Implementation)
+        );
         vm.stopPrank();
         _;
     }

@@ -398,7 +398,6 @@ contract Cre8ors is
         cre8ingTransfer = 1;
     }
 
-
     /////////////////////////////////////////////////
     /// ERC721C - cre8or royalties
     /////////////////////////////////////////////////
@@ -449,7 +448,7 @@ contract Cre8ors is
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
-        ERC721ACH._beforeTokenTransfers(from, to, startTokenId, quantity);
+        super._beforeTokenTransfers(from, to, startTokenId, quantity);
     }
 
     function setCre8ing(
