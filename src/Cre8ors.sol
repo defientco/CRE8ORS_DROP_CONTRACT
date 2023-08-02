@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ERC721AC} from "ERC721C/erc721c/ERC721AC.sol";
+import {ERC721ACH} from "ERC721H/ERC721ACH.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
@@ -28,7 +28,7 @@ import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8ors is
     Cre8iveAdmin,
-    ERC721AC,
+    ERC721ACH,
     IERC2981,
     ReentrancyGuard,
     IERC721Drop,
@@ -36,7 +36,7 @@ contract Cre8ors is
     ERC721DropStorageV1,
     Cre8orsERC6551
 {
-    /// @dev This is the max mint batch size for the optimized ERC721AC mint contract
+    /// @dev This is the max mint batch size for the optimized ERC721ACH mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
 
     /// @dev Gas limit to send funds
@@ -58,7 +58,7 @@ contract Cre8ors is
         SalesConfiguration memory _salesConfig,
         IMetadataRenderer _metadataRenderer
     )
-        ERC721AC(_contractName, _contractSymbol)
+        ERC721ACH(_contractName, _contractSymbol)
         ReentrancyGuard()
         Cre8iveAdmin(_initialOwner)
     {
@@ -235,7 +235,7 @@ contract Cre8ors is
 
     /// @notice Function to mint NFTs
     /// @dev (important: Does not enforce max supply limit, enforce that limit earlier)
-    /// @dev This batches in size of 8 as per recommended by ERC721AC creators
+    /// @dev This batches in size of 8 as per recommended by ERC721ACH creators
     /// @param to address to mint NFTs to
     /// @param quantity number of NFTs to mint
     function _mintNFTs(address to, uint256 quantity) internal {
@@ -399,37 +399,6 @@ contract Cre8ors is
     }
 
     /////////////////////////////////////////////////
-    /// ERC6551 - token bound accounts
-    /////////////////////////////////////////////////
-
-    /// @dev Register ERC6551 token bound account onMint.
-    function _afterTokenTransfers(
-        address from,
-        address to,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal override {
-        if (from == address(0) && erc6551Registry != address(0)) {
-            createTokenBoundAccounts(startTokenId, quantity);
-        }
-        ERC721AC._afterTokenTransfers(from, to, startTokenId, quantity);
-    }
-
-    /// @notice Set ERC6551 registry
-    /// @param _registry ERC6551 registry
-    function setErc6551Registry(address _registry) public onlyAdmin {
-        erc6551Registry = _registry;
-    }
-
-    /// @notice Set ERC6551 account implementation
-    /// @param _implementation ERC6551 account implementation
-    function setErc6551Implementation(
-        address _implementation
-    ) public onlyAdmin {
-        erc6551AccountImplementation = _implementation;
-    }
-
-    /////////////////////////////////////////////////
     /// ERC721C - cre8or royalties
     /////////////////////////////////////////////////
 
@@ -479,7 +448,7 @@ contract Cre8ors is
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
-        ERC721AC._beforeTokenTransfers(from, to, startTokenId, quantity);
+        super._beforeTokenTransfers(from, to, startTokenId, quantity);
     }
 
     function setCre8ing(
@@ -536,13 +505,13 @@ contract Cre8ors is
     /// @param interfaceId interface id to check if supported
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(IERC165, ERC721AC, AccessControl) returns (bool) {
+    ) public view override(IERC165, ERC721ACH, AccessControl) returns (bool) {
         return
             super.supportsInterface(interfaceId) ||
             type(IOwnable).interfaceId == interfaceId ||
             type(IERC2981).interfaceId == interfaceId ||
             type(IERC721Drop).interfaceId == interfaceId ||
-            type(ERC721AC).interfaceId == interfaceId;
+            type(IERC721A).interfaceId == interfaceId;
     }
 
     /// @notice Simple override for owner interface.

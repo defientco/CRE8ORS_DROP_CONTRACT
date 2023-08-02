@@ -103,10 +103,10 @@ contract MinterUtilities is IMinterUtilities {
 
     /// @dev Calculates the total quantity of items across all carts.
     /// @param carts An array of Cart structs containing information about each item in the cart.
-    /// @return The total quantity of items across all carts.
+    /// @return uint256 total quantity of items across all carts.
     function calculateTotalQuantity(
         Cart[] calldata carts
-    ) public view returns (uint256) {
+    ) public pure returns (uint256) {
         uint256 totalQuantity = 0;
         for (uint256 i = 0; i < carts.length; i++) {
             totalQuantity += carts[i].quantity;
