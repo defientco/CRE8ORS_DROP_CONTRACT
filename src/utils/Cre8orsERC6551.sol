@@ -14,10 +14,10 @@ import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol"
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8orsERC6551 {
     /// @dev The address of ERC6551 Registry
-    address public erc6551Registry;
+    address internal erc6551Registry;
 
-    /// @dev Gas limit to send funds
-    address public erc6551AccountImplementation;
+    /// @dev The address of ERC6551 Account Implementation
+    address internal erc6551AccountImplementation;
 
     /// @dev Initial data for ERC6551 createAccount
     bytes public constant INIT_DATA = "0x8129fc1c";
