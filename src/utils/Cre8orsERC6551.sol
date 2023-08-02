@@ -16,16 +16,18 @@ contract Cre8orsERC6551 {
     /// @dev The address of ERC6551 Registry
     address internal erc6551Registry;
 
-    /// @dev Gas limit to send funds
+    /// @dev The address of ERC6551 Account Implementation
     address internal erc6551AccountImplementation;
 
     /// @dev Initial data for ERC6551 createAccount
     bytes public constant INIT_DATA = "0x8129fc1c";
 
     /// @notice creates TBA with ERC6551
+    /// @param _target target ERC721 contract
     /// @param startTokenId tokenID to start from
     /// @param quantity number of tokens to createAccount for
     function createTokenBoundAccounts(
+        address _target,
         uint256 startTokenId,
         uint256 quantity
     ) internal {
@@ -35,7 +37,7 @@ contract Cre8orsERC6551 {
             registry.createAccount(
                 implementation,
                 block.chainid,
-                address(this),
+                _target,
                 startTokenId + i,
                 0,
                 INIT_DATA

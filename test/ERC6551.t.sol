@@ -16,50 +16,28 @@ import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol"
 import {Cre8ing} from "../src/Cre8ing.sol";
 import {TransferHook} from "../src/Transfers.sol";
 import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
-
+import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
+import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 
+import "forge-std/console.sol";
 
 error NotAuthorized();
 
-contract ERC6551Test is DSTest {
+contract ERC6551Test is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
-    Cre8ors public cre8orsNFTBase;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     ERC6551Registry erc6551Registry;
     AccountGuardian guardian;
     EntryPoint entryPoint;
     Account erc6551Implementation;
-    DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     TransferHook public transferHook;
-    address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
-        payable(address(0x21303));
     address constant DEAD_ADDRESS =
         address(0x000000000000000000000000000000000000dEaD);
-    uint64 DEFAULT_EDITION_SIZE = 8888;
 
     function setUp() public {
-        cre8orsNFTBase = new Cre8ors({
-            _contractName: "CRE8ORS",
-            _contractSymbol: "CRE8",
-            _initialOwner: DEFAULT_OWNER_ADDRESS,
-            _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
-            _editionSize: DEFAULT_EDITION_SIZE,
-            _royaltyBPS: 808,
-            _metadataRenderer: dummyRenderer,
-            _salesConfig: IERC721Drop.SalesConfiguration({
-                publicSaleStart: 0,
-                erc20PaymentToken: address(0),
-                publicSaleEnd: type(uint64).max,
-                presaleStart: 0,
-                presaleEnd: 0,
-                publicSalePrice: 0,
-                maxSalePurchasePerAddress: 0,
-                presaleMerkleRoot: bytes32(0)
-            })
-        });
-        vm.chainId(1);
+        Cre8orTestBase.cre8orSetup();
         erc6551Registry = new ERC6551Registry();
         guardian = new AccountGuardian();
         entryPoint = new EntryPoint();
@@ -68,10 +46,16 @@ contract ERC6551Test is DSTest {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(DEFAULT_OWNER_ADDRESS, address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            DEFAULT_OWNER_ADDRESS,
+            address(cre8orsNFTBase)
+        );
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsNFTBase.setHook(IERC721ACH.HookType.AfterTokenTransfers, address(transferHook));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(transferHook)
+        );
         transferHook.setAfterTokenTransfersEnabled(true);
         vm.stopPrank();
     }
@@ -91,53 +75,71 @@ contract ERC6551Test is DSTest {
         transferHook.setErc6551Implementation(address(erc6551Implementation));
     }
 
-    function test_createAccount() public setupErc6551 {
-        address tokenBoundAccount = getTBA(1);
+    function test_createAccount(uint256 _quantity) public setupErc6551 {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 18);
+        address tokenBoundAccount = getTBA(_quantity);
+        assertTrue(!isContract(tokenBoundAccount));
 
         // MINT REGISTERS WITH ERC6511
-        assertTrue(!isContract(tokenBoundAccount));
-        cre8orsNFTBase.purchase(1);
+        cre8orsNFTBase.purchase(_quantity);
         assertTrue(isContract(tokenBoundAccount));
     }
 
-    function test_createMultipleAccounts() public setupErc6551 {
-        uint256 quantity = 8;
+    function test_createMultipleAccounts(
+        uint256 _quantity
+    ) public setupErc6551 {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 100);
 
         // No ERC6551 before purchase
-        for (uint256 i = 1; i <= quantity; i++) {
+        for (uint256 i = 1; i <= _quantity; i++) {
             address tokenBoundAccount = getTBA(i);
             assertTrue(!isContract(tokenBoundAccount));
         }
 
         // MINT REGISTERS WITH ERC6511
-        cre8orsNFTBase.purchase(quantity);
+        cre8orsNFTBase.purchase(_quantity);
 
         // All CRE8ORS have ERC6551 after purchase
-        for (uint256 i = 1; i <= quantity; i++) {
+        for (uint256 i = 1; i <= _quantity; i++) {
             address tokenBoundAccount = getTBA(i);
             assertTrue(isContract(tokenBoundAccount));
         }
     }
 
-    function test_sendWithTBA() public setupErc6551 {
-        address payable tokenBoundAccount = payable(getTBA(1));
+    function test_sendWithTBA(
+        uint256 _initialQuantity,
+        uint256 _smartWalletQuantity
+    ) public setupErc6551 {
+        vm.assume(_initialQuantity > 0);
+        vm.assume(_initialQuantity < 19);
+        vm.assume(_smartWalletQuantity > 0);
+        vm.assume(_smartWalletQuantity < 19);
+        address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
         // MINT REGISTERS WITH ERC6511
         assertTrue(!isContract(tokenBoundAccount));
-        cre8orsNFTBase.purchase(3);
+        cre8orsNFTBase.purchase(_initialQuantity);
         assertTrue(isContract(tokenBoundAccount));
 
         // TBA used to mint another CRE8OR
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
         uint256 value;
-        bytes memory data = abi.encodeWithSignature("purchase(uint256)", 1);
+        bytes memory data = abi.encodeWithSignature(
+            "purchase(uint256)",
+            _smartWalletQuantity
+        );
         bytes memory response = Account(tokenBoundAccount).executeCall(
             address(cre8orsNFTBase),
             value,
             data
         );
         uint256 tokenId = abi.decode(response, (uint256));
-        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 1);
+        assertEq(
+            cre8orsNFTBase.balanceOf(tokenBoundAccount),
+            _smartWalletQuantity
+        );
 
         // use TBA to burn CRE8OR
         data = abi.encodeWithSignature(
@@ -151,22 +153,35 @@ contract ERC6551Test is DSTest {
             value,
             data
         );
-        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        assertEq(
+            cre8orsNFTBase.balanceOf(tokenBoundAccount),
+            _smartWalletQuantity - 1
+        );
     }
 
-    function test_sendWithTBA_revert_NotAuthorized() public setupErc6551 {
-        address payable tokenBoundAccount = payable(getTBA(1));
+    function test_sendWithTBA_revert_NotAuthorized(
+        uint256 _initialQuantity,
+        uint256 _smartWalletQuantity
+    ) public setupErc6551 {
+        vm.assume(_initialQuantity > 0);
+        vm.assume(_initialQuantity < 19);
+        vm.assume(_smartWalletQuantity > 0);
+        vm.assume(_smartWalletQuantity < 19);
+        address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
         // MINT REGISTERS WITH ERC6511
         assertTrue(!isContract(tokenBoundAccount));
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.purchase(3);
+        cre8orsNFTBase.purchase(_initialQuantity);
         assertTrue(isContract(tokenBoundAccount));
 
         // TBA used to mint another CRE8OR
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
         uint256 value;
-        bytes memory data = abi.encodeWithSignature("purchase(uint256)", 1);
+        bytes memory data = abi.encodeWithSignature(
+            "purchase(uint256)",
+            _smartWalletQuantity
+        );
         vm.expectRevert(NotAuthorized.selector);
         Account(tokenBoundAccount).executeCall(
             address(cre8orsNFTBase),
@@ -176,12 +191,13 @@ contract ERC6551Test is DSTest {
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
     }
 
-    function test_transfer_only() public setupErc6551 {
-        uint256 quantity = 888;
+    function test_transfer_only(uint256 _quantity) public setupErc6551 {
+        vm.assume(_quantity < 100);
+        vm.assume(_quantity > 0);
         address BUYER = address(0x123);
         vm.startPrank(BUYER);
-        cre8orsNFTBase.purchase(quantity);
-        for (uint256 i = 1; i <= quantity; i++) {
+        cre8orsNFTBase.purchase(_quantity);
+        for (uint256 i = 1; i <= _quantity; i++) {
             cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
         }
     }
@@ -206,7 +222,7 @@ contract ERC6551Test is DSTest {
         address payable tokenBoundAccount = payable(
             erc6551Registry.account(
                 address(erc6551Implementation),
-                1,
+                block.chainid,
                 address(cre8orsNFTBase),
                 tokenId,
                 0
