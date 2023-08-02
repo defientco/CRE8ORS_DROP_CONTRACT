@@ -73,12 +73,10 @@ contract MinterUtilities is IMinterUtilities {
             friendsAndFamily.totalClaimed(recipient);
         uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
 
-        int256 quantityRemaining = int256(maxQuantity) - int256(totalMints);
-
-        if (quantityRemaining < 0) {
+        if (maxQuantity < totalMints) {
             return 0;
         }
-        return uint256(quantityRemaining);
+        return maxQuantity - totalMints;
     }
 
     /// @dev Calculates the total cost of all items in the given carts array.
