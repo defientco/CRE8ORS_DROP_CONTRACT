@@ -53,7 +53,7 @@ contract PublicMinter is IAllowlistMinter, SharedPaidMinterFunctions {
         return pfpTokenId;
     }
 
-    modifier inactiveSale(address recipient) {
+    modifier onlyPublicSaleOrAlreadyMinted(address recipient) {
         /**  @dev This is the only change from AllowlistMinter
          * This is so that anyone with a
          *                 pfp can mint from the public sale
