@@ -1,0 +1,21 @@
+{
+  "cre8ors": {
+    "deploy": {
+      "deployedTo": "0x33E0d3AbF741037C81A57601296840811B07CeeC",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0x38b15c427b20391ef09512ef59f8d01303de6b1f8868924a5682d177cfaa0331"
+    },
+    "contractName": "Cre8ors",
+    "contractPath": "src/Cre8ors.sol",
+    "args": [
+      "cre8ors",
+      "CRE8",
+      "0x4D977d9aEceC3776DD73F2f9080C9AF3BC31f505",
+      "0x4D977d9aEceC3776DD73F2f9080C9AF3BC31f505",
+      "8888",
+      "888",
+      "\"(150000000000000000,0x0000000000000000000000000000000000000000,18,1691078400,18446744073709551615,0,18446744073709551615,0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e)\"",
+      "0x209511E9fe3c526C61B7691B9308830C1d1612bE"
+    ]
+  }
+}
