@@ -1,43 +1,68 @@
-import { deployAndVerify } from './contract.mjs';
-import { writeFile } from 'fs/promises';
-import dotenv from 'dotenv';
-import esMain from 'es-main';
+import { writeFile } from "fs/promises";
+import dotenv from "dotenv";
+import esMain from "es-main";
+import { deployCre8ors } from "./deploy/deployCre8ors.mjs";
+import { deployStaking } from "./deploy/deployStaking.mjs";
+import { deployLockup } from "./deploy/deployLockup.mjs";
+import { deployMinterUtilities } from "./deploy/deployMinterUtilities.mjs";
+import { deployFamilyAndFriendsMinter } from "./deploy/deployFriendsAndFamily.mjs";
+import { deployPassportMinter } from "./deploy/deployPassportMinter.mjs";
+import { deployTransfers } from "./deploy/deployTransfers.mjs";
+import { deployPublicMinter } from "./deploy/deployPublicMinter.mjs";
+import { deployAllowlistMinter } from "./deploy/deployAllowlistMinter.mjs";
 
 dotenv.config({
-  path: `.env.${process.env.CHAIN}`
+  path: `.env.${process.env.CHAIN}`,
 });
 
 export async function setupContracts() {
-  const zoraERC721TransferHelperAddress = process.env.ZORA_ERC_721_TRANSFER_HELPER_ADDRESS;
+  console.log("deploying...");
+  const presaleMerkleRoot =
+    "0x36c161febf4b54734baf31a4d6b00da9f4a1cc6eeae64bb328e095b1ab00ec96";
+  const cre8ors = await deployCre8ors(presaleMerkleRoot);
+  const hooks = await deployTransfers();
+  const staking = await deployStaking();
+  const lockup = await deployLockup();
+  const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
 
-  if (!zoraERC721TransferHelperAddress) {
-    throw new Error('erc721 transfer helper address is required');
-  }
-
-  console.log('deploying Erc721Drop');
-  const dropContract = await deployAndVerify('src/Cre8ors.sol:Cre8ors', [
-    zoraERC721TransferHelperAddress
-  ]);
-  const dropContractAddress = dropContract.deployed.deploy.deployedTo;
-  console.log('deployed drop contract to ', dropContractAddress);
-  console.log('deploying drops metadata');
-  const dropMetadataContract = await deployAndVerify(
-    'src/metadata/Cre8orsMetadataRenderer.sol:Cre8orsMetadataRenderer',
-    []
+  const minterUtilities = await deployMinterUtilities(passportAddress);
+  const familyFriendsMinter = await deployFamilyAndFriendsMinter(
+    cre8ors.deploy.deployedTo,
+    minterUtilities.deploy.deployedTo
   );
-  const dropMetadataAddress = dropMetadataContract.deployed.deploy.deployedTo;
-  console.log('deployed drops metadata to', dropMetadataAddress);
-
+  const passportMinter = await deployPassportMinter(
+    cre8ors.deploy.deployedTo,
+    minterUtilities.deploy.deployedTo,
+    familyFriendsMinter.deploy.deployedTo
+  );
+  const allowlistMinter = await deployAllowlistMinter(
+    cre8ors.deploy.deployedTo,
+    minterUtilities.deploy.deployedTo
+  );
+  const publicMinter = await deployPublicMinter(
+    cre8ors.deploy.deployedTo,
+    minterUtilities.deploy.deployedTo
+  );
   return {
-    dropContract,
-    dropMetadataContract
+    allowlistMinter,
+    cre8ors,
+    familyFriendsMinter,
+    hooks,
+    lockup,
+    minterUtilities,
+    passportMinter,
+    publicMinter,
+    staking,
   };
 }
 
 async function main() {
   const output = await setupContracts();
   const date = new Date().toISOString().slice(0, 10);
-  writeFile(`./deployments/${date}.${process.env.CHAIN}.json`, JSON.stringify(output, null, 2));
+  writeFile(
+    `./deployments/${date}.${process.env.CHAIN}.json`,
+    JSON.stringify(output, null, 2)
+  );
 }
 
 if (esMain(import.meta)) {
