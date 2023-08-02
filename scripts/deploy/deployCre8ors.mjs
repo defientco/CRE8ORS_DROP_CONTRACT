@@ -5,7 +5,7 @@ dotenv.config({
   path: `.env.${process.env.CHAIN}`,
 });
 
-export async function deployCre8ors() {
+export async function deployCre8ors(root) {
   console.log("deploying Cre8ors");
   const contractName = "cre8ors";
   const contractSymbol = "CRE8";
@@ -20,8 +20,7 @@ export async function deployCre8ors() {
   const publicSaleEnd = "18446744073709551615"; // forever
   const presaleStart = 0; // always
   const presaleEnd = "18446744073709551615"; // forever
-  const presaleMerkleRoot =
-    "0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e";
+  const presaleMerkleRoot = root;
 
   const _salesConfig = `"(${publicSalePrice},${erc20PaymentToken},${maxSalePurchasePerAddress},${publicSaleStart},${publicSaleEnd},${presaleStart},${presaleEnd},${presaleMerkleRoot})"`;
   const _metadataRenderer = "0x209511E9fe3c526C61B7691B9308830C1d1612bE"; // from Zora

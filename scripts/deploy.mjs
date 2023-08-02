@@ -17,7 +17,9 @@ dotenv.config({
 
 export async function setupContracts() {
   console.log("deploying...");
-  const cre8ors = await deployCre8ors();
+  const presaleMerkleRoot =
+    "0x36c161febf4b54734baf31a4d6b00da9f4a1cc6eeae64bb328e095b1ab00ec96";
+  const cre8ors = await deployCre8ors(presaleMerkleRoot);
   const hooks = await deployTransfers();
   const staking = await deployStaking();
   const lockup = await deployLockup();
