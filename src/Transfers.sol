@@ -27,9 +27,7 @@ contract TransferHook is Cre8orsERC6551, Cre8iveAdmin {
         _;
     }
 
-    function ownerOf(uint256 tokenId) public view returns (address) {
-        return baseContract.ownerOf(tokenId);
-    }
+    
 
     /// @notice Set ERC6551 registry
     /// @param _registry ERC6551 registry
