@@ -15,7 +15,7 @@ contract SharedPaidMinterFunctions {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(
             carts
         );
-        require(msg.value >= totalCost, "Not enough ETH sent");
+        require(msg.value < totalCost, "Not enough ETH sent");
         _;
     }
     modifier onlyValidTier(uint256 tier) {
