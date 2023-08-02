@@ -19,3 +19,6 @@
 [submodule "lib/creator-token-contracts"]
 	path = lib/creator-token-contracts
 	url = https://github.com/limitbreakinc/creator-token-contracts
+[submodule "lib/ERC721H"]
+	path = lib/ERC721H
+	url = https://github.com/defientco/ERC721H

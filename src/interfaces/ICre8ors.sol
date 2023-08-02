@@ -19,4 +19,5 @@ interface ICre8ors is IERC721Drop, IERC721A {
     function cre8ing() external view returns (ICre8ing);
     /// @notice Getter for last minted token ID (gets next token id and subtracts 1)
     function _lastMintedTokenId() external view returns (uint256);
+
 }

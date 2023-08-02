@@ -159,7 +159,7 @@ contract Cre8ing is ICre8ing {
         lockup[_target] = newLockup;
     }
 
-    function _requireUnlocked(address _target, uint256 tokenId) internal {
+    function _requireUnlocked(address _target, uint256 tokenId) internal view {
         if (
             address(lockup[_target]) != address(0) &&
             lockup[_target].isLocked(_target, tokenId)
