@@ -170,12 +170,26 @@ contract MinterUtilities is IMinterUtilities {
         return tierInfo[tier];
     }
 
+    /// @dev Retrieves tier information for all tiers.
+    /// @return A bytes array containing the tier information for all tiers.
     function getTierInfo() external view returns (bytes memory) {
         TierInfo[] memory tierInfoArray = new TierInfo[](3);
         tierInfoArray[0] = tierInfo[1];
         tierInfoArray[1] = tierInfo[2];
         tierInfoArray[2] = tierInfo[3];
         return abi.encode(tierInfoArray);
+    }
+
+    /// @dev allows user to convert tier prices or tier unlock periods to bytes for using in update functions.
+    /// @param tierOne The price(in wei) or lockup period (in seconds) for tier 1.
+    /// @param tierTwo The price(in wei) or lockup period (in seconds) for tier 2.
+    /// @param tierThree The price(in wei) or lockup period (in seconds) for tier 3.
+    function convertTierInfoToBytes(
+        uint256 tierOne,
+        uint256 tierTwo,
+        uint256 tierThree
+    ) external view returns (bytes memory) {
+        return abi.encode(tierOne, tierTwo, tierThree);
     }
 
     /// @dev Updates the maximum allowed quantity for the whitelist.
