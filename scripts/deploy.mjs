@@ -8,6 +8,8 @@ import { deployMinterUtilities } from "./deploy/deployMinterUtilities.mjs";
 import { deployFamilyAndFriendsMinter } from "./deploy/deployFriendsAndFamily.mjs";
 import { deployPassportMinter } from "./deploy/deployPassportMinter.mjs";
 import { deployTransfers } from "./deploy/deployTransfers.mjs";
+import { deployPublicMinter } from "./deploy/deployPublicMinter.mjs";
+import { deployAllowlistMinter } from "./deploy/deployAllowlistMinter.mjs";
 
 dotenv.config({
   path: `.env.${process.env.CHAIN}`,
@@ -31,13 +33,23 @@ export async function setupContracts() {
     minterUtilities.deploy.deployedTo,
     familyFriendsMinter.deploy.deployedTo
   );
+  const allowlistMinter = await deployAllowlistMinter(
+    cre8ors.deploy.deployedTo,
+    minterUtilities.deploy.deployedTo
+  );
+  const publicMinter = await deployPublicMinter(
+    cre8ors.deploy.deployedTo,
+    minterUtilities.deploy.deployedTo
+  );
   return {
+    allowlistMinter,
     cre8ors,
     familyFriendsMinter,
     hooks,
     lockup,
     minterUtilities,
     passportMinter,
+    publicMinter,
     staking,
   };
 }
