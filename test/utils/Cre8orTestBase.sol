@@ -16,7 +16,7 @@ contract Cre8orTestBase {
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
-    uint64 DEFAULT_EDITION_SIZE = 10_000;
+    uint64 DEFAULT_EDITION_SIZE = 8_888;
     uint16 DEFAULT_ROYALTY_BPS = 888;
 
     function cre8orSetup() public {
