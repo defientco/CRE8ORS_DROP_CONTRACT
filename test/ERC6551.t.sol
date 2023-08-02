@@ -75,120 +75,132 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         transferHook.setErc6551Implementation(address(erc6551Implementation));
     }
 
-    function test_createAccount() public setupErc6551 {
-        address tokenBoundAccount = getTBA(1);
+    function test_createAccount(uint256 _quantity) public setupErc6551 {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 18);
+        address tokenBoundAccount = getTBA(_quantity);
+        assertTrue(!isContract(tokenBoundAccount));
 
         // MINT REGISTERS WITH ERC6511
-        assertTrue(!isContract(tokenBoundAccount));
-        address afterHookAddress = cre8orsNFTBase.getHook(
-            IERC721ACH.HookType.AfterTokenTransfers
-        );
-        assertEq(address(transferHook), afterHookAddress);
-        IAfterTokenTransfersHook afterHook = IAfterTokenTransfersHook(
-            afterHookAddress
-        );
-        assertTrue(
-            afterHook.useAfterTokenTransfersHook(
-                afterHookAddress,
-                afterHookAddress,
-                1,
-                1
-            )
-        );
-        cre8orsNFTBase.purchase(1);
-        emit log_string("SWEETS TBA");
-        emit log_address(tokenBoundAccount);
-        tokenBoundAccount = getTBA(1);
-        emit log_address(tokenBoundAccount);
-
+        cre8orsNFTBase.purchase(_quantity);
         assertTrue(isContract(tokenBoundAccount));
     }
 
-    // function test_createMultipleAccounts() public setupErc6551 {
-    //     uint256 quantity = 8;
+    function test_createMultipleAccounts(
+        uint256 _quantity
+    ) public setupErc6551 {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 100);
 
-    //     // No ERC6551 before purchase
-    //     for (uint256 i = 1; i <= quantity; i++) {
-    //         address tokenBoundAccount = getTBA(i);
-    //         assertTrue(!isContract(tokenBoundAccount));
-    //     }
+        // No ERC6551 before purchase
+        for (uint256 i = 1; i <= _quantity; i++) {
+            address tokenBoundAccount = getTBA(i);
+            assertTrue(!isContract(tokenBoundAccount));
+        }
 
-    //     // MINT REGISTERS WITH ERC6511
-    //     cre8orsNFTBase.purchase(quantity);
+        // MINT REGISTERS WITH ERC6511
+        cre8orsNFTBase.purchase(_quantity);
 
-    //     // All CRE8ORS have ERC6551 after purchase
-    //     for (uint256 i = 1; i <= quantity; i++) {
-    //         address tokenBoundAccount = getTBA(i);
-    //         assertTrue(isContract(tokenBoundAccount));
-    //     }
-    // }
+        // All CRE8ORS have ERC6551 after purchase
+        for (uint256 i = 1; i <= _quantity; i++) {
+            address tokenBoundAccount = getTBA(i);
+            assertTrue(isContract(tokenBoundAccount));
+        }
+    }
 
-    // function test_sendWithTBA() public setupErc6551 {
-    //     address payable tokenBoundAccount = payable(getTBA(1));
+    function test_sendWithTBA(
+        uint256 _initialQuantity,
+        uint256 _smartWalletQuantity
+    ) public setupErc6551 {
+        vm.assume(_initialQuantity > 0);
+        vm.assume(_initialQuantity < 19);
+        vm.assume(_smartWalletQuantity > 0);
+        vm.assume(_smartWalletQuantity < 19);
+        address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
-    //     // MINT REGISTERS WITH ERC6511
-    //     assertTrue(!isContract(tokenBoundAccount));
-    //     cre8orsNFTBase.purchase(3);
-    //     assertTrue(isContract(tokenBoundAccount));
+        // MINT REGISTERS WITH ERC6511
+        assertTrue(!isContract(tokenBoundAccount));
+        cre8orsNFTBase.purchase(_initialQuantity);
+        assertTrue(isContract(tokenBoundAccount));
 
-    //     // TBA used to mint another CRE8OR
-    //     assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
-    //     uint256 value;
-    //     bytes memory data = abi.encodeWithSignature("purchase(uint256)", 1);
-    //     bytes memory response = Account(tokenBoundAccount).executeCall(
-    //         address(cre8orsNFTBase),
-    //         value,
-    //         data
-    //     );
-    //     uint256 tokenId = abi.decode(response, (uint256));
-    //     assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 1);
+        // TBA used to mint another CRE8OR
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        uint256 value;
+        bytes memory data = abi.encodeWithSignature(
+            "purchase(uint256)",
+            _smartWalletQuantity
+        );
+        bytes memory response = Account(tokenBoundAccount).executeCall(
+            address(cre8orsNFTBase),
+            value,
+            data
+        );
+        uint256 tokenId = abi.decode(response, (uint256));
+        assertEq(
+            cre8orsNFTBase.balanceOf(tokenBoundAccount),
+            _smartWalletQuantity
+        );
 
-    //     // use TBA to burn CRE8OR
-    //     data = abi.encodeWithSignature(
-    //         "safeTransferFrom(address,address,uint256)",
-    //         tokenBoundAccount,
-    //         DEAD_ADDRESS,
-    //         tokenId + 1
-    //     );
-    //     Account(tokenBoundAccount).executeCall(
-    //         address(cre8orsNFTBase),
-    //         value,
-    //         data
-    //     );
-    //     assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
-    // }
+        // use TBA to burn CRE8OR
+        data = abi.encodeWithSignature(
+            "safeTransferFrom(address,address,uint256)",
+            tokenBoundAccount,
+            DEAD_ADDRESS,
+            tokenId + 1
+        );
+        Account(tokenBoundAccount).executeCall(
+            address(cre8orsNFTBase),
+            value,
+            data
+        );
+        assertEq(
+            cre8orsNFTBase.balanceOf(tokenBoundAccount),
+            _smartWalletQuantity - 1
+        );
+    }
 
-    // function test_sendWithTBA_revert_NotAuthorized() public setupErc6551 {
-    //     address payable tokenBoundAccount = payable(getTBA(1));
+    function test_sendWithTBA_revert_NotAuthorized(
+        uint256 _initialQuantity,
+        uint256 _smartWalletQuantity
+    ) public setupErc6551 {
+        vm.assume(_initialQuantity > 0);
+        vm.assume(_initialQuantity < 19);
+        vm.assume(_smartWalletQuantity > 0);
+        vm.assume(_smartWalletQuantity < 19);
+        address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
-    //     // MINT REGISTERS WITH ERC6511
-    //     assertTrue(!isContract(tokenBoundAccount));
-    //     vm.prank(DEFAULT_OWNER_ADDRESS);
-    //     cre8orsNFTBase.purchase(3);
-    //     assertTrue(isContract(tokenBoundAccount));
+        // MINT REGISTERS WITH ERC6511
+        assertTrue(!isContract(tokenBoundAccount));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.purchase(_initialQuantity);
+        assertTrue(isContract(tokenBoundAccount));
 
-    //     // TBA used to mint another CRE8OR
-    //     assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
-    //     uint256 value;
-    //     bytes memory data = abi.encodeWithSignature("purchase(uint256)", 1);
-    //     vm.expectRevert(NotAuthorized.selector);
-    //     Account(tokenBoundAccount).executeCall(
-    //         address(cre8orsNFTBase),
-    //         value,
-    //         data
-    //     );
-    //     assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
-    // }
+        // TBA used to mint another CRE8OR
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        uint256 value;
+        bytes memory data = abi.encodeWithSignature(
+            "purchase(uint256)",
+            _smartWalletQuantity
+        );
+        vm.expectRevert(NotAuthorized.selector);
+        Account(tokenBoundAccount).executeCall(
+            address(cre8orsNFTBase),
+            value,
+            data
+        );
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+    }
 
-    // function test_transfer_only() public setupErc6551 {
-    //     uint256 quantity = 888;
-    //     address BUYER = address(0x123);
-    //     vm.startPrank(BUYER);
-    //     cre8orsNFTBase.purchase(quantity);
-    //     for (uint256 i = 1; i <= quantity; i++) {
-    //         cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
-    //     }
-    // }
+    function test_transfer_only(uint256 _quantity) public setupErc6551 {
+        vm.assume(_quantity < 100);
+        vm.assume(_quantity > 0);
+        address BUYER = address(0x123);
+        vm.startPrank(BUYER);
+        cre8orsNFTBase.purchase(_quantity);
+        for (uint256 i = 1; i <= _quantity; i++) {
+            cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
+        }
+    }
 
     modifier setupErc6551() {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -208,9 +220,9 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
 
     function getTBA(uint256 tokenId) private view returns (address) {
         address payable tokenBoundAccount = payable(
-            IERC6551Registry(transferHook.erc6551Registry()).account(
+            erc6551Registry.account(
                 address(erc6551Implementation),
-                1,
+                block.chainid,
                 address(cre8orsNFTBase),
                 tokenId,
                 0
