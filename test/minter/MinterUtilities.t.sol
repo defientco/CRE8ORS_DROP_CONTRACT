@@ -102,8 +102,6 @@ contract MinterUtilitiesTest is DSTest, StdUtils {
             address(cre8orsNFTBase),
             _buyer
         );
-        console.log(quantityLeft);
-        emit log_named_uint("quantityLeft", quantityLeft);
 
         assertEq(quantityLeft, 8, "should have 8 quantity left");
     }
@@ -137,8 +135,6 @@ contract MinterUtilitiesTest is DSTest, StdUtils {
             address(cre8orsNFTBase),
             _buyer
         );
-        console.log(quantityLeft);
-        emit log_named_uint("quantityLeft", quantityLeft);
 
         assertEq(quantityLeft, 26, "should have 26 quantity left");
     }
@@ -190,8 +186,6 @@ contract MinterUtilitiesTest is DSTest, StdUtils {
             address(cre8orsNFTBase),
             _buyer
         );
-        console.log(quantityLeft);
-        emit log_named_uint("quantityLeft", quantityLeft);
 
         assertEq(quantityLeft, 8, "should have 8 quantity left");
     }
