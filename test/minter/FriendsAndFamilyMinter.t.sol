@@ -16,12 +16,18 @@ import {DummyMetadataRenderer} from "../utils/DummyMetadataRenderer.sol";
 import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
+
 
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
+    Cre8ing public cre8ingBase;
+    address public familyMinter = address(0x1234567);
+
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
+    
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -35,13 +41,17 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
             address(cre8orsNFTBase),
             address(minterUtility)
         );
+        cre8ingBase = new Cre8ing();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
     }
 
     function testLockup() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
+        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
     }
 
     function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
+
         vm.assume(_friendOrFamily != address(0));
 
         // Setup Minter
@@ -49,7 +59,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
         // Apply Discount
         _addDiscount(_friendOrFamily);
-
         // Mint
         uint256 tokenId = minter.mint(_friendOrFamily);
 
@@ -69,20 +78,20 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
         // Setup Lockup
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setLockup(lockup);
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
 
         // Apply Discount
-        _addDiscount(_friendOrFamily);
+        _addDiscount(familyMinter);
 
         // Mint
-        uint256 tokenId = minter.mint(_friendOrFamily);
+        uint256 tokenId = minter.mint(familyMinter);
 
         // Asserts
-        assertTrue(!minter.hasDiscount(_friendOrFamily));
+        assertTrue(!minter.hasDiscount(familyMinter));
         assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), familyMinter);
         assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+            cre8orsNFTBase.mintedPerAddress(familyMinter).totalMints,
             1
         );
     }

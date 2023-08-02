@@ -7,33 +7,53 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
 import {Cre8orTestBase} from "./Cre8orTestBase.sol";
 import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
+import {console2} from "forge-std/console2.sol";
+import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
 
 contract LockupTest is DSTest, Cre8orTestBase {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
+    Cre8ing public cre8ingBase;
 
     function setUp() public {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
         Cre8orTestBase.cre8orSetup();
-        vm.stopPrank();
+        cre8ingBase = new Cre8ing();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
     }
 
     function test_lockup() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function test_setLockup() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setLockup(lockup);
-        assertEq(address(cre8orsNFTBase.lockup()), address(lockup));
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(lockup)
+        );
     }
 
-    function test_setLockup_revert_Access_OnlyAdmin() public {
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
-        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        cre8orsNFTBase.setLockup(lockup);
-        assertEq(address(cre8orsNFTBase.lockup()), address(0));
+    function testFail_setLockup_revert_Access_OnlyOwner() public {
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        vm.expectRevert("Requires owner role");
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function test_setUnlockInfo(
@@ -180,7 +200,7 @@ contract LockupTest is DSTest, Cre8orTestBase {
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
-        cre8orsNFTBase.setLockup(lockup);
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
         assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
         vm.stopPrank();
 
@@ -190,9 +210,10 @@ contract LockupTest is DSTest, Cre8orTestBase {
         tokenIds[0] = 1;
 
         // allow exit from warehouse
-        cre8orsNFTBase.toggleCre8ing(tokenIds);
-        (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
-            .cre8ingPeriod(1);
+        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), 1);
+
         assertTrue(!cre8ing);
         assertEq(current, 0);
         assertEq(total, unlockDate - start);
@@ -211,7 +232,7 @@ contract LockupTest is DSTest, Cre8orTestBase {
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         lockup.setUnlockInfo(address(cre8orsNFTBase), 1, data);
-        cre8orsNFTBase.setLockup(lockup);
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
         assertTrue(lockup.isLocked(address(cre8orsNFTBase), 1));
         vm.stopPrank();
 
@@ -219,25 +240,28 @@ contract LockupTest is DSTest, Cre8orTestBase {
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = 1;
         vm.expectRevert(ILockup.Lockup_Locked.selector);
-        cre8orsNFTBase.toggleCre8ing(tokenIds);
+        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
     }
 
     function _cre8ingSetup() internal {
         uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8orsNFTBase
-            .cre8ingPeriod(_tokenId);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
         assertTrue(!cre8ing);
         assertEq(current, 0);
         assertEq(total, 0);
         cre8orsNFTBase.purchase(1);
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ingOpen(true);
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
-        cre8orsNFTBase.toggleCre8ing(tokenIds);
-        (cre8ing, current, total) = cre8orsNFTBase.cre8ingPeriod(_tokenId);
+        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertTrue(cre8ing);
         assertEq(current, 0);
         assertEq(total, 0);

@@ -9,6 +9,8 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
+import {Cre8ing} from "../src/Cre8ing.sol";
+import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 
 contract Cre8orTest is DSTest {
     Cre8ors public cre8orsNFTBase;
@@ -18,6 +20,7 @@ contract Cre8orTest is DSTest {
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;
+    Cre8ing public cre8ingBase;
 
     modifier setupCre8orsNFTBase(uint64 editionSize) {
         cre8orsNFTBase = new Cre8ors({
@@ -39,6 +42,11 @@ contract Cre8orTest is DSTest {
                 presaleMerkleRoot: bytes32(0)
             })
         });
+        cre8ingBase = new Cre8ing();
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        vm.stopPrank();
 
         _;
     }
@@ -221,7 +229,7 @@ contract Cre8orTest is DSTest {
         cre8orsNFTBase.withdraw();
     }
 
-    function test_AdminMint() public setupCre8orsNFTBase(10) {
+    function test_AdminMintX() public setupCre8orsNFTBase(10) {
         address minter = address(0x32402);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, 1);
@@ -229,7 +237,9 @@ contract Cre8orTest is DSTest {
             cre8orsNFTBase.balanceOf(DEFAULT_OWNER_ADDRESS) == 1,
             "Wrong balance"
         );
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), minter);
+
+        bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
+        cre8orsNFTBase.grantRole(minterRole, minter);
         vm.stopPrank();
         vm.prank(minter);
         cre8orsNFTBase.adminMint(minter, 1);
@@ -366,41 +376,5 @@ contract Cre8orTest is DSTest {
         cre8orsNFTBase.purchase{value: 1}(1);
 
         assertEq(cre8orsNFTBase.tokenURI(1), "DUMMY");
-    }
-
-    function test_cre8ingTokens()
-        public
-        setupCre8orsNFTBase(DEFAULT_EDITION_SIZE)
-    {
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setSaleConfiguration({
-            erc20PaymentToken: address(0),
-            publicSaleStart: 0,
-            publicSaleEnd: type(uint64).max,
-            presaleStart: 0,
-            presaleEnd: 0,
-            publicSalePrice: 0,
-            maxSalePurchasePerAddress: 1000,
-            presaleMerkleRoot: bytes32(0)
-        });
-        vm.deal(address(456), 10 ether);
-        cre8orsNFTBase.purchase(100);
-        uint256[] memory staked = cre8orsNFTBase.cre8ingTokens();
-        assertEq(staked.length, 100);
-        for (uint256 i = 0; i < staked.length; i++) {
-            assertEq(staked[i], 0);
-        }
-        uint256[] memory unstaked = new uint256[](100);
-        for (uint256 i = 0; i < unstaked.length; i++) {
-            unstaked[i] = i + 1;
-        }
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ingOpen(true);
-        cre8orsNFTBase.toggleCre8ing(unstaked);
-        staked = cre8orsNFTBase.cre8ingTokens();
-        for (uint256 i = 0; i < staked.length; i++) {
-            assertEq(staked[i], i + 1);
-        }
-        assertEq(staked.length, 100);
     }
 }

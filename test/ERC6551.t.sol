@@ -13,10 +13,13 @@ import {ERC6551Registry} from "lib/ERC6551/src/ERC6551Registry.sol";
 import {Account} from "lib/tokenbound/src/Account.sol";
 import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
+import {Cre8ing} from "../src/Cre8ing.sol";
+import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 
 error NotAuthorized();
 
 contract ERC6551Test is DSTest {
+    Cre8ing public cre8ingBase;
     Cre8ors public cre8orsNFTBase;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     ERC6551Registry erc6551Registry;
@@ -59,6 +62,10 @@ contract ERC6551Test is DSTest {
             address(guardian),
             address(entryPoint)
         );
+        cre8ingBase = new Cre8ing();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        vm.stopPrank();
     }
 
     function test_Erc6551Registry() public {
