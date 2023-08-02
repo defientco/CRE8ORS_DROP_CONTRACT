@@ -6,9 +6,9 @@ import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 
 contract TransferHook is Cre8orsERC6551 {
-    /// @notice is ERC721 using afterTokenTransferHook
+    /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
-    /// @notice is ERC721 using beforeTokenTransferHook
+    /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
 
     /// @notice Set ERC6551 registry
