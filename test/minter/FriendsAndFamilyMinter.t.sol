@@ -18,7 +18,6 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 
-
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
@@ -27,7 +26,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
-    
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -47,11 +45,13 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function testLockup() public {
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
-
         vm.assume(_friendOrFamily != address(0));
 
         // Setup Minter
@@ -81,17 +81,17 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
 
         // Apply Discount
-        _addDiscount(familyMinter);
+        _addDiscount(_friendOrFamily);
 
         // Mint
-        uint256 tokenId = minter.mint(familyMinter);
+        uint256 tokenId = minter.mint(_friendOrFamily);
 
         // Asserts
-        assertTrue(!minter.hasDiscount(familyMinter));
+        assertTrue(!minter.hasDiscount(_friendOrFamily));
         assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), familyMinter);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
         assertEq(
-            cre8orsNFTBase.mintedPerAddress(familyMinter).totalMints,
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
             1
         );
     }

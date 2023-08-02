@@ -22,7 +22,6 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 
-
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
         uint256 price;
@@ -44,10 +43,8 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
-    
 
     function setUp() public {
-
         cre8orsNFTBase = _setUpContracts();
         cre8orsPassport = _setUpContracts();
         minterUtility = new MinterUtilities(
@@ -75,7 +72,10 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     }
 
     function testLockup() public {
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function testMintingUtility() public {
@@ -287,7 +287,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
     function generateTokens(
         uint256 quantity
-    ) internal returns (uint256[] memory) {
+    ) internal pure returns (uint256[] memory) {
         uint256[] memory tokens = new uint256[](quantity);
         for (uint256 i = 0; i < quantity; i++) {
             tokens[i] = i + 1;
