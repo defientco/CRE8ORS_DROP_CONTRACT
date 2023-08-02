@@ -2,7 +2,6 @@
 pragma solidity ^0.8.15;
 
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
-import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 
