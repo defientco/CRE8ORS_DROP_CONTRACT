@@ -8,10 +8,9 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
-import {IAllowlistMinter} from "../interfaces/IAllowlistMinter.sol";
 import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol";
 
-contract AllowlistMinter is IAllowlistMinter, SharedPaidMinterFunctions {
+contract AllowlistMinter is SharedPaidMinterFunctions {
     constructor(address _cre8orsNFT, address _minterUtility) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;

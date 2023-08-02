@@ -12,7 +12,6 @@ import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
-import {IAllowlistMinter} from "../../src/interfaces/IAllowlistMinter.sol";
 // contract imports
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Cre8ors} from "../../src/Cre8ors.sol";
@@ -22,6 +21,7 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {PublicMinter} from "../../src/minter/PublicMinter.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
 
 contract PublicMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -33,6 +33,7 @@ contract PublicMinterTest is DSTest, StdUtils {
     uint16 DEFAULT_ROYALTY_BPS = 888;
     Cre8ors public cre8orsNFTBase;
     Cre8ors public cre8orsPassport;
+    Cre8ing public cre8ingBase;
     MinterUtilities public minterUtility;
     CollectionHolderMint public collectionMinter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
@@ -43,6 +44,7 @@ contract PublicMinterTest is DSTest, StdUtils {
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
         cre8orsPassport = _setUpContracts();
+
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
             50000000000000000,
@@ -63,6 +65,18 @@ contract PublicMinterTest is DSTest, StdUtils {
         minter = new PublicMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
+        );
+        cre8ingBase = new Cre8ing();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        cre8orsPassport.setCre8ing(cre8ingBase);
+        vm.stopPrank();
+    }
+
+    function testLockup() public {
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
         );
     }
 
@@ -279,7 +293,7 @@ contract PublicMinterTest is DSTest, StdUtils {
             address(minter)
         );
         if (withLockup) {
-            cre8orsNFTBase.setLockup(lockup);
+            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
         }
 

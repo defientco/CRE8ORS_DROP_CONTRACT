@@ -5,17 +5,19 @@ import {ILockup} from "../interfaces/ILockup.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ICre8ing} from "../interfaces/ICre8ing.sol";
+import {ISharedPaidMinterFunctions} from "../interfaces/ISharedPaidMinterFunctions.sol";
 
-contract SharedPaidMinterFunctions {
+contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
     address public cre8orsNFT;
     address public minterUtility;
 
-    error InvalidTier();
     modifier verifyCost(IMinterUtilities.Cart[] memory carts) {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(
             carts
         );
-        require(msg.value < totalCost, "Not enough ETH sent");
+        if (msg.value < totalCost) {
+            revert IERC721Drop.Purchase_WrongPrice(totalCost);
+        }
         _;
     }
     modifier onlyValidTier(uint256 tier) {

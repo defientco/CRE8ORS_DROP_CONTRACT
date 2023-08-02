@@ -13,7 +13,7 @@ import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
-import {IAllowlistMinter} from "../../src/interfaces/IAllowlistMinter.sol";
+import {ISharedPaidMinterFunctions} from "../../src/interfaces/ISharedPaidMinterFunctions.sol";
 // contract imports
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Cre8ors} from "../../src/Cre8ors.sol";
@@ -24,6 +24,7 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {AllowlistMinter} from "../../src/minter/AllowlistMinter.sol";
 import {MerkleData} from "../merkle/MerkleData.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
 
 contract AllowlistMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -34,6 +35,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     uint64 DEFAULT_EDITION_SIZE = 10_000;
     uint16 DEFAULT_ROYALTY_BPS = 888;
     Cre8ors public cre8orsNFTBase;
+    Cre8ing public cre8ingBase;
     Cre8ors public cre8orsPassport;
     MinterUtilities public minterUtility;
     CollectionHolderMint public collectionMinter;
@@ -63,11 +65,25 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(friendsAndFamilyMinter)
         );
 
+        cre8ingBase = new Cre8ing();
         minter = new AllowlistMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
         );
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        cre8orsPassport.setCre8ing(cre8ingBase);
+        vm.stopPrank();
+
         merkleData = new MerkleData();
+    }
+
+    function testLockup() public {
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function testSuccess(
@@ -81,6 +97,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
+            emit log_named_uint("tier", tier);
             _carts[i].tier = uint8(tier);
             _carts[i].quantity = bound(_carts[i].quantity, 1, 19);
         }
@@ -184,8 +201,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testTierDoesntExist(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testTierDoesntExist() public {
+        _setUpMinter(true);
         _updateMerkleRoot();
         IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
         _carts[0].tier = 4;
@@ -197,6 +214,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             .calculateTotalCost(_carts);
 
         vm.deal(item.user, totalPrice);
+        vm.expectRevert(ISharedPaidMinterFunctions.InvalidTier.selector);
         vm.prank(item.user);
         minter.mintPfp{value: totalPrice}(
             item.user,
@@ -205,8 +223,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(friendsAndFamilyMinter),
             item.proof
         );
-        assertEq(10, cre8orsNFTBase.mintedPerAddress(item.user).totalMints);
-        assertTrue(!lockup.isLocked(address(cre8orsNFTBase), 1));
     }
 
     function _setUpContracts() internal returns (Cre8ors) {
@@ -239,7 +255,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(minter)
         );
         if (withLockup) {
-            cre8orsNFTBase.setLockup(lockup);
+            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
         }
 

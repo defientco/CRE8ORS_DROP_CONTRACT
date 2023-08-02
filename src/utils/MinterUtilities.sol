@@ -171,7 +171,11 @@ contract MinterUtilities is IMinterUtilities {
     }
 
     function getTierInfo() external view returns (bytes memory) {
-        return abi.encode(tierInfo[1], tierInfo[2], tierInfo[3]);
+        TierInfo[] memory tierInfoArray = new TierInfo[](3);
+        tierInfoArray[0] = tierInfo[1];
+        tierInfoArray[1] = tierInfo[2];
+        tierInfoArray[2] = tierInfo[3];
+        return abi.encode(tierInfoArray);
     }
 
     /// @dev Updates the maximum allowed quantity for the whitelist.
