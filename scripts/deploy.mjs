@@ -7,6 +7,7 @@ import { deployLockup } from "./deploy/deployLockup.mjs";
 import { deployMinterUtilities } from "./deploy/deployMinterUtilities.mjs";
 import { deployFamilyAndFriendsMinter } from "./deploy/deployFriendsAndFamily.mjs";
 import { deployPassportMinter } from "./deploy/deployPassportMinter.mjs";
+import { deployTransfers } from "./deploy/deployTransfers.mjs";
 
 dotenv.config({
   path: `.env.${process.env.CHAIN}`,
@@ -15,6 +16,7 @@ dotenv.config({
 export async function setupContracts() {
   console.log("deploying...");
   const cre8ors = await deployCre8ors();
+  const hooks = await deployTransfers();
   const staking = await deployStaking();
   const lockup = await deployLockup();
   const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
@@ -31,11 +33,12 @@ export async function setupContracts() {
   );
   return {
     cre8ors,
-    lockup,
-    staking,
-    minterUtilities,
     familyFriendsMinter,
+    hooks,
+    lockup,
+    minterUtilities,
     passportMinter,
+    staking,
   };
 }
 
