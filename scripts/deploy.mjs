@@ -27,7 +27,7 @@ export async function setupContracts() {
     minterUtilities.deploy.deployedTo
   );
   const passportMinter = await deployPassportMinter(
-    passportAddress,
+    cre8ors.deploy.deployedTo,
     minterUtilities.deploy.deployedTo,
     familyFriendsMinter.deploy.deployedTo
   );

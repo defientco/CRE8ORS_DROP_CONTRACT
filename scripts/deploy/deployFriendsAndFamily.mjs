@@ -18,5 +18,9 @@ export async function deployFamilyAndFriendsMinter(
   console.log(`[deployed] ${contractLocation}`);
   const contractAddress = contract.deploy.deployedTo;
   console.log("deployed family & friends to ", contractAddress);
+  console.log(
+    "make sure to call grantRole with MINTER_ROLE on cre8ors contract"
+  );
+
   return contract;
 }

@@ -70,6 +70,12 @@ const testDataInput = [
         maxCount: 8,
         price: parseEther("0.15"),
       },
+      {
+        // joe
+        minter: getAddress("0x9B33A23d46d18300E9fCEfa1A88d6a73D216F58D"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
     ],
   },
   {
