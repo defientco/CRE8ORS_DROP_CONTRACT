@@ -6,6 +6,7 @@ import {ILockup} from "./ILockup.sol";
 interface ICre8ing {
     /// @notice Getter for Lockup interface
     function lockUp(address) external view returns (ILockup);
+
     /// @dev Emitted when a CRE8OR begins cre8ing.
     event Cre8ed(address, uint256 indexed tokenId);
 
@@ -42,4 +43,10 @@ interface ICre8ing {
         address _target,
         uint256 tokenId
     ) external view returns (uint256);
+
+    /// @notice array of staked tokenIDs
+    /// @dev used in cre8ors ui to quickly get list of staked NFTs.
+    function cre8ingTokens(
+        address _target
+    ) external view returns (uint256[] memory stakedTokens);
 }
