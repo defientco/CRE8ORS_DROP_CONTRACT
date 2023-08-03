@@ -7,10 +7,16 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ICre8ing} from "../interfaces/ICre8ing.sol";
 import {ISharedPaidMinterFunctions} from "../interfaces/ISharedPaidMinterFunctions.sol";
+import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
+    uint64 public constant ONE_YEAR_DURATION = 365 days;
+
     address public cre8orsNFT;
     address public minterUtility;
+
+    /// @dev The address of the subscription contract.
+    address public subscription;
 
     modifier verifyCost(IMinterUtilities.Cart[] memory carts) {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(carts);
@@ -33,6 +39,14 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
             revert IERC721Drop.Access_OnlyAdmin();
         }
         _;
+    }
+
+    function setSubscription(address newSubscription) external onlyAdmin {
+        if (newSubscription == address(0)) {
+            revert ISubscription.SubscriptionCannotBeZeroAddress();
+        }
+
+        subscription = newSubscription;
     }
 
     function _lockUp(IMinterUtilities.Cart[] memory carts, uint256 startingTokenId) internal {
