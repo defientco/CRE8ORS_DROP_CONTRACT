@@ -22,6 +22,7 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {Subscription} from "../../src/subscription/Subscription.sol";
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -44,6 +45,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
+    Subscription public subscription;
 
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
@@ -54,15 +56,18 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             100000000000000000,
             150000000000000000
         );
+        subscription = _setupSubscriptionContract(cre8orsNFTBase);
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
-            address(minterUtility)
+            address(minterUtility),
+            address(subscription)
         );
 
         minter = new CollectionHolderMint(
             address(cre8orsNFTBase),
             address(minterUtility),
-            address(friendsAndFamilyMinter)
+            address(friendsAndFamilyMinter),
+            address(subscription)
         );
         cre8ingBase = new Cre8ing();
 
@@ -247,5 +252,18 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
                     presaleMerkleRoot: bytes32(0)
                 })
             });
+    }
+
+    function _setupSubscriptionContract(Cre8ors cre8orsNFT_) internal returns (Subscription _subscription) {
+        _subscription = new Subscription({
+            cre8orsNFT_: address(cre8orsNFT_),
+            minRenewalDuration_: 1 days,
+            pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
+        });
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFT_.setSubscription(address(_subscription));
+        cre8orsNFT_.toggleSubscription();
+        vm.stopPrank();
     }
 }
