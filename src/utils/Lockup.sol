@@ -2,10 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ILockup} from "../interfaces/ILockup.sol";
-import {ICre8ors} from "../interfaces/ICre8ors.sol";
-import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
-import {MetadataRenderAdminCheck} from "../metadata/MetadataRenderAdminCheck.sol";
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {MinterAdminCheck} from "../minter/MinterAdminCheck.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -15,11 +12,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                     
  */
-contract Lockup is ILockup, MetadataRenderAdminCheck {
-    /// @notice Access control roles
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
-    bytes32 public immutable MINTER_ROLE = keccak256("MINTER");
-
+contract Lockup is ILockup, MinterAdminCheck {
     /// @notice Lockup information mapping storage
     mapping(address => mapping(uint256 => TokenLockupInfo))
         internal _lockupInfos;
@@ -118,19 +111,5 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
             (bool refundSuccess, ) = msg.sender.call{value: refundAmount}("");
             require(refundSuccess, "Refund failed.");
         }
-    }
-
-    /// @notice Modifier to require the sender to be an admin
-    /// @param target address that the user wants to modify
-    modifier onlyMinterOrAdmin(address target) {
-        if (
-            target != msg.sender &&
-            !ICre8ors(target).hasRole(DEFAULT_ADMIN_ROLE, msg.sender) &&
-            !ICre8ors(target).hasRole(MINTER_ROLE, msg.sender)
-        ) {
-            revert AdminAccess_MissingMinterOrAdmin();
-        }
-
-        _;
     }
 }

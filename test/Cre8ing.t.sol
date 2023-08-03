@@ -10,6 +10,7 @@ import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
+import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
 
 contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
@@ -277,7 +278,10 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(staked.length, 100);
     }
 
-    function test_inializeStakingAndLockup(uint256 _quantity) public {
+    function test_inializeStakingAndLockup(
+        uint256 _quantity,
+        address _minter
+    ) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
 
@@ -297,6 +301,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
 
         // function under test - inializeStakingAndLockup
+        grant_minter_role(_minter);
+        vm.prank(_minter);
         cre8ingBase.inializeStakingAndLockup(
             address(cre8orsNFTBase),
             tokenIds,
@@ -308,7 +314,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     }
 
     function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ingClosed(
-        uint256 _quantity
+        uint256 _quantity,
+        address _minter
     ) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
@@ -328,6 +335,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
 
         // function under test - inializeStakingAndLockup
+        grant_minter_role(_minter);
+        vm.prank(_minter);
         vm.expectRevert(ICre8ing.Cre8ing_Cre8ingClosed.selector);
         cre8ingBase.inializeStakingAndLockup(
             address(cre8orsNFTBase),
@@ -371,20 +380,55 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         verifyStaked(_quantity, false);
     }
 
+    // function test_inializeStakingAndLockup_revert_MissingMinterRole(
+    //     uint256 _quantity
+    // ) public {
+    //     // buy tokens
+    //     vm.assume(_quantity > 0);
+    //     vm.assume(_quantity < 10);
+    //     cre8orsNFTBase.purchase(_quantity);
+
+    //     // init Lockup & Staking
+    //     setup_lockup();
+    //     open_staking();
+
+    //     // generate list of tokens
+    //     uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
+
+    //     // generate unlock data
+    //     uint64 _unlockDate = type(uint64).max;
+    //     uint256 _priceToUnlock = 1 ether;
+    //     bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+
+    //     // function under test - inializeStakingAndLockup
+    //     vm.expectRevert(ICre8ing.Cre8ing_MissingLockup.selector);
+    //     cre8ingBase.inializeStakingAndLockup(
+    //         address(cre8orsNFTBase),
+    //         tokenIds,
+    //         data
+    //     );
+
+    //     // assertions
+    //     verifyStaked(_quantity, false);
+    // }
+
     function setup_lockup() internal {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.MINTER_ROLE(),
-            address(cre8ingBase)
-        );
+        // give Staking contract Minter Role
+        grant_minter_role(address(cre8ingBase));
+        // Set Lockup on Staking Contract
+        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-        vm.stopPrank();
+    }
+
+    function grant_minter_role(address _minter) internal {
+        bytes32 role = cre8orsNFTBase.MINTER_ROLE();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(role, _minter);
     }
 
     function open_staking() internal {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
-        vm.stopPrank();
     }
 
     function verifyLockedAndStaked(

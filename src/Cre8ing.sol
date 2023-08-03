@@ -6,6 +6,7 @@ import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
+import {MinterAdminCheck} from "./minter/MinterAdminCheck.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -16,7 +17,7 @@ import {IERC721A} from "erc721a/contracts/IERC721A.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
-contract Cre8ing is ICre8ing {
+contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(address => mapping(uint256 => uint256)) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
@@ -206,7 +207,7 @@ contract Cre8ing is ICre8ing {
         address _target,
         uint256[] memory _tokenIds,
         bytes memory _data
-    ) external onlyIfLockupSet(_target) {
+    ) external onlyIfLockupSet(_target) onlyMinterOrAdmin(_target) {
         // TODO: require not staked
         // TODO: require MINTER role
         for (uint256 i = 0; i < _tokenIds.length; ) {
