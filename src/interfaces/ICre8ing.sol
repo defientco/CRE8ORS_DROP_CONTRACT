@@ -59,4 +59,7 @@ interface ICre8ing {
         uint256[] memory,
         bytes memory
     ) external;
+
+    /// @notice Enter a CRE8OR into the warehouse.
+    function enterWarehouse(address _target, uint256 tokenId) external;
 }

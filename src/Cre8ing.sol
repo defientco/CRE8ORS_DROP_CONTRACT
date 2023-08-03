@@ -91,7 +91,17 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @notice Enter a CRE8OR into the warehouse.
     /// @param _target The target address.
     /// @param tokenId The token ID to enter.
-    function enterWarehouse(address _target, uint256 tokenId) internal {
+    function enterWarehouse(
+        address _target,
+        uint256 tokenId
+    ) external onlyIfLockupSet(_target) onlyMinterOrAdmin(_target) {
+        _enterWarehouse(_target, tokenId);
+    }
+
+    /// @notice Enter a CRE8OR into the warehouse.
+    /// @param _target The target address.
+    /// @param tokenId The token ID to enter.
+    function _enterWarehouse(address _target, uint256 tokenId) internal {
         if (!cre8ingOpen[_target]) {
             revert Cre8ing_Cre8ingClosed();
         }
@@ -136,7 +146,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     ) internal onlyApprovedOrOwner(_target, tokenId) {
         uint256 start = cre8ingStarted[_target][tokenId];
         if (start == 0) {
-            enterWarehouse(_target, tokenId);
+            _enterWarehouse(_target, tokenId);
         } else {
             leaveWarehouse(_target, tokenId);
         }
@@ -215,7 +225,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     {
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
-            enterWarehouse(_target, _tokenIds[i]);
+            _enterWarehouse(_target, _tokenIds[i]);
             // set lockup info
             lockup[_target].setUnlockInfo(_target, _tokenIds[i], _data);
             unchecked {

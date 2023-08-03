@@ -496,6 +496,82 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         );
     }
 
+    function test_enterWarehouse(uint256 _quantity, address _minter) public {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+
+        // init Lockup
+        setup_lockup();
+        open_staking();
+
+        // buy tokens
+        cre8orsNFTBase.purchase(_quantity);
+
+        // function under test - enterWarehouse
+        grant_minter_role(_minter);
+        for (uint256 i = 0; i < _quantity; i++) {
+            vm.prank(_minter);
+            cre8ingBase.enterWarehouse(address(cre8orsNFTBase), i + 1);
+        }
+
+        // assertions
+        verifyStaked(_quantity, true);
+    }
+
+    function test_enterWarehouse_revert_AdminAccess_MissingMinterOrAdmin(
+        uint256 _quantity
+    ) public {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+
+        // init Lockup
+        setup_lockup();
+        open_staking();
+
+        // buy tokens
+        cre8orsNFTBase.purchase(_quantity);
+
+        // function under test - enterWarehouse
+        for (uint256 i = 0; i < _quantity; i++) {
+            vm.expectRevert(
+                MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector
+            );
+            cre8ingBase.enterWarehouse(address(cre8orsNFTBase), i + 1);
+        }
+
+        // assertions
+        verifyStaked(_quantity, false);
+    }
+
+    function test_enterWarehouse_revert_Cre8ing_MissingLockup(
+        uint256 _quantity,
+        address _minter
+    ) public {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+
+        // init Lockup
+        open_staking();
+
+        // buy tokens
+        cre8orsNFTBase.purchase(_quantity);
+
+        // function under test - enterWarehouse
+        grant_minter_role(_minter);
+        for (uint256 i = 0; i < _quantity; i++) {
+            vm.prank(_minter);
+            vm.expectRevert(ICre8ing.Cre8ing_MissingLockup.selector);
+            cre8ingBase.enterWarehouse(address(cre8orsNFTBase), i + 1);
+        }
+
+        // assertions
+        verifyStaked(_quantity, false);
+    }
+
+    /////////////////////////////////////////////////
+    /// INTERNAL HELPERS
+    /////////////////////////////////////////////////
+
     function setup_lockup() internal {
         // give Staking contract Minter Role
         grant_minter_role(address(cre8ingBase));

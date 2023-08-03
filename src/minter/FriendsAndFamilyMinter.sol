@@ -48,6 +48,10 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
             uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
             bytes memory data = abi.encode(lockupDate, unlockPrice);
             lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
+            ICre8ors(cre8orsNFT).cre8ing().enterWarehouse(
+                cre8orsNFT,
+                pfpTokenId
+            );
         }
 
         // Return the token ID of the minted token

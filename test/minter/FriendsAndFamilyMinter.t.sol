@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 // Forge Imports
-import {DSTest} from "ds-test/test.sol";
-import {Vm} from "forge-std/Vm.sol";
+import {Test} from "forge-std/Test.sol";
 // interface imports
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
@@ -18,13 +17,11 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 
-contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
+contract FriendsAndFamilyMinterTest is Test, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
     address public familyMinter = address(0x1234567);
-
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     function setUp() public {
@@ -51,7 +48,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
-    function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
+    function testSuccessfulMintWithoutLockup(address _friendOrFamily) public {
         vm.assume(_friendOrFamily != address(0));
 
         // Setup Minter
@@ -72,7 +69,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
-    function testSuccesfulMintWithLockup(address _friendOrFamily) public {
+    function testSuccessfulMintWithLockup(address _friendOrFamily) public {
         vm.assume(_friendOrFamily != address(0));
 
         // Setup Minter
@@ -98,6 +95,13 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
+    function testSuccessfulMintWithLockupAndStaking(
+        address _friendOrFamily
+    ) public {
+        testSuccessfulMintWithLockup(_friendOrFamily);
+        verifyStaked(1, true);
+    }
+
     function testRevertNoDiscount(address _buyer) public {
         // Setup Minter
         _setupMinter();
@@ -112,6 +116,8 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(role, address(minter));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
         assertTrue(
             cre8orsNFTBase.hasRole(
                 cre8orsNFTBase.MINTER_ROLE(),
@@ -125,5 +131,16 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         minter.addDiscount(_buyer);
         assertTrue(minter.hasDiscount(_buyer));
+    }
+
+    function verifyStaked(uint256 _quantity, bool _expectedStaked) internal {
+        for (uint256 i = 0; i < _quantity; i++) {
+            // Token is Staked
+            (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+                address(cre8orsNFTBase),
+                i + 1
+            );
+            assertEq(cre8ing, _expectedStaked);
+        }
     }
 }
