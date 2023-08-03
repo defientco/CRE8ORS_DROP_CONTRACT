@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
-import {ILockup} from "../interfaces/ILockup.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 
@@ -40,16 +38,6 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
 
         // Set lockup information (optional)
         _lockAndStake(pfpTokenId);
-        // ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
-        // if (address(lockup) != address(0)) {
-        //     IMinterUtilities minterUtility = IMinterUtilities(
-        //         minterUtilityContractAddress
-        //     );
-        //     uint256 lockupDate = block.timestamp + 8 weeks;
-        //     uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
-        //     bytes memory data = abi.encode(lockupDate, unlockPrice);
-        //     lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
-        // }
 
         // Return the token ID of the minted token
         return pfpTokenId;
