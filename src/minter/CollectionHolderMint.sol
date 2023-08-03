@@ -181,13 +181,13 @@ contract CollectionHolderMint is ICollectionHolderMint {
 
     /**
      * @dev Internal function to lock and stake a specific token.
-     * @param _tokenId The ID of the token to be locked and staked.
+     * @param _tokenIds The IDs of the tokens to be locked and staked.
      *
      * It will calculate the lockup date and unlock price for the given token, and then call the `initializeStakingAndLockup`
      * function on the associated Staking contract with the required data. This will enact both locking & staking mechanisms
      * as required by the Cre8ors contract.
      */
-    function _lockAndStakeTokens(uint256[] calldata _tokenIds) internal {
+    function _lockAndStakeTokens(uint256[] memory _tokenIds) internal {
         IMinterUtilities minterUtility = IMinterUtilities(
             minterUtilityContractAddress
         );
@@ -210,7 +210,13 @@ contract CollectionHolderMint is ICollectionHolderMint {
             _tokenIds.length
         );
         totalClaimed[recipient] += _tokenIds.length;
-        _lockAndStakeTokens(_tokenIds);
+
+        // Build array of uint256[] starting at pfpTokenId and incrementing for each index for a total length of _tokenIds.length
+        uint256[] memory newTokenIds = new uint256[](_tokenIds.length);
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            newTokenIds[i] = pfpTokenId + i;
+        }
+        _lockAndStakeTokens(newTokenIds);
         _setTokenIdsToClaimed(_tokenIds);
         return pfpTokenId;
     }

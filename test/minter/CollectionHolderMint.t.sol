@@ -95,7 +95,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     function testSuccessfulMint(
         address _buyer,
         uint256[] memory _tokenIds
-    ) public {
+    ) public returns (uint256 pfpID) {
         vm.assume(_buyer != address(0));
         vm.assume(_tokenIds.length <= 10);
         vm.assume(_tokenIds.length > 0);
@@ -114,11 +114,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
                 address(minter)
             )
         );
-        uint256 pfpID = minter.mint(
-            _tokenIds,
-            address(cre8orsPassport),
-            _buyer
-        );
+        pfpID = minter.mint(_tokenIds, address(cre8orsPassport), _buyer);
         assertEq(_tokenIds.length, pfpID);
         assertEq(_tokenIds.length, cre8orsNFTBase.balanceOf(_buyer));
         assertEq(
@@ -135,12 +131,13 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         address _buyer,
         uint256[] memory _tokenIds
     ) public {
-        testSuccessfulMint(_buyer, _tokenIds);
+        uint256 start = testSuccessfulMint(_buyer, _tokenIds);
+        // vm.warp(block.timestamp + 1);
         for (uint256 i = 0; i < _tokenIds.length; ) {
             assertTrue(
                 cre8ingBase.getCre8ingStarted(
                     address(cre8orsNFTBase),
-                    _tokenIds[i]
+                    start + i
                 ) > 0
             );
             unchecked {
@@ -161,7 +158,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            cre8orsNFTBase.MINTER_ROLE(),
             address(friendsAndFamilyMinter)
         );
         friendsAndFamilyMinter.addDiscount(_buyer);
