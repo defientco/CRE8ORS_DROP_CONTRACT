@@ -20,33 +20,21 @@ contract PublicMinter is SharedPaidMinterFunctions {
         IMinterUtilities.Cart[] memory carts,
         address passportHolderMinter,
         address friendsAndFamilyMinter
-    )
-        external
-        payable
-        verifyCost(carts)
-        onlyPublicSaleOrAlreadyMinted(recipient)
-        returns (uint256)
-    {
+    ) external payable verifyCost(carts) onlyPublicSaleOrAlreadyMinted(recipient) returns (uint256) {
         IMinterUtilities minterUtilities = IMinterUtilities(minterUtility);
 
         uint256 quantity = minterUtilities.calculateTotalQuantity(carts);
 
         if (
-            quantity >
-            IMinterUtilities(minterUtility).quantityLeft(
-                passportHolderMinter,
-                friendsAndFamilyMinter,
-                cre8orsNFT,
-                recipient
-            )
+            quantity
+                > IMinterUtilities(minterUtility).quantityLeft(
+                    passportHolderMinter, friendsAndFamilyMinter, cre8orsNFT, recipient
+                )
         ) {
             revert IERC721Drop.Purchase_TooManyForAddress();
         }
 
-        uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(
-            recipient,
-            quantity
-        );
+        uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, quantity);
         payable(address(cre8orsNFT)).call{value: msg.value}("");
         _lockUp(carts, pfpTokenId - quantity + 1);
         return pfpTokenId;
@@ -54,22 +42,21 @@ contract PublicMinter is SharedPaidMinterFunctions {
 
     /// @dev Sets a new address for the MinterUtilities contract.
     /// @param _newMinterUtilityContractAddress The address of the new MinterUtilities contract.
-    function setNewMinterUtilityContractAddress(
-        address _newMinterUtilityContractAddress
-    ) external onlyAdmin {
+    function setNewMinterUtilityContractAddress(address _newMinterUtilityContractAddress) external onlyAdmin {
         minterUtility = _newMinterUtilityContractAddress;
     }
 
     modifier onlyPublicSaleOrAlreadyMinted(address recipient) {
-        /**  @dev This is the only change from AllowlistMinter
+        /**
+         * @dev This is the only change from AllowlistMinter
          * This is so that anyone with a
          *                 pfp can mint from the public sale
          *                 which before public sale being active
          *                 should be only discount/passport holders
          */
         if (
-            !ICre8ors(cre8orsNFT).saleDetails().publicSaleActive &&
-            ICre8ors(cre8orsNFT).mintedPerAddress(recipient).totalMints == 0
+            !ICre8ors(cre8orsNFT).saleDetails().publicSaleActive
+                && ICre8ors(cre8orsNFT).mintedPerAddress(recipient).totalMints == 0
         ) {
             revert IERC721Drop.Sale_Inactive();
         }

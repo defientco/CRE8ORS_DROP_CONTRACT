@@ -33,8 +33,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     EntryPoint entryPoint;
     Account erc6551Implementation;
     TransferHook public transferHook;
-    address constant DEAD_ADDRESS =
-        address(0x000000000000000000000000000000000000dEaD);
+    address constant DEAD_ADDRESS = address(0x000000000000000000000000000000000000dEaD);
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -49,14 +48,8 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         transferHook = new TransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsNFTBase.setHook(
-            IERC721ACH.HookType.AfterTokenTransfers,
-            address(transferHook)
-        );
-        transferHook.setAfterTokenTransfersEnabled(
-            address(cre8orsNFTBase),
-            true
-        );
+        cre8orsNFTBase.setHook(IERC721ACH.HookType.AfterTokenTransfers, address(transferHook));
+        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), true);
         vm.stopPrank();
     }
 
@@ -67,18 +60,12 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
 
     function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Registry(
-            address(cre8orsNFTBase),
-            address(erc6551Registry)
-        );
+        transferHook.setErc6551Registry(address(cre8orsNFTBase), address(erc6551Registry));
     }
 
     function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Implementation(
-            address(cre8orsNFTBase),
-            address(erc6551Implementation)
-        );
+        transferHook.setErc6551Implementation(address(cre8orsNFTBase), address(erc6551Implementation));
     }
 
     function test_createAccount(uint256 _quantity) public setupErc6551 {
@@ -92,9 +79,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         assertTrue(isContract(tokenBoundAccount));
     }
 
-    function test_createMultipleAccounts(
-        uint256 _quantity
-    ) public setupErc6551 {
+    function test_createMultipleAccounts(uint256 _quantity) public setupErc6551 {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 100);
 
@@ -114,10 +99,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         }
     }
 
-    function test_sendWithTBA(
-        uint256 _initialQuantity,
-        uint256 _smartWalletQuantity
-    ) public setupErc6551 {
+    function test_sendWithTBA(uint256 _initialQuantity, uint256 _smartWalletQuantity) public setupErc6551 {
         vm.assume(_initialQuantity > 0);
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
@@ -132,43 +114,23 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         // TBA used to mint another CRE8OR
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
         uint256 value;
-        bytes memory data = abi.encodeWithSignature(
-            "purchase(uint256)",
-            _smartWalletQuantity
-        );
-        bytes memory response = Account(tokenBoundAccount).executeCall(
-            address(cre8orsNFTBase),
-            value,
-            data
-        );
+        bytes memory data = abi.encodeWithSignature("purchase(uint256)", _smartWalletQuantity);
+        bytes memory response = Account(tokenBoundAccount).executeCall(address(cre8orsNFTBase), value, data);
         uint256 tokenId = abi.decode(response, (uint256));
-        assertEq(
-            cre8orsNFTBase.balanceOf(tokenBoundAccount),
-            _smartWalletQuantity
-        );
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), _smartWalletQuantity);
 
         // use TBA to burn CRE8OR
         data = abi.encodeWithSignature(
-            "safeTransferFrom(address,address,uint256)",
-            tokenBoundAccount,
-            DEAD_ADDRESS,
-            tokenId + 1
+            "safeTransferFrom(address,address,uint256)", tokenBoundAccount, DEAD_ADDRESS, tokenId + 1
         );
-        Account(tokenBoundAccount).executeCall(
-            address(cre8orsNFTBase),
-            value,
-            data
-        );
-        assertEq(
-            cre8orsNFTBase.balanceOf(tokenBoundAccount),
-            _smartWalletQuantity - 1
-        );
+        Account(tokenBoundAccount).executeCall(address(cre8orsNFTBase), value, data);
+        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), _smartWalletQuantity - 1);
     }
 
-    function test_sendWithTBA_revert_NotAuthorized(
-        uint256 _initialQuantity,
-        uint256 _smartWalletQuantity
-    ) public setupErc6551 {
+    function test_sendWithTBA_revert_NotAuthorized(uint256 _initialQuantity, uint256 _smartWalletQuantity)
+        public
+        setupErc6551
+    {
         vm.assume(_initialQuantity > 0);
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
@@ -184,16 +146,9 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         // TBA used to mint another CRE8OR
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
         uint256 value;
-        bytes memory data = abi.encodeWithSignature(
-            "purchase(uint256)",
-            _smartWalletQuantity
-        );
+        bytes memory data = abi.encodeWithSignature("purchase(uint256)", _smartWalletQuantity);
         vm.expectRevert(NotAuthorized.selector);
-        Account(tokenBoundAccount).executeCall(
-            address(cre8orsNFTBase),
-            value,
-            data
-        );
+        Account(tokenBoundAccount).executeCall(address(cre8orsNFTBase), value, data);
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
     }
 
@@ -210,14 +165,8 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
 
     modifier setupErc6551() {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setErc6551Registry(
-            address(cre8orsNFTBase),
-            address(erc6551Registry)
-        );
-        transferHook.setErc6551Implementation(
-            address(cre8orsNFTBase),
-            address(erc6551Implementation)
-        );
+        transferHook.setErc6551Registry(address(cre8orsNFTBase), address(erc6551Registry));
+        transferHook.setErc6551Implementation(address(cre8orsNFTBase), address(erc6551Implementation));
         vm.stopPrank();
         _;
     }
@@ -232,13 +181,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
 
     function getTBA(uint256 tokenId) private view returns (address) {
         address payable tokenBoundAccount = payable(
-            erc6551Registry.account(
-                address(erc6551Implementation),
-                block.chainid,
-                address(cre8orsNFTBase),
-                tokenId,
-                0
-            )
+            erc6551Registry.account(address(erc6551Implementation), block.chainid, address(cre8orsNFTBase), tokenId, 0)
         );
         return tokenBoundAccount;
     }

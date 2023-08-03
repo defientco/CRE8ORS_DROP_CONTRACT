@@ -30,10 +30,7 @@ interface ICre8ing {
     error Cre8ing_MissingLockup();
 
     /// @notice Cre8ing period
-    function cre8ingPeriod(
-        address,
-        uint256
-    ) external view returns (bool cre8ing, uint256 current, uint256 total);
+    function cre8ingPeriod(address, uint256) external view returns (bool cre8ing, uint256 current, uint256 total);
 
     /// @notice open / close staking
     function setCre8ingOpen(address, bool) external;
@@ -42,21 +39,12 @@ interface ICre8ing {
     function expelFromWarehouse(address, uint256) external;
 
     /// @notice function getCre8ingStarted(
-    function getCre8ingStarted(
-        address _target,
-        uint256 tokenId
-    ) external view returns (uint256);
+    function getCre8ingStarted(address _target, uint256 tokenId) external view returns (uint256);
 
     /// @notice array of staked tokenIDs
     /// @dev used in cre8ors ui to quickly get list of staked NFTs.
-    function cre8ingTokens(
-        address _target
-    ) external view returns (uint256[] memory stakedTokens);
+    function cre8ingTokens(address _target) external view returns (uint256[] memory stakedTokens);
 
     /// @notice initialize both staking and lockups
-    function inializeStakingAndLockup(
-        address _target,
-        uint256[] memory,
-        bytes memory
-    ) external;
+    function inializeStakingAndLockup(address _target, uint256[] memory, bytes memory) external;
 }

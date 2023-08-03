@@ -14,20 +14,14 @@ contract TransferHook is Cre8orsERC6551 {
     /// @notice Set ERC6551 registry
     /// @param _target target ERC721 contract
     /// @param _registry ERC6551 registry
-    function setErc6551Registry(
-        address _target,
-        address _registry
-    ) public onlyAdmin(_target) {
+    function setErc6551Registry(address _target, address _registry) public onlyAdmin(_target) {
         erc6551Registry[_target] = _registry;
     }
 
     /// @notice Set ERC6551 account implementation
     /// @param _target target ERC721 contract
     /// @param _implementation ERC6551 account implementation
-    function setErc6551Implementation(
-        address _target,
-        address _implementation
-    ) public onlyAdmin(_target) {
+    function setErc6551Implementation(address _target, address _implementation) public onlyAdmin(_target) {
         erc6551AccountImplementation[_target] = _implementation;
     }
 
@@ -35,30 +29,17 @@ contract TransferHook is Cre8orsERC6551 {
     /// add admin only
     /// @param _target target ERC721 contract
     /// @param _enabled enable afterTokenTransferHook
-    function setAfterTokenTransfersEnabled(
-        address _target,
-        bool _enabled
-    ) public onlyAdmin(_target) {
+    function setAfterTokenTransfersEnabled(address _target, bool _enabled) public onlyAdmin(_target) {
         afterTokenTransfersHookEnabled[_target] = _enabled;
     }
 
     /// @notice Check if the AfterTokenTransfers function should use the hook.
-    function useAfterTokenTransfersHook(
-        address,
-        address,
-        uint256,
-        uint256
-    ) external view returns (bool) {
+    function useAfterTokenTransfersHook(address, address, uint256, uint256) external view returns (bool) {
         return afterTokenTransfersHookEnabled[msg.sender];
     }
 
     /// @notice Custom implementation for AfterTokenTransfers Hook.
-    function afterTokenTransfersOverrideHook(
-        address from,
-        address,
-        uint256 startTokenId,
-        uint256 quantity
-    ) external {
+    function afterTokenTransfersOverrideHook(address from, address, uint256 startTokenId, uint256 quantity) external {
         if (from == address(0) && erc6551Registry[msg.sender] != address(0)) {
             createTokenBoundAccounts(msg.sender, startTokenId, quantity);
         }

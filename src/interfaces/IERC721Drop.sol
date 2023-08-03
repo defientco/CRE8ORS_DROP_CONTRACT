@@ -4,13 +4,13 @@ pragma solidity ^0.8.15;
 import {IMetadataRenderer} from "../interfaces/IMetadataRenderer.sol";
 
 /**
- ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
-██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
-██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
-██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
-╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
-*/
+ * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+ * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+ * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+ * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+ * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ */
 /// @notice Interface for Cre8ors Drop contract
 interface IERC721Drop {
     // Access errors
@@ -58,10 +58,7 @@ interface IERC721Drop {
     /// @param pricePerToken price for each token
     /// @param firstPurchasedTokenId first purchased token ID (to get range add to quantity for max)
     event Sale(
-        address indexed to,
-        uint256 indexed quantity,
-        uint256 indexed pricePerToken,
-        uint256 firstPurchasedTokenId
+        address indexed to, uint256 indexed quantity, uint256 indexed pricePerToken, uint256 firstPurchasedTokenId
     );
 
     /// @notice Sales configuration has been changed
@@ -72,20 +69,13 @@ interface IERC721Drop {
     /// @notice Event emitted when the funds recipient is changed
     /// @param newAddress new address for the funds recipient
     /// @param changedBy address that the recipient is changed by
-    event FundsRecipientChanged(
-        address indexed newAddress,
-        address indexed changedBy
-    );
+    event FundsRecipientChanged(address indexed newAddress, address indexed changedBy);
 
     /// @notice Event emitted when the funds are withdrawn from the minting contract
     /// @param withdrawnBy address that issued the withdraw
     /// @param withdrawnTo address that the funds were withdrawn to
     /// @param amount amount that was withdrawn
-    event FundsWithdrawn(
-        address indexed withdrawnBy,
-        address indexed withdrawnTo,
-        uint256 amount
-    );
+    event FundsWithdrawn(address indexed withdrawnBy, address indexed withdrawnTo, uint256 amount);
 
     /// @notice Event emitted when an open mint is finalized and further minting is closed forever on the contract.
     /// @param sender address sending close mint
@@ -239,21 +229,17 @@ interface IERC721Drop {
     /// @param pricePerToken price per token allowed (verified by merkle root)
     /// @param merkleProof input for merkle proof leaf verified by merkle root
     /// @return first minted token ID
-    function purchasePresale(
-        uint256 quantity,
-        uint256 maxQuantity,
-        uint256 pricePerToken,
-        bytes32[] memory merkleProof
-    ) external payable returns (uint256);
+    function purchasePresale(uint256 quantity, uint256 maxQuantity, uint256 pricePerToken, bytes32[] memory merkleProof)
+        external
+        payable
+        returns (uint256);
 
     /// @notice Function to return the global sales details for the given drop
     function saleDetails() external view returns (ERC20SaleDetails memory);
 
     /// @notice Function to return the specific sales details for a given address
     /// @param minter address for minter to return mint information for
-    function mintedPerAddress(
-        address minter
-    ) external view returns (AddressMintDetails memory);
+    function mintedPerAddress(address minter) external view returns (AddressMintDetails memory);
 
     /// @notice This is the opensea/public owner setting that can be set by the contract admin
     function owner() external view returns (address);
@@ -261,10 +247,7 @@ interface IERC721Drop {
     /// @notice Update the metadata renderer
     /// @param newRenderer new address for renderer
     /// @param setupRenderer data to call to bootstrap data for the new renderer (optional)
-    function setMetadataRenderer(
-        IMetadataRenderer newRenderer,
-        bytes memory setupRenderer
-    ) external;
+    function setMetadataRenderer(IMetadataRenderer newRenderer, bytes memory setupRenderer) external;
 
     /// @notice This is an admin mint function to mint a quantity to a specific address
     /// @param to address to mint to

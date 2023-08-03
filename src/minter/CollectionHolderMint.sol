@@ -30,11 +30,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @param _minterUtility The address of the minter utility contract that contains shared utility info.
      * @param _friendsAndFamilyMinter The address of the friends and family minter contract.
      */
-    constructor(
-        address _collectionContractAddress,
-        address _minterUtility,
-        address _friendsAndFamilyMinter
-    ) {
+    constructor(address _collectionContractAddress, address _minterUtility, address _friendsAndFamilyMinter) {
         collectionContractAddress = _collectionContractAddress;
         minterUtilityContractAddress = _minterUtility;
         friendsAndFamilyMinter = _friendsAndFamilyMinter;
@@ -65,11 +61,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
      *
      * Note: This function is external, which means it can only be called from outside the contract.
      */
-    function mint(
-        uint256[] calldata tokenIds,
-        address passportContract,
-        address recipient
-    )
+    function mint(uint256[] calldata tokenIds, address passportContract, address recipient)
         external
         tokensPresentInList(tokenIds)
         onlyTokenOwner(passportContract, tokenIds, recipient)
@@ -87,9 +79,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @param _newMinterUtilityContractAddress The address of the new Minter Utility Contract.
      * @dev Only the admin can call this function.
      */
-    function setNewMinterUtilityContractAddress(
-        address _newMinterUtilityContractAddress
-    ) external onlyAdmin {
+    function setNewMinterUtilityContractAddress(address _newMinterUtilityContractAddress) external onlyAdmin {
         minterUtilityContractAddress = _newMinterUtilityContractAddress;
     }
 
@@ -97,9 +87,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @notice Set the address of the friends and family minter contract.
      * @param _newfriendsAndFamilyMinterAddress The address of the new friends and family minter contract.
      */
-    function setFriendsAndFamilyMinter(
-        address _newfriendsAndFamilyMinterAddress
-    ) external onlyAdmin {
+    function setFriendsAndFamilyMinter(address _newfriendsAndFamilyMinterAddress) external onlyAdmin {
         friendsAndFamilyMinter = _newfriendsAndFamilyMinterAddress;
     }
 
@@ -121,11 +109,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @param tokenIds An array of token IDs.
      * @param recipient The recipient address.
      */
-    modifier onlyTokenOwner(
-        address passportContract,
-        uint256[] calldata tokenIds,
-        address recipient
-    ) {
+    modifier onlyTokenOwner(address passportContract, uint256[] calldata tokenIds, address recipient) {
         for (uint256 i = 0; i < tokenIds.length; i++) {
             if (IERC721A(passportContract).ownerOf(tokenIds[i]) != recipient) {
                 revert IERC721A.ApprovalCallerNotOwnerNorApproved();
@@ -180,27 +164,17 @@ contract CollectionHolderMint is ICollectionHolderMint {
     }
 
     function _lockAndStakeTokens(uint256[] calldata _tokenIds) internal {
-        IMinterUtilities minterUtility = IMinterUtilities(
-            minterUtilityContractAddress
-        );
+        IMinterUtilities minterUtility = IMinterUtilities(minterUtilityContractAddress);
         uint256 lockupDate = block.timestamp + 8 weeks;
         uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
         bytes memory data = abi.encode(lockupDate, unlockPrice);
         ICre8ors(collectionContractAddress).cre8ing().inializeStakingAndLockup(
-            collectionContractAddress,
-            _tokenIds,
-            data
+            collectionContractAddress, _tokenIds, data
         );
     }
 
-    function _passportMint(
-        uint256[] calldata _tokenIds,
-        address recipient
-    ) internal returns (uint256) {
-        uint256 pfpTokenId = ICre8ors(collectionContractAddress).adminMint(
-            recipient,
-            _tokenIds.length
-        );
+    function _passportMint(uint256[] calldata _tokenIds, address recipient) internal returns (uint256) {
+        uint256 pfpTokenId = ICre8ors(collectionContractAddress).adminMint(recipient, _tokenIds.length);
         totalClaimed[recipient] += _tokenIds.length;
         _lockAndStakeTokens(_tokenIds);
         _setTokenIdsToClaimed(_tokenIds);
@@ -208,9 +182,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
     }
 
     function _friendsAndFamilyMint(address buyer) internal {
-        IFriendsAndFamilyMinter ffMinter = IFriendsAndFamilyMinter(
-            friendsAndFamilyMinter
-        );
+        IFriendsAndFamilyMinter ffMinter = IFriendsAndFamilyMinter(friendsAndFamilyMinter);
 
         if (ffMinter.hasDiscount(buyer)) {
             ffMinter.mint(buyer);

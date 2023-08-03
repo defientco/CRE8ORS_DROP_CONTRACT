@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import { IERC5643 } from "../interfaces/IERC5643.sol";
-import { PaymentSystem } from "../abstracts/PaymentSystem.sol";
-import { IERC721Drop } from "../../interfaces/IERC721Drop.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC5643} from "../interfaces/IERC5643.sol";
+import {PaymentSystem} from "../abstracts/PaymentSystem.sol";
+import {IERC721Drop} from "../../interfaces/IERC721Drop.sol";
 
 /// @title ERC5643
 /// @notice An abstract contract implementing the IERC5643 interface for managing subscriptions to ERC721 tokens.
@@ -74,11 +74,7 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     /// @param cre8orsNFT_ The address of the cre8orsNFT contract.
     /// @param minRenewalDuration_ The minimum duration allowed for subscription renewal, can be zero.
     /// @param pricePerSecond_ The price per second for the subscription, can be zero.
-    constructor(
-        address cre8orsNFT_,
-        uint64 minRenewalDuration_,
-        uint256 pricePerSecond_
-    )
+    constructor(address cre8orsNFT_, uint64 minRenewalDuration_, uint256 pricePerSecond_)
         notZeroAddress(cre8orsNFT_)
         PaymentSystem(pricePerSecond_)
     {
@@ -110,10 +106,7 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IERC5643
-    function renewSubscription(
-        uint256 tokenId,
-        uint64 duration
-    )
+    function renewSubscription(uint256 tokenId, uint64 duration)
         external
         payable
         virtual

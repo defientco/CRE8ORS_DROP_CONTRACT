@@ -42,10 +42,7 @@ interface IMinterUtilities {
      * @param quantity The quantity of NFTs to calculate the price for.
      * @return The total price in wei for the given quantity in the specified tier.
      */
-    function calculatePrice(
-        uint8 tier,
-        uint256 quantity
-    ) external view returns (uint256);
+    function calculatePrice(uint8 tier, uint256 quantity) external view returns (uint256);
 
     /**
      * @notice Returns the quantity of NFTs left that can be minted by the given recipient.
@@ -67,9 +64,7 @@ interface IMinterUtilities {
      * @param carts An array of Cart struct representing the tiers and quantities.
      * @return The total cost in wei for the given list of NFTs.
      */
-    function calculateTotalCost(
-        Cart[] calldata carts
-    ) external view returns (uint256);
+    function calculateTotalCost(Cart[] calldata carts) external view returns (uint256);
 
     /**
      * @dev Calculates the unlock price for a given tier and minting option.
@@ -77,10 +72,7 @@ interface IMinterUtilities {
      * @param freeMint A boolean flag indicating whether the minting option is free or not.
      * @return The calculated unlock price in wei.
      */
-    function calculateUnlockPrice(
-        uint8 tier,
-        bool freeMint
-    ) external view returns (uint256);
+    function calculateUnlockPrice(uint8 tier, bool freeMint) external view returns (uint256);
 
     /**
      * @notice Calculates the lockup period for a specific tier.
@@ -95,9 +87,7 @@ interface IMinterUtilities {
      * @return Total quantity of NFTs in the given list of carts.
      */
 
-    function calculateTotalQuantity(
-        Cart[] calldata carts
-    ) external view returns (uint256);
+    function calculateTotalQuantity(Cart[] calldata carts) external view returns (uint256);
 
     /**
      * @notice Updates the prices for all tiers in the MinterUtilities contract.

@@ -15,9 +15,8 @@ contract MinterAdminCheck {
     /// @param target address that the user wants to modify
     modifier onlyMinterOrAdmin(address target) {
         if (
-            target != msg.sender &&
-            !ICre8ors(target).hasRole(DEFAULT_ADMIN_ROLE, msg.sender) &&
-            !ICre8ors(target).hasRole(MINTER_ROLE, msg.sender)
+            target != msg.sender && !ICre8ors(target).hasRole(DEFAULT_ADMIN_ROLE, msg.sender)
+                && !ICre8ors(target).hasRole(MINTER_ROLE, msg.sender)
         ) {
             revert AdminAccess_MissingMinterOrAdmin();
         }

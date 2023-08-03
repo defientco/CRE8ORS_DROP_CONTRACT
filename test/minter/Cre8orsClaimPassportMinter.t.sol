@@ -22,8 +22,7 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
-        payable(address(0x21303));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
     address public constant DEFAULT_BUYER = address(0x111);
     uint64 DEFAULT_EDITION_SIZE = type(uint64).max;
     string public DEFAULT_PASSCODE = "password";
@@ -82,14 +81,8 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
 
     function test_purchase() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsPassport.grantRole(
-            cre8orsPassport.MINTER_ROLE(),
-            address(minter)
-        );
-        bool minterHasRole = cre8orsPassport.hasRole(
-            cre8orsPassport.MINTER_ROLE(),
-            address(minter)
-        );
+        cre8orsPassport.grantRole(cre8orsPassport.MINTER_ROLE(), address(minter));
+        bool minterHasRole = cre8orsPassport.hasRole(cre8orsPassport.MINTER_ROLE(), address(minter));
         assertTrue(minterHasRole, "Minter does not have role");
         vm.stopPrank();
 
@@ -105,14 +98,8 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
 
     function test_purchase_Wrong_Owner() public {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsPassport.grantRole(
-            cre8orsPassport.MINTER_ROLE(),
-            address(minter)
-        );
-        bool minterHasRole = cre8orsPassport.hasRole(
-            cre8orsPassport.MINTER_ROLE(),
-            address(minter)
-        );
+        cre8orsPassport.grantRole(cre8orsPassport.MINTER_ROLE(), address(minter));
+        bool minterHasRole = cre8orsPassport.hasRole(cre8orsPassport.MINTER_ROLE(), address(minter));
         assertTrue(minterHasRole, "Minter does not have role");
         vm.stopPrank();
 

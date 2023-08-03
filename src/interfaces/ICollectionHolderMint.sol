@@ -42,19 +42,15 @@ interface ICollectionHolderMint {
      * @param recipient The address to send the minted tokens to
      * @return The last token ID minted in this batch
      */
-    function mint(
-        uint256[] calldata tokenIds,
-        address passportContract,
-        address recipient
-    ) external returns (uint256);
+    function mint(uint256[] calldata tokenIds, address passportContract, address recipient)
+        external
+        returns (uint256);
 
     /**
      * @dev Changes the address of the minter utility contract
      * @param _newMinterUtilityContractAddress The new minter utility contract address
      */
-    function setNewMinterUtilityContractAddress(
-        address _newMinterUtilityContractAddress
-    ) external;
+    function setNewMinterUtilityContractAddress(address _newMinterUtilityContractAddress) external;
 
     /**
      * @dev Toggles the claim status of a free mint
@@ -66,7 +62,5 @@ interface ICollectionHolderMint {
      * @dev Sets a new address for the friends and family minter
      * @param _newfriendsAndFamilyMinterAddress The new friends and family minter address
      */
-    function setFriendsAndFamilyMinter(
-        address _newfriendsAndFamilyMinterAddress
-    ) external;
+    function setFriendsAndFamilyMinter(address _newfriendsAndFamilyMinterAddress) external;
 }

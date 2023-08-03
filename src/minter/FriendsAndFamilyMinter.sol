@@ -28,9 +28,7 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     /// @dev Mints a new token for the specified recipient and performs additional actions, such as setting the lockup (if applicable).
     /// @param recipient The address of the recipient who will receive the minted token.
     /// @return The token ID of the minted token.
-    function mint(
-        address recipient
-    ) external onlyExistingDiscount(recipient) returns (uint256) {
+    function mint(address recipient) external onlyExistingDiscount(recipient) returns (uint256) {
         // Mint the token
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
         totalClaimed[recipient] += 1;
@@ -41,9 +39,7 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         // Set lockup information (optional)
         ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
         if (address(lockup) != address(0)) {
-            IMinterUtilities minterUtility = IMinterUtilities(
-                minterUtilityContractAddress
-            );
+            IMinterUtilities minterUtility = IMinterUtilities(minterUtilityContractAddress);
             uint256 lockupDate = block.timestamp + 8 weeks;
             uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
             bytes memory data = abi.encode(lockupDate, unlockPrice);
@@ -65,17 +61,13 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
 
     /// @dev Removes the discount from the specified recipient, preventing them from minting tokens with a discount.
     /// @param recipient The address of the recipient whose discount will be removed.
-    function removeDiscount(
-        address recipient
-    ) external onlyAdmin onlyExistingDiscount(recipient) {
+    function removeDiscount(address recipient) external onlyAdmin onlyExistingDiscount(recipient) {
         hasDiscount[recipient] = false;
     }
 
     /// @dev Sets a new address for the MinterUtilities contract.
     /// @param _newMinterUtilityContractAddress The address of the new MinterUtilities contract.
-    function setNewMinterUtilityContractAddress(
-        address _newMinterUtilityContractAddress
-    ) external onlyAdmin {
+    function setNewMinterUtilityContractAddress(address _newMinterUtilityContractAddress) external onlyAdmin {
         minterUtilityContractAddress = _newMinterUtilityContractAddress;
     }
 

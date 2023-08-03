@@ -20,19 +20,13 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
     }
 
     function getUri(uint256 tokenId) public view returns (string memory) {
-        string memory base = tokenId > 88
-            ? METADATA_BASE_COLLECTIVE
-            : METADATA_BASE_FOUNDERS;
+        string memory base = tokenId > 88 ? METADATA_BASE_COLLECTIVE : METADATA_BASE_FOUNDERS;
         return string(abi.encodePacked(base, Strings.toString(tokenId)));
     }
 
     function test_SetupInitializes() public {
         vm.startPrank(address(0x12));
-        bytes memory initData = abi.encode(
-            METADATA_BASE_FOUNDERS,
-            METADATA_BASE_COLLECTIVE,
-            CONTRACT_BASE_URL
-        );
+        bytes memory initData = abi.encode(METADATA_BASE_FOUNDERS, METADATA_BASE_COLLECTIVE, CONTRACT_BASE_URL);
         renderer.initializeWithData(initData);
         assertEq(renderer.tokenURI(1), getUri(1));
         assertEq(renderer.tokenURI(12), getUri(12));
@@ -57,19 +51,12 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
 
     function test_UpdateURIsFromContract() public {
         vm.startPrank(address(0x12));
-        bytes memory initData = abi.encode(
-            METADATA_BASE_FOUNDERS,
-            METADATA_BASE_COLLECTIVE,
-            CONTRACT_BASE_URL
-        );
+        bytes memory initData = abi.encode(METADATA_BASE_FOUNDERS, METADATA_BASE_COLLECTIVE, CONTRACT_BASE_URL);
         renderer.initializeWithData(initData);
         assertEq(renderer.tokenURI(12), getUri(12));
         assertEq(renderer.contractURI(), CONTRACT_BASE_URL);
         renderer.updateMetadataBase(
-            address(0x12),
-            "http://uri.base.new/",
-            "http://uri.base.newCollective/",
-            "http://uri.base.new/contract.json"
+            address(0x12), "http://uri.base.new/", "http://uri.base.newCollective/", "http://uri.base.new/contract.json"
         );
         assertEq(renderer.tokenURI(1), "http://uri.base.new/1");
         assertEq(renderer.tokenURI(12), "http://uri.base.new/12");
@@ -83,21 +70,14 @@ contract Cre8orsCollectiveMetadataRendererTest is DSTest {
         DropMockBase base = new DropMockBase();
         base.setIsAdmin(address(0x123), true);
         vm.startPrank(address(base));
-        bytes memory initData = abi.encode(
-            METADATA_BASE_FOUNDERS,
-            METADATA_BASE_COLLECTIVE,
-            CONTRACT_BASE_URL
-        );
+        bytes memory initData = abi.encode(METADATA_BASE_FOUNDERS, METADATA_BASE_COLLECTIVE, CONTRACT_BASE_URL);
         renderer.initializeWithData(initData);
         assertEq(renderer.tokenURI(8), getUri(8));
         assertEq(renderer.contractURI(), CONTRACT_BASE_URL);
         vm.stopPrank();
         vm.prank(address(0x123));
         renderer.updateMetadataBase(
-            address(base),
-            "http://uri.base.new/",
-            "http://uri.base.newCollective/",
-            "http://uri.base.new/contract.json"
+            address(base), "http://uri.base.new/", "http://uri.base.newCollective/", "http://uri.base.new/contract.json"
         );
         vm.startPrank(address(base));
         assertEq(renderer.tokenURI(5), "http://uri.base.new/5");

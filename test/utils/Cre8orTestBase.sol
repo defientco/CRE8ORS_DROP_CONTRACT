@@ -14,8 +14,7 @@ contract Cre8orTestBase {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
-        payable(address(0x21303));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 8_888;
     uint16 DEFAULT_ROYALTY_BPS = 888;
 

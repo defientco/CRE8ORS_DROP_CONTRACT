@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import { ISubscription } from "./interfaces/ISubscription.sol";
-import { ERC5643 } from "./abstracts/ERC5643.sol";
+import {ISubscription} from "./interfaces/ISubscription.sol";
+import {ERC5643} from "./abstracts/ERC5643.sol";
 
 contract Subscription is ISubscription, ERC5643 {
     /*//////////////////////////////////////////////////////////////
@@ -19,13 +19,9 @@ contract Subscription is ISubscription, ERC5643 {
     /// @param cre8orsNFT_ The address of the cre8orsNFT contract.
     /// @param minRenewalDuration_ The minimum duration allowed for subscription renewal, can be zero.
     /// @param pricePerSecond_ The price per second for the subscription, can be zero.
-    constructor(
-        address cre8orsNFT_,
-        uint64 minRenewalDuration_,
-        uint256 pricePerSecond_
-    )
+    constructor(address cre8orsNFT_, uint64 minRenewalDuration_, uint256 pricePerSecond_)
         ERC5643(cre8orsNFT_, minRenewalDuration_, pricePerSecond_)
-    { }
+    {}
 
     /*//////////////////////////////////////////////////////////////
                      USER-FACING CONSTANT FUNCTIONS
@@ -80,11 +76,7 @@ contract Subscription is ISubscription, ERC5643 {
     /*//////////   updateSubscriptionForFree variants   //////////*/
 
     /// @inheritdoc ISubscription
-    function updateSubscriptionForFree(
-        address target,
-        uint64 duration,
-        uint256 tokenId
-    )
+    function updateSubscriptionForFree(address target, uint64 duration, uint256 tokenId)
         external
         override
         onlyRoleOrAdmin(target, MINTER_ROLE)
@@ -94,11 +86,7 @@ contract Subscription is ISubscription, ERC5643 {
     }
 
     /// @inheritdoc ISubscription
-    function updateSubscriptionForFree(
-        address target,
-        uint64 duration,
-        uint256[] calldata tokenIds
-    )
+    function updateSubscriptionForFree(address target, uint64 duration, uint256[] calldata tokenIds)
         external
         override
         onlyRoleOrAdmin(target, MINTER_ROLE)
@@ -120,11 +108,7 @@ contract Subscription is ISubscription, ERC5643 {
     /*//////////////   updateSubscription variants   /////////////*/
 
     /// @inheritdoc ISubscription
-    function updateSubscription(
-        address target,
-        uint64 duration,
-        uint256 tokenId
-    )
+    function updateSubscription(address target, uint64 duration, uint256 tokenId)
         external
         payable
         override
@@ -139,11 +123,7 @@ contract Subscription is ISubscription, ERC5643 {
 
     /// @inheritdoc ISubscription
     /// @dev No need to check for `tokenIds.length` as `isRenewalPriceValid` checks duration to not be zero.
-    function updateSubscription(
-        address target,
-        uint64 duration,
-        uint256[] calldata tokenIds
-    )
+    function updateSubscription(address target, uint64 duration, uint256[] calldata tokenIds)
         external
         payable
         override

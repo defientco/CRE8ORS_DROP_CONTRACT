@@ -7,13 +7,13 @@ import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {ICre8ing} from "./ICre8ing.sol";
 
 /**
- ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
-██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
-██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
-██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
-╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
-*/
+ * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+ * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+ * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+ * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+ * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ */
 /// @notice Interface for Cre8ors Drops contract
 interface ICre8ors is IERC721Drop, IERC721A {
     function cre8ing() external view returns (ICre8ing);
@@ -22,8 +22,5 @@ interface ICre8ors is IERC721Drop, IERC721A {
     function _lastMintedTokenId() external view returns (uint256);
 
     /// @dev Returns `true` if `account` has been granted `role`.
-    function hasRole(
-        bytes32 role,
-        address account
-    ) external view returns (bool);
+    function hasRole(bytes32 role, address account) external view returns (bool);
 }

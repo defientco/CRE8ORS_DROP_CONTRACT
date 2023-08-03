@@ -5,12 +5,12 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IReserveList} from "./interfaces/IReserveList.sol";
 
 /**
- ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
-██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
-██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
-██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
-╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
+ * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+ * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+ * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+ * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+ * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
  */
 contract Cre8orReserveList is Ownable, IReserveList {
     uint256 public reservationFee;
@@ -44,7 +44,7 @@ contract Cre8orReserveList is Ownable, IReserveList {
         uint256 refundAmount = reservations[user];
         require(refundAmount > 0, "No reservation found");
 
-        (bool success, ) = user.call{value: refundAmount}("");
+        (bool success,) = user.call{value: refundAmount}("");
         require(success, "Refund failed");
 
         reservations[user] = 0;
@@ -64,7 +64,7 @@ contract Cre8orReserveList is Ownable, IReserveList {
         uint256 contractBalance = address(this).balance;
         require(contractBalance > 0, "No funds available to withdraw");
 
-        (bool success, ) = owner().call{value: contractBalance}("");
+        (bool success,) = owner().call{value: contractBalance}("");
         require(success, "Withdrawal failed");
 
         emit Withdrawn(owner(), contractBalance);

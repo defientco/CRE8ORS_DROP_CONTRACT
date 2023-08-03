@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import { IPaymentSystem } from "../interfaces/IPaymentSystem.sol";
-import { Admin } from "./Admin.sol";
+import {IPaymentSystem} from "../interfaces/IPaymentSystem.sol";
+import {Admin} from "./Admin.sol";
 
 abstract contract PaymentSystem is IPaymentSystem, Admin {
     /*//////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ abstract contract PaymentSystem is IPaymentSystem, Admin {
     }
 
     function _sendValue(address payable to, uint256 amount) internal {
-        (bool success,) = to.call{ value: amount }("");
+        (bool success,) = to.call{value: amount}("");
         if (!success) revert ETHTransferFailed();
     }
 }

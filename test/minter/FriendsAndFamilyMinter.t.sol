@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 // Forge Imports
+
 import {DSTest} from "ds-test/test.sol";
 import {Vm} from "forge-std/Vm.sol";
 // interface imports
@@ -45,10 +46,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function testLockup() public {
-        assertEq(
-            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
-            address(0)
-        );
+        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
     }
 
     function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
@@ -66,10 +64,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         assertTrue(!minter.hasDiscount(_friendOrFamily));
         assertEq(tokenId, 1);
         assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-        assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-            1
-        );
+        assertEq(cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints, 1);
     }
 
     function testSuccesfulMintWithLockup(address _friendOrFamily) public {
@@ -92,10 +87,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         assertTrue(!minter.hasDiscount(_friendOrFamily));
         assertEq(tokenId, 1);
         assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-        assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-            1
-        );
+        assertEq(cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints, 1);
     }
 
     function testRevertNoDiscount(address _buyer) public {
@@ -112,12 +104,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         bytes32 role = cre8orsNFTBase.DEFAULT_ADMIN_ROLE();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(role, address(minter));
-        assertTrue(
-            cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-                address(minter)
-            )
-        );
+        assertTrue(cre8orsNFTBase.hasRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(minter)));
     }
 
     function _addDiscount(address _buyer) internal {

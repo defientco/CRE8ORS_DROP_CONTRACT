@@ -9,12 +9,12 @@ import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {MinterAdminCheck} from "./minter/MinterAdminCheck.sol";
 
 /**
- ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
-██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
-██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
-██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
-╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
+ * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+ * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+ * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+ * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+ * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
 contract Cre8ing is ICre8ing, MinterAdminCheck {
@@ -40,10 +40,11 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     ///     since the most recent cre8ing began.
     /// @return total Total period of time for which the CRE8OR has cre8ed across
     ///     its life, including the current period.
-    function cre8ingPeriod(
-        address _target,
-        uint256 tokenId
-    ) external view returns (bool cre8ing, uint256 current, uint256 total) {
+    function cre8ingPeriod(address _target, uint256 tokenId)
+        external
+        view
+        returns (bool cre8ing, uint256 current, uint256 total)
+    {
         uint256 start = cre8ingStarted[_target][tokenId];
         if (start != 0) {
             cre8ing = true;
@@ -55,10 +56,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @notice Toggles the `cre8ingOpen` flag.
     /// @param _target The target address.
     /// @param open Boolean value to open or close cre8ing.
-    function setCre8ingOpen(
-        address _target,
-        bool open
-    ) external onlyAdmin(_target) {
+    function setCre8ingOpen(address _target, bool open) external onlyAdmin(_target) {
         cre8ingOpen[_target] = open;
     }
 
@@ -73,16 +71,11 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     ///     CRE8OR.
     /// @param _target The target address.
     /// @param tokenId The token ID to expel.
-    function expelFromWarehouse(
-        address _target,
-        uint256 tokenId
-    ) external onlyAdmin(_target) {
+    function expelFromWarehouse(address _target, uint256 tokenId) external onlyAdmin(_target) {
         if (cre8ingStarted[_target][tokenId] == 0) {
             revert CRE8ING_NotCre8ing(_target, tokenId);
         }
-        cre8ingTotal[_target][tokenId] +=
-            block.timestamp -
-            cre8ingStarted[_target][tokenId];
+        cre8ingTotal[_target][tokenId] += block.timestamp - cre8ingStarted[_target][tokenId];
         cre8ingStarted[_target][tokenId] = 0;
         emit Uncre8ed(_target, tokenId);
         emit Expelled(_target, tokenId);
@@ -117,10 +110,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @notice Toggles cre8ing status for multiple tokens.
     /// @param _target The target address.
     /// @param tokenIds Array of token IDs to toggle.
-    function toggleCre8ingTokens(
-        address _target,
-        uint256[] calldata tokenIds
-    ) external {
+    function toggleCre8ingTokens(address _target, uint256[] calldata tokenIds) external {
         uint256 n = tokenIds.length;
         for (uint256 i = 0; i < n; ++i) {
             _toggleCre8ingToken(_target, tokenIds[i]);
@@ -130,10 +120,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @notice Toggle cre8ing status for a specific token.
     /// @param _target The target address.
     /// @param tokenId The token ID to toggle.
-    function _toggleCre8ingToken(
-        address _target,
-        uint256 tokenId
-    ) internal onlyApprovedOrOwner(_target, tokenId) {
+    function _toggleCre8ingToken(address _target, uint256 tokenId) internal onlyApprovedOrOwner(_target, tokenId) {
         uint256 start = cre8ingStarted[_target][tokenId];
         if (start == 0) {
             enterWarehouse(_target, tokenId);
@@ -145,9 +132,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @notice Returns the array of staked token IDs.
     /// @param _target The target address.
     /// @return stakedTokens Array of staked token IDs.
-    function cre8ingTokens(
-        address _target
-    ) external view returns (uint256[] memory stakedTokens) {
+    function cre8ingTokens(address _target) external view returns (uint256[] memory stakedTokens) {
         uint256 size = ICre8ors(_target)._lastMintedTokenId();
         stakedTokens = new uint256[](size);
         for (uint256 i = 1; i < size + 1; ++i) {
@@ -162,10 +147,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @param _target The target address.
     /// @param tokenId The token ID to query.
     /// @return The cre8ing start time for the token.
-    function getCre8ingStarted(
-        address _target,
-        uint256 tokenId
-    ) external view returns (uint256) {
+    function getCre8ingStarted(address _target, uint256 tokenId) external view returns (uint256) {
         return cre8ingStarted[_target][tokenId];
     }
 
@@ -183,18 +165,12 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @notice Set a new lockup for the target.
     /// @param _target The target address.
     /// @param newLockup The new lockup contract address.
-    function setLockup(
-        address _target,
-        ILockup newLockup
-    ) external onlyAdmin(_target) {
+    function setLockup(address _target, ILockup newLockup) external onlyAdmin(_target) {
         lockup[_target] = newLockup;
     }
 
     function _requireUnlocked(address _target, uint256 tokenId) internal view {
-        if (
-            address(lockup[_target]) != address(0) &&
-            lockup[_target].isLocked(_target, tokenId)
-        ) {
+        if (address(lockup[_target]) != address(0) && lockup[_target].isLocked(_target, tokenId)) {
             revert ILockup.Lockup_Locked();
         }
     }
@@ -203,17 +179,13 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @param _target The target address.
     /// @param _tokenIds Array of token IDs.
     /// @param _data Additional data for lockup initialization.
-    function inializeStakingAndLockup(
-        address _target,
-        uint256[] memory _tokenIds,
-        bytes memory _data
-    )
+    function inializeStakingAndLockup(address _target, uint256[] memory _tokenIds, bytes memory _data)
         external
         onlyIfLockupSet(_target)
         onlyMinterOrAdmin(_target)
         onlyUnstakedTokens(_target, _tokenIds)
     {
-        for (uint256 i = 0; i < _tokenIds.length; ) {
+        for (uint256 i = 0; i < _tokenIds.length;) {
             // start staking
             enterWarehouse(_target, _tokenIds[i]);
             // set lockup info
@@ -244,10 +216,7 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
     /// @param _target The target address.
     /// @param tokenId The token ID to verify.
     modifier onlyApprovedOrOwner(address _target, uint256 tokenId) {
-        if (
-            ICre8ors(_target).ownerOf(tokenId) != msg.sender &&
-            ICre8ors(_target).getApproved(tokenId) != msg.sender
-        ) {
+        if (ICre8ors(_target).ownerOf(tokenId) != msg.sender && ICre8ors(_target).getApproved(tokenId) != msg.sender) {
             revert IERC721Drop.Access_MissingOwnerOrApproved();
         }
 

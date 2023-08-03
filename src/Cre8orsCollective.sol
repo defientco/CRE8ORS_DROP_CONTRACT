@@ -15,12 +15,12 @@ import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 
 /**
- ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
-██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
-██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
-██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
-╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
+ * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+ * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+ * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+ * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+ * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
  */
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8orsCollective is
@@ -47,11 +47,7 @@ contract Cre8orsCollective is
         uint16 _royaltyBPS,
         SalesConfiguration memory _salesConfig,
         IMetadataRenderer _metadataRenderer
-    )
-        ERC721A(_contractName, _contractSymbol)
-        ReentrancyGuard()
-        Cre8iveAdmin(_initialOwner)
-    {
+    ) ERC721A(_contractName, _contractSymbol) ReentrancyGuard() Cre8iveAdmin(_initialOwner) {
         // Set ownership to original sender of contract call
         _setOwner(_initialOwner);
         // Update salesConfig
@@ -72,9 +68,7 @@ contract Cre8orsCollective is
     /// @notice mint function
     /// @dev This allows the user to purchase an edition
     /// @dev at the given price in the contract.
-    function purchase(
-        uint256 quantity
-    )
+    function purchase(uint256 quantity)
         external
         payable
         nonReentrant
@@ -91,11 +85,9 @@ contract Cre8orsCollective is
         // If max purchase per address == 0 there is no limit.
         // Any other number, the per address mint limit is that.
         if (
-            salesConfig.maxSalePurchasePerAddress != 0 &&
-            _numberMinted(_msgSender()) +
-                quantity -
-                presaleMintsByAddress[_msgSender()] >
-            salesConfig.maxSalePurchasePerAddress
+            salesConfig.maxSalePurchasePerAddress != 0
+                && _numberMinted(_msgSender()) + quantity - presaleMintsByAddress[_msgSender()]
+                    > salesConfig.maxSalePurchasePerAddress
         ) {
             revert Purchase_TooManyForAddress();
         }
@@ -122,22 +114,14 @@ contract Cre8orsCollective is
         uint256 maxQuantity,
         uint256 pricePerToken,
         bytes32[] calldata merkleProof
-    )
-        external
-        payable
-        nonReentrant
-        canMintTokens(quantity)
-        onlyPresaleActive
-        returns (uint256)
-    {
+    ) external payable nonReentrant canMintTokens(quantity) onlyPresaleActive returns (uint256) {
         if (
-            !MerkleProof.verify(
+            !
+            // address, uint256, uint256
+            MerkleProof.verify(
                 merkleProof,
                 salesConfig.presaleMerkleRoot,
-                keccak256(
-                    // address, uint256, uint256
-                    abi.encode(msg.sender, maxQuantity, pricePerToken)
-                )
+                keccak256(abi.encode(msg.sender, maxQuantity, pricePerToken))
             )
         ) {
             revert Presale_MerkleNotApproved();
@@ -168,10 +152,7 @@ contract Cre8orsCollective is
     /// @notice Mint admin
     /// @param recipient recipient to mint to
     /// @param quantity quantity to mint
-    function adminMint(
-        address recipient,
-        uint256 quantity
-    )
+    function adminMint(address recipient, uint256 quantity)
         external
         onlyRoleOrAdmin(MINTER_ROLE)
         canMintTokens(quantity)
@@ -184,9 +165,7 @@ contract Cre8orsCollective is
 
     /// @dev This mints multiple editions to the given list of addresses.
     /// @param recipients list of addresses to send the newly minted editions to
-    function adminMintAirdrop(
-        address[] calldata recipients
-    )
+    function adminMintAirdrop(address[] calldata recipients)
         external
         override
         onlyRoleOrAdmin(MINTER_ROLE)
@@ -197,11 +176,7 @@ contract Cre8orsCollective is
         uint256 startAt = atId;
 
         unchecked {
-            for (
-                uint256 endAt = atId + recipients.length;
-                atId < endAt;
-                atId++
-            ) {
+            for (uint256 endAt = atId + recipients.length; atId < endAt; atId++) {
                 _mintNFTs(recipients[atId - startAt], 1);
             }
         }
@@ -210,17 +185,16 @@ contract Cre8orsCollective is
 
     /// @dev Get royalty information for token
     /// @param _salePrice Sale price for the token
-    function royaltyInfo(
-        uint256,
-        uint256 _salePrice
-    ) external view override returns (address receiver, uint256 royaltyAmount) {
+    function royaltyInfo(uint256, uint256 _salePrice)
+        external
+        view
+        override
+        returns (address receiver, uint256 royaltyAmount)
+    {
         if (config.fundsRecipient == address(0)) {
             return (config.fundsRecipient, 0);
         }
-        return (
-            config.fundsRecipient,
-            (_salePrice * config.royaltyBPS) / 10_000
-        );
+        return (config.fundsRecipient, (_salePrice * config.royaltyBPS) / 10_000);
     }
 
     /// @notice Function to mint NFTs
@@ -230,9 +204,7 @@ contract Cre8orsCollective is
     /// @param quantity number of NFTs to mint
     function _mintNFTs(address to, uint256 quantity) internal {
         do {
-            uint256 toMint = quantity > MAX_MINT_BATCH_SIZE
-                ? MAX_MINT_BATCH_SIZE
-                : quantity;
+            uint256 toMint = quantity > MAX_MINT_BATCH_SIZE ? MAX_MINT_BATCH_SIZE : quantity;
             _mint({to: to, quantity: toMint});
             quantity -= toMint;
         } while (quantity > 0);
@@ -246,40 +218,31 @@ contract Cre8orsCollective is
 
     /// @notice Sale details
     /// @return IERC721Drop.SaleDetails sale information details
-    function saleDetails()
-        external
-        view
-        returns (IERC721Drop.ERC20SaleDetails memory)
-    {
-        return
-            IERC721Drop.ERC20SaleDetails({
-                erc20PaymentToken: salesConfig.erc20PaymentToken,
-                publicSaleActive: _publicSaleActive(),
-                presaleActive: _presaleActive(),
-                publicSalePrice: salesConfig.publicSalePrice,
-                publicSaleStart: salesConfig.publicSaleStart,
-                publicSaleEnd: salesConfig.publicSaleEnd,
-                presaleStart: salesConfig.presaleStart,
-                presaleEnd: salesConfig.presaleEnd,
-                presaleMerkleRoot: salesConfig.presaleMerkleRoot,
-                totalMinted: _totalMinted(),
-                maxSupply: config.editionSize,
-                maxSalePurchasePerAddress: salesConfig.maxSalePurchasePerAddress
-            });
+    function saleDetails() external view returns (IERC721Drop.ERC20SaleDetails memory) {
+        return IERC721Drop.ERC20SaleDetails({
+            erc20PaymentToken: salesConfig.erc20PaymentToken,
+            publicSaleActive: _publicSaleActive(),
+            presaleActive: _presaleActive(),
+            publicSalePrice: salesConfig.publicSalePrice,
+            publicSaleStart: salesConfig.publicSaleStart,
+            publicSaleEnd: salesConfig.publicSaleEnd,
+            presaleStart: salesConfig.presaleStart,
+            presaleEnd: salesConfig.presaleEnd,
+            presaleMerkleRoot: salesConfig.presaleMerkleRoot,
+            totalMinted: _totalMinted(),
+            maxSupply: config.editionSize,
+            maxSalePurchasePerAddress: salesConfig.maxSalePurchasePerAddress
+        });
     }
 
     /// @dev Number of NFTs the user has minted per address
     /// @param minter to get counts for
-    function mintedPerAddress(
-        address minter
-    ) external view override returns (IERC721Drop.AddressMintDetails memory) {
-        return
-            IERC721Drop.AddressMintDetails({
-                presaleMints: presaleMintsByAddress[minter],
-                publicMints: _numberMinted(minter) -
-                    presaleMintsByAddress[minter],
-                totalMints: _numberMinted(minter)
-            });
+    function mintedPerAddress(address minter) external view override returns (IERC721Drop.AddressMintDetails memory) {
+        return IERC721Drop.AddressMintDetails({
+            presaleMints: presaleMintsByAddress[minter],
+            publicMints: _numberMinted(minter) - presaleMintsByAddress[minter],
+            totalMints: _numberMinted(minter)
+        });
     }
 
     /////////////////////////////////////////////////
@@ -294,9 +257,7 @@ contract Cre8orsCollective is
 
     /// @notice Set a different funds recipient
     /// @param newRecipientAddress new funds recipient address
-    function setFundsRecipient(
-        address payable newRecipientAddress
-    ) external onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
+    function setFundsRecipient(address payable newRecipientAddress) external onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
         // TODO(iain): funds recipient cannot be 0?
         config.fundsRecipient = newRecipientAddress;
         emit FundsRecipientChanged(newRecipientAddress, _msgSender());
@@ -329,20 +290,14 @@ contract Cre8orsCollective is
     /// @notice Set a new metadata renderer
     /// @param newRenderer new renderer address to use
     /// @param setupRenderer data to setup new renderer with
-    function setMetadataRenderer(
-        IMetadataRenderer newRenderer,
-        bytes memory setupRenderer
-    ) external onlyAdmin {
+    function setMetadataRenderer(IMetadataRenderer newRenderer, bytes memory setupRenderer) external onlyAdmin {
         config.metadataRenderer = newRenderer;
 
         if (setupRenderer.length > 0) {
             newRenderer.initializeWithData(setupRenderer);
         }
 
-        emit UpdatedMetadataRenderer({
-            sender: msg.sender,
-            renderer: newRenderer
-        });
+        emit UpdatedMetadataRenderer({sender: msg.sender, renderer: newRenderer});
     }
 
     /// @notice This withdraws ETH from the contract to the contract owner.
@@ -353,18 +308,14 @@ contract Cre8orsCollective is
         uint256 funds = address(this).balance;
 
         if (
-            !hasRole(DEFAULT_ADMIN_ROLE, sender) &&
-            !hasRole(SALES_MANAGER_ROLE, sender) &&
-            sender != config.fundsRecipient
+            !hasRole(DEFAULT_ADMIN_ROLE, sender) && !hasRole(SALES_MANAGER_ROLE, sender)
+                && sender != config.fundsRecipient
         ) {
             revert Access_WithdrawNotAllowed();
         }
 
         // Payout recipient
-        (bool successFunds, ) = config.fundsRecipient.call{
-            value: funds,
-            gas: FUNDS_SEND_GAS_LIMIT
-        }("");
+        (bool successFunds,) = config.fundsRecipient.call{value: funds, gas: FUNDS_SEND_GAS_LIMIT}("");
         if (!successFunds) {
             revert Withdraw_FundsSendFailure();
         }
@@ -381,16 +332,12 @@ contract Cre8orsCollective is
 
     /// @notice time between start - end
     function _publicSaleActive() internal view returns (bool) {
-        return
-            salesConfig.publicSaleStart <= block.timestamp &&
-            salesConfig.publicSaleEnd > block.timestamp;
+        return salesConfig.publicSaleStart <= block.timestamp && salesConfig.publicSaleEnd > block.timestamp;
     }
 
     /// @notice time between presaleStart - presaleEnd
     function _presaleActive() internal view returns (bool) {
-        return
-            salesConfig.presaleStart <= block.timestamp &&
-            salesConfig.presaleEnd > block.timestamp;
+        return salesConfig.presaleStart <= block.timestamp && salesConfig.presaleEnd > block.timestamp;
     }
 
     /////////////////////////////////////////////////
@@ -408,10 +355,7 @@ contract Cre8orsCollective is
 
     /// @notice Requires that msg.sender owns or is approved for the token.
     modifier onlyApprovedOrOwner(uint256 tokenId) {
-        if (
-            _ownershipOf(tokenId).addr != _msgSender() &&
-            getApproved(tokenId) != _msgSender()
-        ) {
+        if (_ownershipOf(tokenId).addr != _msgSender() && getApproved(tokenId) != _msgSender()) {
             revert Access_MissingOwnerOrApproved();
         }
 
@@ -451,24 +395,19 @@ contract Cre8orsCollective is
 
     /// @notice ERC165 supports interface
     /// @param interfaceId interface id to check if supported
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(IERC165, ERC721A, AccessControl) returns (bool) {
-        return
-            super.supportsInterface(interfaceId) ||
-            type(IOwnable).interfaceId == interfaceId ||
-            type(IERC2981).interfaceId == interfaceId ||
-            type(IERC721Drop).interfaceId == interfaceId;
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(IERC165, ERC721A, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId) || type(IOwnable).interfaceId == interfaceId
+            || type(IERC2981).interfaceId == interfaceId || type(IERC721Drop).interfaceId == interfaceId;
     }
 
     /// @notice Simple override for owner interface.
     /// @return user owner address
-    function owner()
-        public
-        view
-        override(OwnableSkeleton, IERC721Drop)
-        returns (address)
-    {
+    function owner() public view override(OwnableSkeleton, IERC721Drop) returns (address) {
         return super.owner();
     }
 
@@ -480,9 +419,7 @@ contract Cre8orsCollective is
     /// @notice Token URI Getter, proxies to metadataRenderer
     /// @param tokenId id of token to get URI for
     /// @return Token URI
-    function tokenURI(
-        uint256 tokenId
-    ) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         if (!_exists(tokenId)) {
             revert IERC721A.URIQueryForNonexistentToken();
         }

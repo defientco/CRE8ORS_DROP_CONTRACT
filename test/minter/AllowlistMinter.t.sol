@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 // Forge Imports
+
 import {DSTest} from "ds-test/test.sol";
 
 import {StdUtils} from "forge-std/StdUtils.sol";
@@ -30,8 +31,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
-        payable(address(0x21303));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;
     uint16 DEFAULT_ROYALTY_BPS = 888;
     Cre8ors public cre8orsNFTBase;
@@ -80,55 +80,36 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     }
 
     function testLockup() public {
-        assertEq(
-            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
-            address(0)
-        );
+        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
     }
 
-    function testSuccess(
-        IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp
-    ) public {
+    function testSuccess(IMinterUtilities.Cart[] memory _carts, bool _withLockUp) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         _setUpMinter(_withLockUp);
         _updateMerkleRoot();
 
-        for (uint i = 0; i < _carts.length; i++) {
+        for (uint256 i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
             emit log_named_uint("tier", tier);
             _carts[i].tier = uint8(tier);
             _carts[i].quantity = bound(_carts[i].quantity, 1, 19);
         }
-        vm.assume(
-            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
-                _carts
-            ) < 18
-        );
+        vm.assume(IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts) < 18);
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
-            .calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
+        uint256 totalQuantity = IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
 
         vm.deal(item.user, totalPrice);
         vm.startPrank(item.user);
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
+            item.user, _carts, address(collectionMinter), address(friendsAndFamilyMinter), item.proof
         );
         vm.stopPrank();
         assertEq(totalQuantity, tokenId);
-        assertEq(
-            totalQuantity,
-            cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints
-        );
+        assertEq(totalQuantity, cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints);
     }
 
     function testRevertNotWhiteListApproved(bool _withLockUp) public {
@@ -140,18 +121,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
 
         vm.deal(address(0x25), totalPrice);
         vm.prank(address(0x25));
         vm.expectRevert(IERC721Drop.Presale_MerkleNotApproved.selector);
         minter.mintPfp{value: totalPrice}(
-            address(0x25),
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
+            address(0x25), _carts, address(collectionMinter), address(friendsAndFamilyMinter), item.proof
         );
     }
 
@@ -164,18 +140,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
 
         vm.deal(item.user, totalPrice);
         vm.prank(item.user);
         vm.expectRevert(IERC721Drop.Presale_TooManyForAddress.selector);
         minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
+            item.user, _carts, address(collectionMinter), address(friendsAndFamilyMinter), item.proof
         );
     }
 
@@ -186,18 +157,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
 
         vm.deal(item.user, totalPrice);
         vm.prank(item.user);
         vm.expectRevert(IERC721A.MintZeroQuantity.selector);
         minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
+            item.user, _carts, address(collectionMinter), address(friendsAndFamilyMinter), item.proof
         );
     }
 
@@ -210,24 +176,18 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
 
         vm.deal(item.user, totalPrice);
         vm.expectRevert(ISharedPaidMinterFunctions.InvalidTier.selector);
         vm.prank(item.user);
         minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
+            item.user, _carts, address(collectionMinter), address(friendsAndFamilyMinter), item.proof
         );
     }
 
     function _setUpContracts() internal returns (Cre8ors) {
-        return
-            new Cre8ors({
+        return new Cre8ors({
                 _contractName: "CRE8ORS",
                 _contractSymbol: "CRE8",
                 _initialOwner: DEFAULT_OWNER_ADDRESS,
@@ -250,21 +210,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(minter));
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
         }
 
-        assertTrue(
-            cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-                address(minter)
-            )
-        );
+        assertTrue(cre8orsNFTBase.hasRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(minter)));
         vm.stopPrank();
     }
 
@@ -278,7 +230,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             uint64 _publicSaleEnd,
             uint64 _presaleStart,
             uint64 _presaleEnd,
-
         ) = cre8orsNFTBase.salesConfig();
 
         cre8orsNFTBase.setSaleConfiguration(
