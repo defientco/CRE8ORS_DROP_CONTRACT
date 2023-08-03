@@ -166,7 +166,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         );
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            cre8orsNFTBase.MINTER_ROLE(),
             address(friendsAndFamilyMinter)
         );
         friendsAndFamilyMinter.addDiscount(_buyer);
@@ -253,10 +253,10 @@ contract PublicMinterTest is DSTest, StdUtils {
                 _carts
             ) < 8
         );
-        // grant family minter admin role
+        // grant family minter MINTER role
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            cre8orsNFTBase.MINTER_ROLE(),
             address(friendsAndFamilyMinter)
         );
         address transferred = address(0x1988789);
@@ -288,10 +288,7 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
@@ -299,7 +296,7 @@ contract PublicMinterTest is DSTest, StdUtils {
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
