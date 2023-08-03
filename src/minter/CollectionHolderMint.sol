@@ -156,23 +156,18 @@ contract CollectionHolderMint is ICollectionHolderMint {
         }
     }
 
-    function _lockUpTokens(uint256[] calldata tokenIds) internal {
-        ILockup lockup = ICre8ors(collectionContractAddress).cre8ing().lockUp(collectionContractAddress);
+    function _lockAndStakeTokens(uint256[] calldata _tokenIds) internal {
         IMinterUtilities minterUtility = IMinterUtilities(
             minterUtilityContractAddress
         );
         uint256 lockupDate = block.timestamp + 8 weeks;
         uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
         bytes memory data = abi.encode(lockupDate, unlockPrice);
-        if (address(lockup) != address(0)) {
-            for (uint256 i = 0; i < tokenIds.length; i++) {
-                lockup.setUnlockInfo(
-                    collectionContractAddress,
-                    tokenIds[i],
-                    data
-                );
-            }
-        }
+        ICre8ors(collectionContractAddress).cre8ing().inializeStakingAndLockup(
+            collectionContractAddress,
+            _tokenIds,
+            data
+        );
     }
 
     function _passportMint(
@@ -184,7 +179,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
             _tokenIds.length
         );
         totalClaimed[recipient] += _tokenIds.length;
-        _lockUpTokens(_tokenIds);
+        _lockAndStakeTokens(_tokenIds);
         _setTokenIdsToClaimed(_tokenIds);
         return pfpTokenId;
     }
