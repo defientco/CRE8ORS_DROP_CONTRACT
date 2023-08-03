@@ -1,0 +1,119 @@
+{
+  "allowlistMinter": {
+    "deploy": {
+      "deployedTo": "0xb42C1229EA7a568Fe34b80f6c2027d3208Dc83aC",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0x0c5838ba134cf97fb0b698fb41c797ef81da322c77f46961aa8c944e83f62d0b"
+    },
+    "contractName": "AllowlistMinter",
+    "contractPath": "src/minter/AllowlistMinter.sol",
+    "args": [
+      "0x6044ae4275864aD9ccBE770d9e4b5FC597cCF573",
+      "0x2d1c40aC953333561B3a761Ef6b4419aD175D43F"
+    ]
+  },
+  "cre8ors": {
+    "deploy": {
+      "deployedTo": "0x6044ae4275864aD9ccBE770d9e4b5FC597cCF573",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0x9e1171c9da5fad522b0a3ec89e791453d54b6cd7cb0cab9d86c0f71c5fe5da25"
+    },
+    "contractName": "Cre8ors",
+    "contractPath": "src/Cre8ors.sol",
+    "args": [
+      "cre8ors",
+      "CRE8",
+      "0x4D977d9aEceC3776DD73F2f9080C9AF3BC31f505",
+      "0x4D977d9aEceC3776DD73F2f9080C9AF3BC31f505",
+      "8888",
+      "888",
+      "\"(150000000000000000,0x0000000000000000000000000000000000000000,18,1691095800,18446744073709551615,1691095200,18446744073709551615,0x36c161febf4b54734baf31a4d6b00da9f4a1cc6eeae64bb328e095b1ab00ec96)\"",
+      "0x209511E9fe3c526C61B7691B9308830C1d1612bE"
+    ]
+  },
+  "familyFriendsMinter": {
+    "deploy": {
+      "deployedTo": "0x82ACcD663419b135120d23B91a3E2146a8dEa165",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0xb22bdfb429d10b57bfad9753bd17543ec00b94b302cad67d5c3afecd9ace9cb7"
+    },
+    "contractName": "FriendsAndFamilyMinter",
+    "contractPath": "src/minter/FriendsAndFamilyMinter.sol",
+    "args": [
+      "0x6044ae4275864aD9ccBE770d9e4b5FC597cCF573",
+      "0x2d1c40aC953333561B3a761Ef6b4419aD175D43F"
+    ]
+  },
+  "hooks": {
+    "deploy": {
+      "deployedTo": "0x73a6C53199D0b622CC6efBB7611a0956e9996ED7",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0x55960e03f33f524ba5350ceecd4b024afcadbaf3fb0646ee69a7f1d925d362f8"
+    },
+    "contractName": "TransferHook",
+    "contractPath": "src/Transfers.sol",
+    "args": null
+  },
+  "lockup": {
+    "deploy": {
+      "deployedTo": "0x27266755507f551A1c2BEF72fFb9963c573454e1",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0xb6f33c8f7e8e937955e4b8ef69315916b298cc7df5b542c2e8e7d4b312daa356"
+    },
+    "contractName": "Lockup",
+    "contractPath": "src/utils/Lockup.sol",
+    "args": null
+  },
+  "minterUtilities": {
+    "deploy": {
+      "deployedTo": "0x2d1c40aC953333561B3a761Ef6b4419aD175D43F",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0xafae8096c2196ac4a3363db9dd364d9169dc5475a5ca8d119556d78d053c8a96"
+    },
+    "contractName": "MinterUtilities",
+    "contractPath": "src/utils/MinterUtilities.sol",
+    "args": [
+      "0x6044ae4275864aD9ccBE770d9e4b5FC597cCF573",
+      "50000000000000000",
+      "100000000000000000",
+      "150000000000000000"
+    ]
+  },
+  "passportMinter": {
+    "deploy": {
+      "deployedTo": "0x731e766fd23B70d6E38AE8f75e86FAc92624210e",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0xa2e3ce0a87fa41520886a9d87f6c14a91fe52d00a12738c980ddf8f02f658b76"
+    },
+    "contractName": "CollectionHolderMint",
+    "contractPath": "src/minter/CollectionHolderMint.sol",
+    "args": [
+      "0x6044ae4275864aD9ccBE770d9e4b5FC597cCF573",
+      "0x2d1c40aC953333561B3a761Ef6b4419aD175D43F",
+      "0x82ACcD663419b135120d23B91a3E2146a8dEa165"
+    ]
+  },
+  "publicMinter": {
+    "deploy": {
+      "deployedTo": "0x8210Fb1Abd8FA093198A0Bae62B9A651649D4f98",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0xde83f6bcf5fcaec52e020b84a7a98d1290fd6cc8d5476e05105b11a47871c910"
+    },
+    "contractName": "PublicMinter",
+    "contractPath": "src/minter/PublicMinter.sol",
+    "args": [
+      "0x6044ae4275864aD9ccBE770d9e4b5FC597cCF573",
+      "0x2d1c40aC953333561B3a761Ef6b4419aD175D43F"
+    ]
+  },
+  "staking": {
+    "deploy": {
+      "deployedTo": "0x38D8EB726350E33A43f123D3e144F9A81997Ab83",
+      "deployer": "0x35CE1fb8CAa3758190ac65EDbcBC9647b8800e8f",
+      "transactionHash": "0x316b4c9e3aae9e654496432cd111166d5dcca91a5398f6d43ce5021ab4e40910"
+    },
+    "contractName": "Cre8ing",
+    "contractPath": "src/Cre8ing.sol",
+    "args": null
+  }
+}

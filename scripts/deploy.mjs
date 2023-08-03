@@ -20,27 +20,27 @@ export async function setupContracts() {
   const presaleMerkleRoot =
     "0x36c161febf4b54734baf31a4d6b00da9f4a1cc6eeae64bb328e095b1ab00ec96";
   const cre8ors = await deployCre8ors(presaleMerkleRoot);
+  const cre8orsAddress = cre8ors.deploy.deployedTo;
   const hooks = await deployTransfers();
   const staking = await deployStaking();
   const lockup = await deployLockup();
-  const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
 
-  const minterUtilities = await deployMinterUtilities(passportAddress);
+  const minterUtilities = await deployMinterUtilities(cre8orsAddress);
   const familyFriendsMinter = await deployFamilyAndFriendsMinter(
-    cre8ors.deploy.deployedTo,
+    cre8orsAddress,
     minterUtilities.deploy.deployedTo
   );
   const passportMinter = await deployPassportMinter(
-    cre8ors.deploy.deployedTo,
+    cre8orsAddress,
     minterUtilities.deploy.deployedTo,
     familyFriendsMinter.deploy.deployedTo
   );
   const allowlistMinter = await deployAllowlistMinter(
-    cre8ors.deploy.deployedTo,
+    cre8orsAddress,
     minterUtilities.deploy.deployedTo
   );
   const publicMinter = await deployPublicMinter(
-    cre8ors.deploy.deployedTo,
+    cre8orsAddress,
     minterUtilities.deploy.deployedTo
   );
   return {

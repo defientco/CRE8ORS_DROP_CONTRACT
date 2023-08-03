@@ -16,9 +16,9 @@ export async function deployCre8ors(root) {
   const publicSalePrice = "150000000000000000";
   const erc20PaymentToken = "0x0000000000000000000000000000000000000000";
   const maxSalePurchasePerAddress = 18;
-  const publicSaleStart = "1691078400"; // Aug 3, 2023 3PM ET
+  const publicSaleStart = "1691095800"; // Aug 3, 2023 4:50:00 PM ET
   const publicSaleEnd = "18446744073709551615"; // forever
-  const presaleStart = 0; // always
+  const presaleStart = "1691095200"; // Aug 3, 2023 4:40:00 PM ET
   const presaleEnd = "18446744073709551615"; // forever
   const presaleMerkleRoot = root;
 
