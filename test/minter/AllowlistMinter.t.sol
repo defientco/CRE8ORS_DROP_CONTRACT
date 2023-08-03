@@ -86,13 +86,10 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testSuccess(
-        IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp
-    ) public {
+    function testSuccess(IMinterUtilities.Cart[] memory _carts) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
-        _setUpMinter(_withLockUp);
+        _setUpMinter(true);
         _updateMerkleRoot();
 
         for (uint i = 0; i < _carts.length; i++) {
@@ -129,6 +126,12 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             totalQuantity,
             cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints
         );
+    }
+
+    function testSuccessWithStaking(
+        IMinterUtilities.Cart[] memory _carts
+    ) public {
+        testSuccess(_carts);
     }
 
     function testRevertNotWhiteListApproved(bool _withLockUp) public {
@@ -250,10 +253,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
@@ -261,7 +261,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );

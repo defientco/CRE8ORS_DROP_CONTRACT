@@ -39,16 +39,17 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         hasDiscount[recipient] = false;
 
         // Set lockup information (optional)
-        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
-        if (address(lockup) != address(0)) {
-            IMinterUtilities minterUtility = IMinterUtilities(
-                minterUtilityContractAddress
-            );
-            uint256 lockupDate = block.timestamp + 8 weeks;
-            uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
-            bytes memory data = abi.encode(lockupDate, unlockPrice);
-            lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
-        }
+        _lockAndStake(pfpTokenId);
+        // ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
+        // if (address(lockup) != address(0)) {
+        //     IMinterUtilities minterUtility = IMinterUtilities(
+        //         minterUtilityContractAddress
+        //     );
+        //     uint256 lockupDate = block.timestamp + 8 weeks;
+        //     uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
+        //     bytes memory data = abi.encode(lockupDate, unlockPrice);
+        //     lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
+        // }
 
         // Return the token ID of the minted token
         return pfpTokenId;
@@ -94,5 +95,21 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
             revert MissingDiscount();
         }
         _;
+    }
+
+    function _lockAndStake(uint256 _tokenId) internal {
+        uint256[] memory _tokenIds = new uint256[](1);
+        _tokenIds[0] = _tokenId;
+        IMinterUtilities minterUtility = IMinterUtilities(
+            minterUtilityContractAddress
+        );
+        uint256 lockupDate = block.timestamp + 8 weeks;
+        uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
+        bytes memory data = abi.encode(lockupDate, unlockPrice);
+        ICre8ors(address(cre8orsNFT)).cre8ing().inializeStakingAndLockup(
+            address(cre8orsNFT),
+            _tokenIds,
+            data
+        );
     }
 }

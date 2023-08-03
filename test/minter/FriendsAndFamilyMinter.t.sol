@@ -51,27 +51,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
-    function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
-        vm.assume(_friendOrFamily != address(0));
-
-        // Setup Minter
-        _setupMinter();
-
-        // Apply Discount
-        _addDiscount(_friendOrFamily);
-        // Mint
-        uint256 tokenId = minter.mint(_friendOrFamily);
-
-        // Asserts
-        assertTrue(!minter.hasDiscount(_friendOrFamily));
-        assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-        assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-            1
-        );
-    }
-
     function testSuccesfulMintWithLockup(address _friendOrFamily) public {
         vm.assume(_friendOrFamily != address(0));
 
@@ -98,6 +77,14 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
+    function testSuccesfulMintWithStaking(address _friendOrFamily) public {
+        testSuccesfulMintWithLockup(_friendOrFamily);
+
+        assertTrue(
+            cre8ingBase.getCre8ingStarted(address(cre8orsNFTBase), 1) > 0
+        );
+    }
+
     function testRevertNoDiscount(address _buyer) public {
         // Setup Minter
         _setupMinter();
@@ -109,12 +96,18 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function _setupMinter() internal {
-        bytes32 role = cre8orsNFTBase.DEFAULT_ADMIN_ROLE();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
+        bytes32 role = cre8orsNFTBase.MINTER_ROLE();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(role, address(minter));
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
+        );
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+        vm.stopPrank();
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
