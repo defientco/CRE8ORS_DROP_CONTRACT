@@ -10,6 +10,7 @@ import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {console2} from "forge-std/console2.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
+import {MinterAdminCheck} from "../../src/minter/MinterAdminCheck.sol";
 
 contract LockupTest is DSTest, Cre8orTestBase {
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -74,7 +75,9 @@ contract LockupTest is DSTest, Cre8orTestBase {
     ) public {
         _assertLockup(tokenId, 0, 0);
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        vm.expectRevert(
+            MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector
+        );
         lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
         _assertLockup(tokenId, 0, 0);
     }

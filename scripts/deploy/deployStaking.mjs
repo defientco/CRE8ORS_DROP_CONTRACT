@@ -14,5 +14,6 @@ export async function deployStaking() {
   const contractAddress = contract.deploy.deployedTo;
   console.log("deployed staking to ", contractAddress);
   console.log("make sure to call setCre8ing on core cre8or");
+  console.log("make sure to call setCre8ingOpen on core cre8ing");
   return contract;
 }

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ILockup} from "../interfaces/ILockup.sol";
-import {MetadataRenderAdminCheck} from "../metadata/MetadataRenderAdminCheck.sol";
+import {MinterAdminCheck} from "../minter/MinterAdminCheck.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -12,7 +12,7 @@ import {MetadataRenderAdminCheck} from "../metadata/MetadataRenderAdminCheck.sol
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                     
  */
-contract Lockup is ILockup, MetadataRenderAdminCheck {
+contract Lockup is ILockup, MinterAdminCheck {
     /// @notice Lockup information mapping storage
     mapping(address => mapping(uint256 => TokenLockupInfo))
         internal _lockupInfos;
@@ -45,7 +45,7 @@ contract Lockup is ILockup, MetadataRenderAdminCheck {
         address _target,
         uint256 _tokenId,
         bytes memory _unlockData
-    ) external requireSenderAdmin(_target) {
+    ) external onlyMinterOrAdmin(_target) {
         _setUnlockInfo(_target, _tokenId, _unlockData);
     }
 

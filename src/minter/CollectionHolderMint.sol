@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
+
 import {ICollectionHolderMint} from "../interfaces/ICollectionHolderMint.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
-import {ILockup} from "../interfaces/ILockup.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 
 contract CollectionHolderMint is ICollectionHolderMint {
@@ -25,8 +25,10 @@ contract CollectionHolderMint is ICollectionHolderMint {
     mapping(address => uint256) public totalClaimed;
 
     /**
+     * @notice Constructs a new CollectionHolderMint contract.
      * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
      * @param _minterUtility The address of the minter utility contract that contains shared utility info.
+     * @param _friendsAndFamilyMinter The address of the friends and family minter contract.
      */
     constructor(
         address _collectionContractAddress,
@@ -91,6 +93,10 @@ contract CollectionHolderMint is ICollectionHolderMint {
         minterUtilityContractAddress = _newMinterUtilityContractAddress;
     }
 
+    /**
+     * @notice Set the address of the friends and family minter contract.
+     * @param _newfriendsAndFamilyMinterAddress The address of the new friends and family minter contract.
+     */
     function setFriendsAndFamilyMinter(
         address _newfriendsAndFamilyMinterAddress
     ) external onlyAdmin {
@@ -98,8 +104,8 @@ contract CollectionHolderMint is ICollectionHolderMint {
     }
 
     /**
-     * @notice toggle the free mint claim status of a token
-     * @param tokenId passport token ID to toggle free mint claim status.
+     * @notice Toggle the free mint claim status of a token.
+     * @param tokenId Passport token ID to toggle free mint claim status.
      */
     function toggleHasClaimedFreeMint(uint256 tokenId) external onlyAdmin {
         freeMintClaimed[tokenId] = !freeMintClaimed[tokenId];
@@ -109,6 +115,12 @@ contract CollectionHolderMint is ICollectionHolderMint {
     ////////////// MODIFIERS //////////////
     ///////////////////////////////////////
 
+    /**
+     * @dev Modifier to ensure the caller owns the specified tokens or has appropriate approval.
+     * @param passportContract The address of the Passport contract.
+     * @param tokenIds An array of token IDs.
+     * @param recipient The recipient address.
+     */
     modifier onlyTokenOwner(
         address passportContract,
         uint256[] calldata tokenIds,
@@ -122,6 +134,9 @@ contract CollectionHolderMint is ICollectionHolderMint {
         _;
     }
 
+    /**
+     * @dev Modifier to ensure the caller is an admin.
+     */
     modifier onlyAdmin() {
         if (!ICre8ors(collectionContractAddress).isAdmin(msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
@@ -130,6 +145,10 @@ contract CollectionHolderMint is ICollectionHolderMint {
         _;
     }
 
+    /**
+     * @dev Modifier to ensure the specified token IDs are eligible for a free mint.
+     * @param tokenIds An array of token IDs.
+     */
     modifier hasFreeMint(uint256[] calldata tokenIds) {
         for (uint256 i = 0; i < tokenIds.length; i++) {
             if (freeMintClaimed[tokenIds[i]]) {
@@ -139,6 +158,10 @@ contract CollectionHolderMint is ICollectionHolderMint {
         _;
     }
 
+    /**
+     * @dev Modifier to ensure the specified token ID list is not empty.
+     * @param tokenIds An array of token IDs.
+     */
     modifier tokensPresentInList(uint256[] calldata tokenIds) {
         if (tokenIds.length == 0) {
             revert NoTokensProvided();
@@ -156,23 +179,18 @@ contract CollectionHolderMint is ICollectionHolderMint {
         }
     }
 
-    function _lockUpTokens(uint256[] calldata tokenIds) internal {
-        ILockup lockup = ICre8ors(collectionContractAddress).cre8ing().lockUp(collectionContractAddress);
+    function _lockAndStakeTokens(uint256[] calldata _tokenIds) internal {
         IMinterUtilities minterUtility = IMinterUtilities(
             minterUtilityContractAddress
         );
         uint256 lockupDate = block.timestamp + 8 weeks;
         uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
         bytes memory data = abi.encode(lockupDate, unlockPrice);
-        if (address(lockup) != address(0)) {
-            for (uint256 i = 0; i < tokenIds.length; i++) {
-                lockup.setUnlockInfo(
-                    collectionContractAddress,
-                    tokenIds[i],
-                    data
-                );
-            }
-        }
+        ICre8ors(collectionContractAddress).cre8ing().inializeStakingAndLockup(
+            collectionContractAddress,
+            _tokenIds,
+            data
+        );
     }
 
     function _passportMint(
@@ -184,7 +202,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
             _tokenIds.length
         );
         totalClaimed[recipient] += _tokenIds.length;
-        _lockUpTokens(_tokenIds);
+        _lockAndStakeTokens(_tokenIds);
         _setTokenIdsToClaimed(_tokenIds);
         return pfpTokenId;
     }
