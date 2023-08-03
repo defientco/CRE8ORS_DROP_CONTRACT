@@ -206,10 +206,9 @@ contract Cre8ing is ICre8ing {
         address _target,
         uint256[] memory _tokenIds,
         bytes memory _data
-    ) external onlyLockup(_target) {
+    ) external onlyIfLockupSet(_target) {
         // TODO: require not staked
         // TODO: require MINTER role
-        // TODO: throw error if Lockup not set
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
             enterWarehouse(_target, _tokenIds[i]);
@@ -263,7 +262,7 @@ contract Cre8ing is ICre8ing {
 
     /// @notice Modifier for only lockup enabled staking.
     /// @param _target The target address.
-    modifier onlyLockup(address _target) {
+    modifier onlyIfLockupSet(address _target) {
         if (address(lockup[_target]) == address(0)) {
             revert Cre8ing_MissingLockup();
         }
