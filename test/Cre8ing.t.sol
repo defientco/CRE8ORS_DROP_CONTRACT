@@ -4,6 +4,8 @@ pragma solidity ^0.8.15;
 import "forge-std/Test.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
 import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
+import {ILockup} from "../src/interfaces/ILockup.sol";
+import {Lockup} from "../src/utils/Lockup.sol";
 import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
@@ -13,6 +15,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
+    Lockup lockup = new Lockup();
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -272,5 +275,162 @@ contract Cre8ingTest is Test, Cre8orTestBase {
             assertEq(staked[i], i + 1);
         }
         assertEq(staked.length, 100);
+    }
+
+    function test_inializeStakingAndLockup(uint256 _quantity) public {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+
+        // init Lockup
+        setup_lockup();
+        open_staking();
+
+        // buy tokens
+        cre8orsNFTBase.purchase(_quantity);
+
+        // generate list of tokens
+        uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
+
+        // generate unlock data
+        uint64 _unlockDate = type(uint64).max;
+        uint256 _priceToUnlock = 1 ether;
+        bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+
+        // function under test - inializeStakingAndLockup
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
+
+        // assertions
+        verifyLockedAndStaked(_quantity, true);
+    }
+
+    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ingClosed(
+        uint256 _quantity
+    ) public {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+
+        // init Lockup
+        setup_lockup();
+
+        // buy tokens
+        cre8orsNFTBase.purchase(_quantity);
+
+        // generate list of tokens
+        uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
+
+        // generate unlock data
+        uint64 _unlockDate = type(uint64).max;
+        uint256 _priceToUnlock = 1 ether;
+        bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+
+        // function under test - inializeStakingAndLockup
+        vm.expectRevert(ICre8ing.Cre8ing_Cre8ingClosed.selector);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
+
+        // assertions
+        verifyLockedAndStaked(_quantity, false);
+    }
+
+    function test_inializeStakingAndLockup_revert_LockupNotSet(
+        uint256 _quantity
+    ) public {
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+
+        // init Lockup
+        open_staking();
+
+        // buy tokens
+        cre8orsNFTBase.purchase(_quantity);
+
+        // generate list of tokens
+        uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
+
+        // generate unlock data
+        uint64 _unlockDate = type(uint64).max;
+        uint256 _priceToUnlock = 1 ether;
+        bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+
+        // function under test - inializeStakingAndLockup
+        vm.expectRevert(ICre8ing.Cre8ing_MissingLockup.selector);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
+
+        // assertions
+        verifyStaked(_quantity, false);
+    }
+
+    function setup_lockup() internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
+        );
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        vm.stopPrank();
+    }
+
+    function open_staking() internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+        vm.stopPrank();
+    }
+
+    function verifyLockedAndStaked(
+        uint256 _quantity,
+        bool _lockedAndStaked
+    ) internal {
+        verifyLocked(_quantity, _lockedAndStaked);
+        verifyStaked(_quantity, _lockedAndStaked);
+    }
+
+    function verifyLocked(uint256 _quantity, bool _lockedAndStaked) internal {
+        for (uint256 i = 0; i < _quantity; i++) {
+            assertEq(
+                // Token is Locked
+                ILockup(cre8ingBase.lockUp(address(cre8orsNFTBase))).isLocked(
+                    address(cre8orsNFTBase),
+                    i + 1
+                ),
+                _lockedAndStaked
+            );
+        }
+    }
+
+    function verifyStaked(uint256 _quantity, bool _lockedAndStaked) internal {
+        for (uint256 i = 0; i < _quantity; i++) {
+            // Token is Staked
+            (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+                address(cre8orsNFTBase),
+                i + 1
+            );
+            assertEq(cre8ing, _lockedAndStaked);
+        }
+    }
+
+    function generateUnstakedTokenIds(
+        uint256 _quantity
+    ) internal returns (uint256[] memory tokenIds) {
+        tokenIds = new uint256[](_quantity);
+        for (uint256 i = 0; i < _quantity; i++) {
+            tokenIds[i] = i + 1;
+            // Token is Staked
+            (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+                address(cre8orsNFTBase),
+                i + 1
+            );
+            assertEq(cre8ing, false);
+        }
     }
 }

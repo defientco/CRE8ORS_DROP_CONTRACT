@@ -22,6 +22,9 @@ interface ILockup {
     /// @notice Wrong price for unlock
     error Unlock_WrongPrice(uint256 correctPrice);
 
+    /// @notice Missing the minter role or admin access
+    error AdminAccess_MissingMinterOrAdmin();
+
     /// @notice Event for updated Lockup
     event TokenLockupUpdated(
         address indexed target,

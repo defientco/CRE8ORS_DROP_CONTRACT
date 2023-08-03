@@ -26,6 +26,9 @@ interface ICre8ing {
     /// @notice Cre8ing
     error Cre8ing_Cre8ing();
 
+    /// @notice Missing Lockup
+    error Cre8ing_MissingLockup();
+
     /// @notice Cre8ing period
     function cre8ingPeriod(
         address,
@@ -49,4 +52,11 @@ interface ICre8ing {
     function cre8ingTokens(
         address _target
     ) external view returns (uint256[] memory stakedTokens);
+
+    /// @notice initialize both staking and lockups
+    function inializeStakingAndLockup(
+        address _target,
+        uint256[] memory,
+        bytes memory
+    ) external;
 }

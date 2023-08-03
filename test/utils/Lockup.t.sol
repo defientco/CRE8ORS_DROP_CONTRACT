@@ -74,7 +74,7 @@ contract LockupTest is DSTest, Cre8orTestBase {
     ) public {
         _assertLockup(tokenId, 0, 0);
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        vm.expectRevert(ILockup.AdminAccess_MissingMinterOrAdmin.selector);
         lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
         _assertLockup(tokenId, 0, 0);
     }

@@ -73,6 +73,8 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function testSuccesfulMintWithLockup(address _friendOrFamily) public {
+        vm.assume(_friendOrFamily != address(0));
+
         // Setup Minter
         _setupMinter();
 
