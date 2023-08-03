@@ -114,7 +114,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         cre8orsPassport.purchase(maxTokenId);
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
@@ -133,7 +133,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             _tokenIds.length,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
-        vm.stopPrank();
     }
 
     function testSuccessfulMintWithDiscount(
@@ -158,7 +157,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         cre8orsPassport.purchase(_mintQuantity);
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
@@ -267,10 +266,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtilityContractAddress() != address(0));
@@ -278,7 +274,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );

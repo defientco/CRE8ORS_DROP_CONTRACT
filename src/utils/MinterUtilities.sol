@@ -186,7 +186,7 @@ contract MinterUtilities is IMinterUtilities {
         uint256 tierOne,
         uint256 tierTwo,
         uint256 tierThree
-    ) external view returns (bytes memory) {
+    ) external pure returns (bytes memory) {
         return abi.encode(tierOne, tierTwo, tierThree);
     }
 
