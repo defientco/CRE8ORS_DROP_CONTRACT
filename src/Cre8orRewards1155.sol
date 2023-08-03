@@ -2,21 +2,25 @@
 pragma solidity ^0.8.15;
 
 import {ERC1155} from "lib/openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
-import {ERC1155PresetMinterPauser} from
-    "lib/openzeppelin-contracts/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol";
+import {ERC1155PresetMinterPauser} from "lib/openzeppelin-contracts/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol";
 import {ERC1155Supply} from "lib/openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {ERC1155URIStorage} from "lib/openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /**
- * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
- * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
- * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
- * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
- * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
-contract Cre8orRewards1155 is ERC1155Supply, ERC1155URIStorage, ERC1155PresetMinterPauser, Ownable {
+contract Cre8orRewards1155 is
+    ERC1155Supply,
+    ERC1155URIStorage,
+    ERC1155PresetMinterPauser,
+    Ownable
+{
     constructor(string memory _uri) ERC1155PresetMinterPauser(_uri) Ownable() {
         _setURI(1, _uri);
     }
@@ -35,14 +39,17 @@ contract Cre8orRewards1155 is ERC1155Supply, ERC1155URIStorage, ERC1155PresetMin
     /// @param _uri token URI
     function setTokenURI(uint256 id, string memory _uri) public {
         require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ERC1155PresetMinterPauser: must have admin role to change URI"
+            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
+            "ERC1155PresetMinterPauser: must have admin role to change URI"
         );
 
         _setURI(id, _uri);
     }
 
     /// @dev See {IERC1155MetadataURI-uri}.
-    function uri(uint256 tokenId) public view override(ERC1155, ERC1155URIStorage) returns (string memory) {
+    function uri(
+        uint256 tokenId
+    ) public view override(ERC1155, ERC1155URIStorage) returns (string memory) {
         return ERC1155URIStorage.uri(tokenId);
     }
 
@@ -54,12 +61,18 @@ contract Cre8orRewards1155 is ERC1155Supply, ERC1155URIStorage, ERC1155PresetMin
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override(ERC1155Supply, ERC1155PresetMinterPauser, ERC1155) {
+    )
+        internal
+        virtual
+        override(ERC1155Supply, ERC1155PresetMinterPauser, ERC1155)
+    {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
     /// @dev See {IERC165-supportsInterface}.
-    function supportsInterface(bytes4 interfaceId)
+    function supportsInterface(
+        bytes4 interfaceId
+    )
         public
         view
         virtual

@@ -4,12 +4,12 @@ pragma solidity ^0.8.15;
 import {AccessControl} from "lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 /**
- * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
- * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
- * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
- * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
- * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
 contract Cre8iveAdmin is AccessControl {
@@ -35,7 +35,10 @@ contract Cre8iveAdmin is AccessControl {
     /// @notice Only a given role has access or admin
     /// @param role role to check for alongside the admin role
     modifier onlyRoleOrAdmin(bytes32 role) {
-        if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender) && !hasRole(role, msg.sender)) {
+        if (
+            !hasRole(DEFAULT_ADMIN_ROLE, msg.sender) &&
+            !hasRole(role, msg.sender)
+        ) {
             revert AdminAccess_MissingRoleOrAdmin(role);
         }
 

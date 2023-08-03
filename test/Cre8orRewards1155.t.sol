@@ -19,7 +19,9 @@ contract Cre8orRewards1155Test is Test {
     }
 
     function test_mint_revert_nonMinterRole(uint256 amount) public {
-        vm.expectRevert("ERC1155PresetMinterPauser: must have minter role to mint");
+        vm.expectRevert(
+            "ERC1155PresetMinterPauser: must have minter role to mint"
+        );
         rewards.mint(DEFAULT_OWNER_ADDRESS, 1, amount, "0x0");
         assertEq(0, rewards.balanceOf(DEFAULT_OWNER_ADDRESS, 1));
         assertEq(0, rewards.totalSupply(1));
@@ -32,8 +34,13 @@ contract Cre8orRewards1155Test is Test {
         assertEq(amount, rewards.totalSupply(tokenId));
     }
 
-    function test_setTokenURI_revert_nonAdminRole(uint256 tokenId, string memory uri) public {
-        vm.expectRevert("ERC1155PresetMinterPauser: must have admin role to change URI");
+    function test_setTokenURI_revert_nonAdminRole(
+        uint256 tokenId,
+        string memory uri
+    ) public {
+        vm.expectRevert(
+            "ERC1155PresetMinterPauser: must have admin role to change URI"
+        );
         rewards.setTokenURI(tokenId, uri);
         assertEq("uri/{id}", rewards.uri(1));
     }
@@ -44,11 +51,16 @@ contract Cre8orRewards1155Test is Test {
         assertEq("wagmi", rewards.uri(tokenId));
     }
 
-    function test_airdrop_revert_nonMinterRole(address[] memory airdrop, uint256 tokenId) public {
+    function test_airdrop_revert_nonMinterRole(
+        address[] memory airdrop,
+        uint256 tokenId
+    ) public {
         if (airdrop.length == 0) {
             return;
         }
-        vm.expectRevert("ERC1155PresetMinterPauser: must have minter role to mint");
+        vm.expectRevert(
+            "ERC1155PresetMinterPauser: must have minter role to mint"
+        );
         rewards.airdrop(tokenId, airdrop);
         assertEq(rewards.totalSupply(tokenId), 0);
     }

@@ -24,20 +24,32 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
         address passportHolderMinter,
         address friendsAndFamilyMinter,
         bytes32[] calldata merkleProof
-    ) external payable checkProof(recipient, merkleProof) verifyCost(carts) returns (uint256) {
-        uint256 quantity = IMinterUtilities(minterUtility).calculateTotalQuantity(carts);
-        address _recipient = recipient;
-        /// @dev to avoid stack too deep error
+    )
+        external
+        payable
+        checkProof(recipient, merkleProof)
+        verifyCost(carts)
+        returns (uint256)
+    {
+        uint256 quantity = IMinterUtilities(minterUtility)
+            .calculateTotalQuantity(carts);
+        address _recipient = recipient; /// @dev to avoid stack too deep error
         if (
-            quantity
-                > IMinterUtilities(minterUtility).quantityLeft(
-                    passportHolderMinter, friendsAndFamilyMinter, cre8orsNFT, _recipient
-                )
+            quantity >
+            IMinterUtilities(minterUtility).quantityLeft(
+                passportHolderMinter,
+                friendsAndFamilyMinter,
+                cre8orsNFT,
+                _recipient
+            )
         ) {
             revert IERC721Drop.Presale_TooManyForAddress();
         }
 
-        uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(_recipient, quantity);
+        uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(
+            _recipient,
+            quantity
+        );
 
         // Subscribe for 1 year
         ISubscription(subscription).updateSubscriptionForFree({
@@ -58,7 +70,13 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
             !MerkleProof.verify(
                 merkleProof,
                 IERC721Drop(cre8orsNFT).saleDetails().presaleMerkleRoot,
-                keccak256(abi.encode(_recipient, uint256(8), uint256(150000000000000000)))
+                keccak256(
+                    abi.encode(
+                        _recipient,
+                        uint256(8),
+                        uint256(150000000000000000)
+                    )
+                )
             )
         ) {
             revert IERC721Drop.Presale_MerkleNotApproved();

@@ -25,24 +25,42 @@ contract LockupTest is DSTest, Cre8orTestBase {
     }
 
     function test_lockup() public {
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function test_setLockup() public {
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(lockup));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(lockup)
+        );
     }
 
     function testFail_setLockup_revert_Access_OnlyOwner() public {
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
         cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
         vm.expectRevert("Requires owner role");
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
-    function test_setUnlockInfo(uint64 unlockDate, uint256 priceToUnlock) public {
+    function test_setUnlockInfo(
+        uint64 unlockDate,
+        uint256 priceToUnlock
+    ) public {
         _assertLockup(1, 0, 0);
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
         vm.prank(DEFAULT_OWNER_ADDRESS);
@@ -50,26 +68,39 @@ contract LockupTest is DSTest, Cre8orTestBase {
         _assertLockup(1, unlockDate, priceToUnlock);
     }
 
-    function test_setUnlockInfo_revert_Access_OnlyAdmin(uint256 tokenId, uint64 unlockDate, uint256 priceToUnlock)
-        public
-    {
+    function test_setUnlockInfo_revert_Access_OnlyAdmin(
+        uint256 tokenId,
+        uint64 unlockDate,
+        uint256 priceToUnlock
+    ) public {
         _assertLockup(tokenId, 0, 0);
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
-        vm.expectRevert(MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector);
+        vm.expectRevert(
+            MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector
+        );
         lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
         _assertLockup(tokenId, 0, 0);
     }
 
-    function test_isLocked(uint256 tokenId, uint64 unlockDate, uint256 priceToUnlock) public {
+    function test_isLocked(
+        uint256 tokenId,
+        uint64 unlockDate,
+        uint256 priceToUnlock
+    ) public {
         _assertIsLocked(tokenId, false);
         bytes memory data = abi.encode(unlockDate, priceToUnlock);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         lockup.setUnlockInfo(address(cre8orsNFTBase), tokenId, data);
-        bool expectLocked = block.timestamp < lockup.unlockInfo(address(cre8orsNFTBase), tokenId).unlockDate;
+        bool expectLocked = block.timestamp <
+            lockup.unlockInfo(address(cre8orsNFTBase), tokenId).unlockDate;
         _assertIsLocked(tokenId, expectLocked);
     }
 
-    function test_payToUnlock(uint256 tokenId, uint64 unlockDate, uint256 priceToUnlock) public {
+    function test_payToUnlock(
+        uint256 tokenId,
+        uint64 unlockDate,
+        uint256 priceToUnlock
+    ) public {
         uint64 start = uint64(block.timestamp);
         vm.assume(priceToUnlock > 0);
         vm.assume(unlockDate > start);
@@ -81,14 +112,20 @@ contract LockupTest is DSTest, Cre8orTestBase {
 
         vm.startPrank(DEFAULT_BUYER_ADDRESS);
         vm.deal(DEFAULT_BUYER_ADDRESS, priceToUnlock);
-        lockup.payToUnlock{value: priceToUnlock}(payable(address(cre8orsNFTBase)), tokenId);
+        lockup.payToUnlock{value: priceToUnlock}(
+            payable(address(cre8orsNFTBase)),
+            tokenId
+        );
         _assertIsLocked(tokenId, false);
         assertEq(address(cre8orsNFTBase).balance, priceToUnlock);
     }
 
-    function test_payToUnlock_refundsExtra(uint256 tokenId, uint64 unlockDate, uint256 priceToUnlock, uint256 pricePaid)
-        public
-    {
+    function test_payToUnlock_refundsExtra(
+        uint256 tokenId,
+        uint64 unlockDate,
+        uint256 priceToUnlock,
+        uint256 pricePaid
+    ) public {
         uint64 start = uint64(block.timestamp);
         vm.assume(priceToUnlock > 0);
         vm.assume(unlockDate > start);
@@ -103,7 +140,10 @@ contract LockupTest is DSTest, Cre8orTestBase {
         // Pay to unlock
         vm.startPrank(DEFAULT_BUYER_ADDRESS);
         vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
-        lockup.payToUnlock{value: priceToUnlock}(payable(address(cre8orsNFTBase)), tokenId);
+        lockup.payToUnlock{value: priceToUnlock}(
+            payable(address(cre8orsNFTBase)),
+            tokenId
+        );
         _assertIsLocked(tokenId, false);
 
         // Verify payment sent to base CRE8ORS
@@ -135,16 +175,24 @@ contract LockupTest is DSTest, Cre8orTestBase {
         // try to unlock
         vm.deal(DEFAULT_BUYER_ADDRESS, pricePaid);
         vm.startPrank(DEFAULT_BUYER_ADDRESS);
-        bytes memory expectedRevertReason =
-            abi.encodePacked(ILockup.Unlock_WrongPrice.selector, abi.encode(priceToUnlock));
+        bytes memory expectedRevertReason = abi.encodePacked(
+            ILockup.Unlock_WrongPrice.selector,
+            abi.encode(priceToUnlock)
+        );
         vm.expectRevert(expectedRevertReason);
-        lockup.payToUnlock{value: pricePaid}(payable(address(cre8orsNFTBase)), tokenId);
+        lockup.payToUnlock{value: pricePaid}(
+            payable(address(cre8orsNFTBase)),
+            tokenId
+        );
 
         // assert still locked
         _assertIsLocked(tokenId, true);
     }
 
-    function test_toggleCre8ing(uint64 unlockDate, uint256 priceToUnlock) public {
+    function test_toggleCre8ing(
+        uint64 unlockDate,
+        uint256 priceToUnlock
+    ) public {
         uint64 start = uint64(block.timestamp);
         vm.assume(unlockDate < type(uint64).max);
         vm.assume(unlockDate > start);
@@ -166,14 +214,18 @@ contract LockupTest is DSTest, Cre8orTestBase {
 
         // allow exit from warehouse
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), 1);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), 1);
 
         assertTrue(!cre8ing);
         assertEq(current, 0);
         assertEq(total, unlockDate - start);
     }
 
-    function test_toggleCre8ing_revert_Lockup_Locked(uint64 unlockDate, uint256 priceToUnlock) public {
+    function test_toggleCre8ing_revert_Lockup_Locked(
+        uint64 unlockDate,
+        uint256 priceToUnlock
+    ) public {
         vm.assume(unlockDate > block.timestamp);
 
         // Start cre8ing
@@ -196,7 +248,8 @@ contract LockupTest is DSTest, Cre8orTestBase {
 
     function _cre8ingSetup() internal {
         uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
         assertTrue(!cre8ing);
         assertEq(current, 0);
         assertEq(total, 0);
@@ -208,15 +261,28 @@ contract LockupTest is DSTest, Cre8orTestBase {
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
-        (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertTrue(cre8ing);
         assertEq(current, 0);
         assertEq(total, 0);
     }
 
-    function _assertLockup(uint256 _tokenId, uint64 _date, uint256 _price) internal {
-        assertEq(lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).unlockDate, _date);
-        assertEq(lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).priceToUnlock, _price);
+    function _assertLockup(
+        uint256 _tokenId,
+        uint64 _date,
+        uint256 _price
+    ) internal {
+        assertEq(
+            lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).unlockDate,
+            _date
+        );
+        assertEq(
+            lockup.unlockInfo(address(cre8orsNFTBase), _tokenId).priceToUnlock,
+            _price
+        );
     }
 
     function _assertIsLocked(uint256 _tokenId, bool _expected) internal {

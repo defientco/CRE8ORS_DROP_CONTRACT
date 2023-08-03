@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 // Forge Imports
-
 import {DSTest} from "ds-test/test.sol";
 import {StdUtils} from "forge-std/StdUtils.sol";
 import {Vm} from "forge-std/Vm.sol";
@@ -29,7 +28,8 @@ contract PublicMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
+        payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;
     uint16 DEFAULT_ROYALTY_BPS = 888;
     Cre8ors public cre8orsNFTBase;
@@ -80,11 +80,15 @@ contract PublicMinterTest is DSTest, StdUtils {
     }
 
     function testLockup() public {
-        assertEq(address(cre8ingBase.lockup(address(cre8orsNFTBase))), address(0));
+        assertEq(
+            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
+            address(0)
+        );
     }
 
     function _setUpContracts() internal returns (Cre8ors) {
-        return new Cre8ors({
+        return
+            new Cre8ors({
                 _contractName: "CRE8ORS",
                 _contractSymbol: "CRE8",
                 _initialOwner: DEFAULT_OWNER_ADDRESS,
@@ -105,29 +109,45 @@ contract PublicMinterTest is DSTest, StdUtils {
             });
     }
 
-    function testSuccess(IMinterUtilities.Cart[] memory _carts, bool _withLockUp, address _buyer) public {
+    function testSuccess(
+        IMinterUtilities.Cart[] memory _carts,
+        bool _withLockUp,
+        address _buyer
+    ) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
         _setUpMinter(_withLockUp);
 
-        for (uint256 i = 0; i < _carts.length; i++) {
+        for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
             _carts[i].tier = uint8(tier);
             _carts[i].quantity = bound(_carts[i].quantity, 1, 19);
         }
-        vm.assume(IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts) < 18);
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
+        vm.assume(
+            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
+                _carts
+            ) < 18
+        );
+        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
+            .calculateTotalQuantity(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
 
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            _buyer, _carts, address(collectionMinter), address(friendsAndFamilyMinter)
+            _buyer,
+            _carts,
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
         vm.stopPrank();
         assertEq(totalQuantity, tokenId);
-        assertEq(totalQuantity, cre8orsNFTBase.mintedPerAddress(_buyer).totalMints);
+        assertEq(
+            totalQuantity,
+            cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
+        );
     }
 
     function testPublicSaleInactiveMintedDiscount(
@@ -140,54 +160,80 @@ contract PublicMinterTest is DSTest, StdUtils {
         vm.assume(_buyer != address(0));
         _setUpMinter(_withLockUp);
         _updatePublicSaleStart(uint64(block.timestamp + 1000));
-        for (uint256 i = 0; i < _carts.length; i++) {
+        for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
             _carts[i].tier = uint8(tier);
             _carts[i].quantity = bound(_carts[i].quantity, 1, 8);
         }
-        vm.assume(IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts) < 8);
+        vm.assume(
+            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
+                _carts
+            ) < 8
+        );
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(friendsAndFamilyMinter));
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            address(friendsAndFamilyMinter)
+        );
         friendsAndFamilyMinter.addDiscount(_buyer);
         vm.stopPrank();
         vm.startPrank(_buyer);
         friendsAndFamilyMinter.mint(_buyer);
         vm.stopPrank();
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
+        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
+            .calculateTotalQuantity(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
 
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            _buyer, _carts, address(collectionMinter), address(friendsAndFamilyMinter)
+            _buyer,
+            _carts,
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
         vm.stopPrank();
         assertEq(totalQuantity + 1, tokenId);
-        assertEq(totalQuantity + 1, cre8orsNFTBase.mintedPerAddress(_buyer).totalMints);
+        assertEq(
+            totalQuantity + 1,
+            cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
+        );
     }
 
-    function testRevertPublicSaleInactive(IMinterUtilities.Cart[] memory _carts, bool _withLockUp, address _buyer)
-        public
-    {
+    function testRevertPublicSaleInactive(
+        IMinterUtilities.Cart[] memory _carts,
+        bool _withLockUp,
+        address _buyer
+    ) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
         _setUpMinter(_withLockUp);
         _updatePublicSaleStart(uint64(block.timestamp + 1000));
-        for (uint256 i = 0; i < _carts.length; i++) {
+        for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
             _carts[i].tier = uint8(tier);
             _carts[i].quantity = bound(_carts[i].quantity, 1, 8);
         }
-        vm.assume(IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts) < 8);
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
+        vm.assume(
+            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
+                _carts
+            ) < 8
+        );
+        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
+            .calculateTotalQuantity(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
 
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
         vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            _buyer, _carts, address(collectionMinter), address(friendsAndFamilyMinter)
+            _buyer,
+            _carts,
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
         vm.stopPrank();
     }
@@ -203,15 +249,22 @@ contract PublicMinterTest is DSTest, StdUtils {
         _setUpMinter(_withLockUp);
         // set public sale start to sometime in future
         _updatePublicSaleStart(uint64(block.timestamp + 1000000));
-        for (uint256 i = 0; i < _carts.length; i++) {
+        for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
             _carts[i].tier = uint8(tier);
             _carts[i].quantity = bound(_carts[i].quantity, 1, 8);
         }
-        vm.assume(IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts) < 8);
+        vm.assume(
+            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
+                _carts
+            ) < 8
+        );
         // grant family minter admin role
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(friendsAndFamilyMinter));
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            address(friendsAndFamilyMinter)
+        );
         address transferred = address(0x1988789);
         // add discount to buyer
         friendsAndFamilyMinter.addDiscount(_buyer);
@@ -222,15 +275,20 @@ contract PublicMinterTest is DSTest, StdUtils {
         cre8orsNFTBase.transferFrom(_buyer, transferred, 1);
         assertEq(cre8orsNFTBase.mintedPerAddress(transferred).totalMints, 0);
         vm.stopPrank();
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility)).calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility)).calculateTotalCost(_carts);
+        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
+            .calculateTotalQuantity(_carts);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
 
         // transferred tries to mint with transferred pfp prior to sale.
         vm.deal(transferred, totalPrice);
         vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
         vm.prank(transferred);
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            transferred, _carts, address(collectionMinter), address(friendsAndFamilyMinter)
+            transferred,
+            _carts,
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
     }
 
@@ -249,13 +307,21 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(minter));
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            address(minter)
+        );
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
         }
 
-        assertTrue(cre8orsNFTBase.hasRole(cre8orsNFTBase.DEFAULT_ADMIN_ROLE(), address(minter)));
+        assertTrue(
+            cre8orsNFTBase.hasRole(
+                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                address(minter)
+            )
+        );
         vm.stopPrank();
     }
 

@@ -6,15 +6,18 @@ import {IMetadataRenderer} from "../interfaces/IMetadataRenderer.sol";
 import {MetadataRenderAdminCheck} from "./MetadataRenderAdminCheck.sol";
 
 /**
- * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
- * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
- * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
- * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
- * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @notice Cre8ors Collective metadata system
-contract Cre8orsCollectiveMetadataRenderer is IMetadataRenderer, MetadataRenderAdminCheck {
+contract Cre8orsCollectiveMetadataRenderer is
+    IMetadataRenderer,
+    MetadataRenderAdminCheck
+{
     error MetadataFrozen();
 
     /// Event to mark updated metadata information
@@ -49,15 +52,28 @@ contract Cre8orsCollectiveMetadataRenderer is IMetadataRenderer, MetadataRenderA
     /// @param data passed in for initialization
     function initializeWithData(bytes memory data) external {
         // data format: string baseURI, string newContractURI
-        (string memory initialBaseURI, string memory initialBaseCollectiveURI, string memory initialContractURI) =
-            abi.decode(data, (string, string, string));
-        _updateMetadataDetails(msg.sender, initialBaseURI, initialBaseCollectiveURI, "", initialContractURI, 0);
+        (
+            string memory initialBaseURI,
+            string memory initialBaseCollectiveURI,
+            string memory initialContractURI
+        ) = abi.decode(data, (string, string, string));
+        _updateMetadataDetails(
+            msg.sender,
+            initialBaseURI,
+            initialBaseCollectiveURI,
+            "",
+            initialContractURI,
+            0
+        );
     }
 
     /// @notice Update the provenance hash (optional) for a given nft
     /// @param target target address to update
     /// @param provenanceHash provenance hash to set
-    function updateProvenanceHash(address target, bytes32 provenanceHash) external requireSenderAdmin(target) {
+    function updateProvenanceHash(
+        address target,
+        bytes32 provenanceHash
+    ) external requireSenderAdmin(target) {
         provenanceHashes[target] = provenanceHash;
         emit ProvenanceHashUpdated(target, provenanceHash);
     }
@@ -73,7 +89,14 @@ contract Cre8orsCollectiveMetadataRenderer is IMetadataRenderer, MetadataRenderA
         string memory baseUriCollective,
         string memory newContractUri
     ) external requireSenderAdmin(target) {
-        _updateMetadataDetails(target, baseUri, baseUriCollective, "", newContractUri, 0);
+        _updateMetadataDetails(
+            target,
+            baseUri,
+            baseUriCollective,
+            "",
+            newContractUri,
+            0
+        );
     }
 
     /// @notice Update metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing detailsUpdate metadata base URI, extension, contract URI and freezing details
@@ -91,7 +114,12 @@ contract Cre8orsCollectiveMetadataRenderer is IMetadataRenderer, MetadataRenderA
         uint256 freezeAt
     ) external requireSenderAdmin(target) {
         _updateMetadataDetails(
-            target, metadataBase, metadataBaseCollective, metadataExtension, newContractURI, freezeAt
+            target,
+            metadataBase,
+            metadataBaseCollective,
+            metadataExtension,
+            newContractURI,
+            freezeAt
         );
     }
 
@@ -142,12 +170,21 @@ contract Cre8orsCollectiveMetadataRenderer is IMetadataRenderer, MetadataRenderA
     /// @notice A token URI for the given drops contract
     /// @dev reverts if a contract uri is not set
     /// @return token URI for the given token ID and contract (set by msg.sender)
-    function tokenURI(uint256 tokenId) external view override returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         MetadataURIInfo memory info = metadataBaseByContract[msg.sender];
 
         if (bytes(info.base).length == 0) revert();
         string memory base = tokenId <= 88 ? info.base : info.baseCollective;
 
-        return string(abi.encodePacked(base, Strings.toString(tokenId), info.extension));
+        return
+            string(
+                abi.encodePacked(
+                    base,
+                    Strings.toString(tokenId),
+                    info.extension
+                )
+            );
     }
 }

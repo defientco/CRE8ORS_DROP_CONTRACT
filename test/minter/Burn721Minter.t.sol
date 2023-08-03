@@ -21,7 +21,8 @@ contract Burn721MinterTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
+        payable(address(0x21303));
     address public constant DEFAULT_BUYER = address(0x111);
     uint64 DEFAULT_EDITION_SIZE = type(uint64).max;
 
@@ -73,15 +74,24 @@ contract Burn721MinterTest is DSTest {
     }
 
     function test_isAdmin() public {
-        assertTrue(minter.isAdmin(address(cre8orsNFTBase), DEFAULT_OWNER_ADDRESS));
-        assertTrue(!minter.isAdmin(address(cre8orsNFTBase), DEFAULT_FUNDS_RECIPIENT_ADDRESS));
+        assertTrue(
+            minter.isAdmin(address(cre8orsNFTBase), DEFAULT_OWNER_ADDRESS)
+        );
+        assertTrue(
+            !minter.isAdmin(
+                address(cre8orsNFTBase),
+                DEFAULT_FUNDS_RECIPIENT_ADDRESS
+            )
+        );
     }
 
     function test_initializeWithData_revertAccess_OnlyAdmin() public {
         bytes memory data = abi.encode("Description for metadata", 5);
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         minter.initializeWithData(address(cre8orsNFTBase), data);
-        Burn721Minter.ContractMintInfo memory info = minter.contractInfos(address(cre8orsNFTBase));
+        Burn721Minter.ContractMintInfo memory info = minter.contractInfos(
+            address(cre8orsNFTBase)
+        );
         assertEq(info.burnToken, address(0));
         assertEq(info.burnQuantity, 0);
     }
@@ -90,7 +100,9 @@ contract Burn721MinterTest is DSTest {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         bytes memory data = abi.encode(address(0x123), 5);
         minter.initializeWithData(address(cre8orsNFTBase), data);
-        Burn721Minter.ContractMintInfo memory info = minter.contractInfos(address(cre8orsNFTBase));
+        Burn721Minter.ContractMintInfo memory info = minter.contractInfos(
+            address(cre8orsNFTBase)
+        );
         assertEq(info.burnToken, address(0x123));
         assertEq(info.burnQuantity, 5);
     }
@@ -166,7 +178,12 @@ contract Burn721MinterTest is DSTest {
     function test_AdminMintBatchFails() public {
         vm.startPrank(address(0x10));
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
-        vm.expectRevert(abi.encodeWithSignature("AdminAccess_MissingRoleOrAdmin(bytes32)", role));
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                role
+            )
+        );
         cre8orsNFTBase.adminMint(address(0x10), 100);
     }
 }

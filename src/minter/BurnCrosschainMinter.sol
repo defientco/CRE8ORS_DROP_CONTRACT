@@ -5,12 +5,12 @@ import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 
 /**
- * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
- * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
- * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
- * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
- * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 contract BurnCrosschainMinter {
     /// @notice Storage for contract mint information
@@ -43,8 +43,14 @@ contract BurnCrosschainMinter {
     /// @notice Default initializer for burn data from a specific contract
     /// @param target target for contract to set mint data
     /// @param data data to init with
-    function initializeWithData(address target, bytes memory data) external onlyAdmin(target) {
-        (,, string memory passcode) = abi.decode(data, (bytes32, uint256, string));
+    function initializeWithData(
+        address target,
+        bytes memory data
+    ) external onlyAdmin(target) {
+        (, , string memory passcode) = abi.decode(
+            data,
+            (bytes32, uint256, string)
+        );
         _contractInfos[target] = ContractMintInfo({secretPasscode: passcode});
         emit NewMinterInitialized({target: target});
     }
@@ -53,8 +59,14 @@ contract BurnCrosschainMinter {
     /// @dev This allows the user to purchase an edition
     /// @dev at the given price in the contract.
     /// @param target target for contract to purchase
-    function purchase(address target, bytes calldata data) external payable returns (uint256) {
-        (, uint256 burnQuantity, bytes32 encryptedPasscode) = abi.decode(data, (bytes32, uint256, bytes32));
+    function purchase(
+        address target,
+        bytes calldata data
+    ) external payable returns (uint256) {
+        (, uint256 burnQuantity, bytes32 encryptedPasscode) = abi.decode(
+            data,
+            (bytes32, uint256, bytes32)
+        );
 
         verifyCode(target, encryptedPasscode);
         uint256 salePrice = calculateDiscountedPrice(target, burnQuantity);
@@ -65,7 +77,10 @@ contract BurnCrosschainMinter {
 
         _balances[target] += msg.value;
 
-        uint256 firstMintedTokenId = IERC721Drop(target).adminMint(msg.sender, 1);
+        uint256 firstMintedTokenId = IERC721Drop(target).adminMint(
+            msg.sender,
+            1
+        );
 
         return firstMintedTokenId;
     }
@@ -73,7 +88,10 @@ contract BurnCrosschainMinter {
     /// @notice calculates discount for relics burned
     /// @param target target for contract to calculate discount
     /// @param burnQuantity number of relics to burn
-    function calculateDiscountedPrice(address target, uint256 burnQuantity) internal view returns (uint256) {
+    function calculateDiscountedPrice(
+        address target,
+        uint256 burnQuantity
+    ) internal view returns (uint256) {
         require(burnQuantity < 89, "CRE8ORS: max burn 88");
         uint256 price = IERC721Drop(target).saleDetails().publicSalePrice;
         uint256 discountPerRelic = (price / 88);
@@ -87,7 +105,10 @@ contract BurnCrosschainMinter {
         uint256 funds = _balances[target];
 
         // Payout recipient
-        (bool successFunds,) = IERC721Drop(target).owner().call{value: funds, gas: FUNDS_SEND_GAS_LIMIT}("");
+        (bool successFunds, ) = IERC721Drop(target).owner().call{
+            value: funds,
+            gas: FUNDS_SEND_GAS_LIMIT
+        }("");
         if (!successFunds) {
             revert IERC721Drop.Withdraw_FundsSendFailure();
         }

@@ -44,7 +44,10 @@ contract Cre8orReserveListTest is Test {
         vm.deal(DEFAULT_PREPAY_ADDRESS, reservationFee);
         vm.prank(DEFAULT_PREPAY_ADDRESS);
         cre8orsReserveList.reserve{value: reservationFee}();
-        assertEq(reservationFee, cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS));
+        assertEq(
+            reservationFee,
+            cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS)
+        );
         assertEq(1, cre8orsReserveList.getReserveList().length);
     }
 
@@ -56,7 +59,10 @@ contract Cre8orReserveListTest is Test {
         // Second reservation
         vm.expectRevert("Already reserved");
         cre8orsReserveList.reserve{value: reservationFee}();
-        assertEq(reservationFee, cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS));
+        assertEq(
+            reservationFee,
+            cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS)
+        );
         assertEq(1, cre8orsReserveList.getReserveList().length);
     }
 
@@ -73,9 +79,18 @@ contract Cre8orReserveListTest is Test {
         // Third reservation
         vm.prank(DEFAULT_PREPAY_ADDRESS_3);
         cre8orsReserveList.reserve{value: reservationFee}();
-        assertEq(reservationFee, cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS));
-        assertEq(reservationFee, cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS_2));
-        assertEq(reservationFee, cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS_3));
+        assertEq(
+            reservationFee,
+            cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS)
+        );
+        assertEq(
+            reservationFee,
+            cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS_2)
+        );
+        assertEq(
+            reservationFee,
+            cre8orsReserveList.reservations(DEFAULT_PREPAY_ADDRESS_3)
+        );
         assertEq(3, cre8orsReserveList.getReserveList().length);
     }
 

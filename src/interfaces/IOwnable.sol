@@ -2,12 +2,12 @@
 pragma solidity ^0.8.15;
 
 /**
- * ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
- * ██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
- * ██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
- * ██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
- * ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- *  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                     
  */
 
 /// @dev Contract module which provides a basic access control mechanism, where
@@ -16,7 +16,10 @@ pragma solidity ^0.8.15;
 /// @dev This ownership interface matches OZ's ownable interface.
 /// @dev credit: https://github.com/ourzora/zora-drops-contracts
 interface IOwnable {
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Returns the address of the current owner.

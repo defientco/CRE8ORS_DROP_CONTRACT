@@ -8,5 +8,7 @@ interface IAllowlistMinter {
 
     /// @dev Sets a new address for the MinterUtilities contract.
     /// @param _newMinterUtilityContractAddress The address of the new MinterUtilities contract.
-    function setNewMinterUtilityContractAddress(address _newMinterUtilityContractAddress) external;
+    function setNewMinterUtilityContractAddress(
+        address _newMinterUtilityContractAddress
+    ) external;
 }

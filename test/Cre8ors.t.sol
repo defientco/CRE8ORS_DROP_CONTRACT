@@ -17,7 +17,8 @@ contract Cre8orTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
+        payable(address(0x21303));
     uint64 DEFAULT_EDITION_SIZE = 10_000;
     Cre8ing public cre8ingBase;
 
@@ -56,7 +57,9 @@ contract Cre8orTest is DSTest {
         assertEq(DEFAULT_EDITION_SIZE, cre8orsNFTBase.saleDetails().maxSupply);
     }
 
-    function test_Purchase(uint64 amount) public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
+    function test_Purchase(
+        uint64 amount
+    ) public setupCre8orsNFTBase(DEFAULT_EDITION_SIZE) {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setSaleConfiguration({
             erc20PaymentToken: address(0),
@@ -75,7 +78,10 @@ contract Cre8orTest is DSTest {
 
         assertEq(cre8orsNFTBase.saleDetails().maxSupply, DEFAULT_EDITION_SIZE);
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
-        require(cre8orsNFTBase.ownerOf(1) == address(456), "owner is wrong for new minted token");
+        require(
+            cre8orsNFTBase.ownerOf(1) == address(456),
+            "owner is wrong for new minted token"
+        );
         assertEq(address(cre8orsNFTBase).balance, amount);
     }
 
@@ -132,7 +138,10 @@ contract Cre8orTest is DSTest {
         cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, 1);
         assertEq(cre8orsNFTBase.saleDetails().maxSupply, 10);
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, 1);
-        require(cre8orsNFTBase.ownerOf(1) == DEFAULT_OWNER_ADDRESS, "Owner is wrong for new minted token");
+        require(
+            cre8orsNFTBase.ownerOf(1) == DEFAULT_OWNER_ADDRESS,
+            "Owner is wrong for new minted token"
+        );
     }
 
     function test_MintWrongValue() public setupCre8orsNFTBase(10) {
@@ -152,7 +161,12 @@ contract Cre8orTest is DSTest {
             presaleMerkleRoot: bytes32(0)
         });
         vm.prank(address(456));
-        vm.expectRevert(abi.encodeWithSelector(IERC721Drop.Purchase_WrongPrice.selector, 0.15 ether));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IERC721Drop.Purchase_WrongPrice.selector,
+                0.15 ether
+            )
+        );
         cre8orsNFTBase.purchase{value: 0.12 ether}(1);
     }
 
@@ -163,8 +177,10 @@ contract Cre8orTest is DSTest {
         cre8orsNFTBase.withdraw();
 
         assertTrue(
-            DEFAULT_FUNDS_RECIPIENT_ADDRESS.balance > ((uint256(amount) * 1_000 * 95) / 100000) - 2
-                || DEFAULT_FUNDS_RECIPIENT_ADDRESS.balance < ((uint256(amount) * 1_000 * 95) / 100000) + 2
+            DEFAULT_FUNDS_RECIPIENT_ADDRESS.balance >
+                ((uint256(amount) * 1_000 * 95) / 100000) - 2 ||
+                DEFAULT_FUNDS_RECIPIENT_ADDRESS.balance <
+                ((uint256(amount) * 1_000 * 95) / 100000) + 2
         );
     }
 
@@ -191,12 +207,16 @@ contract Cre8orTest is DSTest {
         vm.deal(address(444), 1_000_000 ether);
         vm.prank(address(444));
         vm.expectRevert(IERC721Drop.Purchase_TooManyForAddress.selector);
-        cre8orsNFTBase.purchase{value: 0.1 ether * (uint256(limit) + 1)}(uint256(limit) + 1);
+        cre8orsNFTBase.purchase{value: 0.1 ether * (uint256(limit) + 1)}(
+            uint256(limit) + 1
+        );
 
         assertEq(cre8orsNFTBase.saleDetails().totalMinted, limit);
     }
 
-    function test_GlobalLimit(uint16 limit) public setupCre8orsNFTBase(uint64(limit)) {
+    function test_GlobalLimit(
+        uint16 limit
+    ) public setupCre8orsNFTBase(uint64(limit)) {
         vm.assume(limit > 0);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, limit);
@@ -213,7 +233,10 @@ contract Cre8orTest is DSTest {
         address minter = address(0x32402);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.adminMint(DEFAULT_OWNER_ADDRESS, 1);
-        require(cre8orsNFTBase.balanceOf(DEFAULT_OWNER_ADDRESS) == 1, "Wrong balance");
+        require(
+            cre8orsNFTBase.balanceOf(DEFAULT_OWNER_ADDRESS) == 1,
+            "Wrong balance"
+        );
 
         bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
         cre8orsNFTBase.grantRole(minterRole, minter);
@@ -277,7 +300,12 @@ contract Cre8orTest is DSTest {
         toMint[2] = address(0x12);
         toMint[3] = address(0x13);
         bytes32 minterRole = cre8orsNFTBase.MINTER_ROLE();
-        vm.expectRevert(abi.encodeWithSignature("AdminAccess_MissingRoleOrAdmin(bytes32)", minterRole));
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                minterRole
+            )
+        );
         cre8orsNFTBase.adminMintAirdrop(toMint);
     }
 
@@ -292,7 +320,12 @@ contract Cre8orTest is DSTest {
     function test_AdminMintBatchFails() public setupCre8orsNFTBase(1000) {
         vm.startPrank(address(0x10));
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
-        vm.expectRevert(abi.encodeWithSignature("AdminAccess_MissingRoleOrAdmin(bytes32)", role));
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "AdminAccess_MissingRoleOrAdmin(bytes32)",
+                role
+            )
+        );
         cre8orsNFTBase.adminMint(address(0x10), 100);
     }
 

@@ -26,7 +26,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
         assertEq(cre8ing, false);
         assertEq(current, 0);
         assertEq(total, 0);
@@ -36,7 +37,9 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(cre8ingBase.cre8ingOpen(address(cre8orsNFTBase)), false);
     }
 
-    function test_setCre8ingOpenReverts_AdminAccess_MissingRoleOrAdmin(bool _isOpen) public {
+    function test_setCre8ingOpenReverts_AdminAccess_MissingRoleOrAdmin(
+        bool _isOpen
+    ) public {
         assertEq(cre8ingBase.cre8ingOpen(address(cre8orsNFTBase)), false);
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), _isOpen);
@@ -50,20 +53,26 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(cre8ingBase.cre8ingOpen(address(cre8orsNFTBase)), _isOpen);
     }
 
-    function test_toggleCre8ingRevert_OwnerQueryForNonexistentToken(uint256 _tokenId) public {
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+    function test_toggleCre8ingRevert_OwnerQueryForNonexistentToken(
+        uint256 _tokenId
+    ) public {
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
         assertEq(cre8ing, false);
         assertEq(current, 0);
         assertEq(total, 0);
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
-        vm.expectRevert(abi.encodeWithSignature("OwnerQueryForNonexistentToken()"));
+        vm.expectRevert(
+            abi.encodeWithSignature("OwnerQueryForNonexistentToken()")
+        );
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
     }
 
     function test_toggleCre8ingRevert_Cre8ing_Cre8ingClosed() public {
         uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
         assertEq(cre8ing, false);
         assertEq(current, 0);
         assertEq(total, 0);
@@ -77,7 +86,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
 
     function test_toggleCre8ing() public {
         uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
         assertEq(cre8ing, false);
         assertEq(current, 0);
         assertEq(total, 0);
@@ -89,7 +99,10 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
-        (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertEq(cre8ing, true);
         assertEq(current, 0);
         assertEq(total, 0);
@@ -108,7 +121,11 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         vm.expectRevert(abi.encodeWithSignature("Cre8ing_Cre8ing()"));
-        cre8orsNFTBase.safeTransferFrom(DEFAULT_CRE8OR_ADDRESS, DEFAULT_OWNER_ADDRESS, _tokenId);
+        cre8orsNFTBase.safeTransferFrom(
+            DEFAULT_CRE8OR_ADDRESS,
+            DEFAULT_OWNER_ADDRESS,
+            _tokenId
+        );
     }
 
     function test_safeTransferWhileCre8ing() public {
@@ -124,9 +141,16 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
-        cre8orsNFTBase.safeTransferWhileCre8ing(DEFAULT_CRE8OR_ADDRESS, DEFAULT_TRANSFER_ADDRESS, _tokenId);
+        cre8orsNFTBase.safeTransferWhileCre8ing(
+            DEFAULT_CRE8OR_ADDRESS,
+            DEFAULT_TRANSFER_ADDRESS,
+            _tokenId
+        );
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_TRANSFER_ADDRESS);
-        (bool cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertEq(cre8ing, true);
     }
 
@@ -145,7 +169,11 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
         vm.startPrank(DEFAULT_TRANSFER_ADDRESS);
         vm.expectRevert(abi.encodeWithSignature("Access_OnlyOwner()"));
-        cre8orsNFTBase.safeTransferWhileCre8ing(DEFAULT_CRE8OR_ADDRESS, DEFAULT_TRANSFER_ADDRESS, _tokenId);
+        cre8orsNFTBase.safeTransferWhileCre8ing(
+            DEFAULT_CRE8OR_ADDRESS,
+            DEFAULT_TRANSFER_ADDRESS,
+            _tokenId
+        );
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
     }
 
@@ -174,12 +202,18 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        (bool cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertEq(cre8ing, true);
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         cre8ingBase.expelFromWarehouse(address(cre8orsNFTBase), _tokenId);
-        (cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertEq(cre8ing, true);
     }
 
@@ -196,10 +230,16 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        (bool cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertEq(cre8ing, true);
         cre8ingBase.expelFromWarehouse(address(cre8orsNFTBase), _tokenId);
-        (cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        (cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
         assertEq(cre8ing, false);
     }
 
@@ -217,7 +257,9 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         });
         vm.deal(address(456), 10 ether);
         cre8orsNFTBase.purchase(100);
-        uint256[] memory staked = cre8ingBase.cre8ingTokens(address(cre8orsNFTBase));
+        uint256[] memory staked = cre8ingBase.cre8ingTokens(
+            address(cre8orsNFTBase)
+        );
         assertEq(staked.length, 100);
         for (uint256 i = 0; i < staked.length; i++) {
             assertEq(staked[i], 0);
@@ -236,7 +278,10 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(staked.length, 100);
     }
 
-    function test_inializeStakingAndLockup(uint256 _quantity, address _minter) public {
+    function test_inializeStakingAndLockup(
+        uint256 _quantity,
+        address _minter
+    ) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
 
@@ -258,13 +303,20 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         // function under test - inializeStakingAndLockup
         grant_minter_role(_minter);
         vm.prank(_minter);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
 
         // assertions
         verifyLockedAndStaked(_quantity, true);
     }
 
-    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ingClosed(uint256 _quantity, address _minter) public {
+    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ingClosed(
+        uint256 _quantity,
+        address _minter
+    ) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
 
@@ -286,13 +338,19 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         grant_minter_role(_minter);
         vm.prank(_minter);
         vm.expectRevert(ICre8ing.Cre8ing_Cre8ingClosed.selector);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
 
         // assertions
         verifyLockedAndStaked(_quantity, false);
     }
 
-    function test_inializeStakingAndLockup_revert_LockupNotSet(uint256 _quantity) public {
+    function test_inializeStakingAndLockup_revert_LockupNotSet(
+        uint256 _quantity
+    ) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
 
@@ -312,13 +370,19 @@ contract Cre8ingTest is Test, Cre8orTestBase {
 
         // function under test - inializeStakingAndLockup
         vm.expectRevert(ICre8ing.Cre8ing_MissingLockup.selector);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
 
         // assertions
         verifyStaked(_quantity, false);
     }
 
-    function test_inializeStakingAndLockup_revert_MissingMinterRole(uint256 _quantity) public {
+    function test_inializeStakingAndLockup_revert_MissingMinterRole(
+        uint256 _quantity
+    ) public {
         // buy tokens
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
@@ -337,14 +401,23 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
 
         // function under test - inializeStakingAndLockup
-        vm.expectRevert(MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        vm.expectRevert(
+            MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector
+        );
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
 
         // assertions
         verifyStaked(_quantity, false);
     }
 
-    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ALL(uint256 _quantity, address _minter) public {
+    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ALL(
+        uint256 _quantity,
+        address _minter
+    ) public {
         // buy tokens
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
@@ -365,19 +438,30 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         // stake tokens
         grant_minter_role(_minter);
         vm.prank(_minter);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
         verifyStaked(_quantity, true);
 
         // function under test - inializeStakingAndLockup
         vm.prank(_minter);
         vm.expectRevert(ICre8ing.Cre8ing_Cre8ing.selector);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
 
         // assertions
         verifyStaked(_quantity, true);
     }
 
-    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ONE(uint256 _quantity, address _minter) public {
+    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ONE(
+        uint256 _quantity,
+        address _minter
+    ) public {
         // buy tokens
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
@@ -405,7 +489,11 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         // function under test - inializeStakingAndLockup
         vm.prank(_minter);
         vm.expectRevert(ICre8ing.Cre8ing_Cre8ing.selector);
-        cre8ingBase.inializeStakingAndLockup(address(cre8orsNFTBase), tokenIds, data);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
     }
 
     function setup_lockup() internal {
@@ -427,7 +515,10 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
     }
 
-    function verifyLockedAndStaked(uint256 _quantity, bool _lockedAndStaked) internal {
+    function verifyLockedAndStaked(
+        uint256 _quantity,
+        bool _lockedAndStaked
+    ) internal {
         verifyLocked(_quantity, _lockedAndStaked);
         verifyStaked(_quantity, _lockedAndStaked);
     }
@@ -436,7 +527,10 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         for (uint256 i = 0; i < _quantity; i++) {
             assertEq(
                 // Token is Locked
-                ILockup(cre8ingBase.lockUp(address(cre8orsNFTBase))).isLocked(address(cre8orsNFTBase), i + 1),
+                ILockup(cre8ingBase.lockUp(address(cre8orsNFTBase))).isLocked(
+                    address(cre8orsNFTBase),
+                    i + 1
+                ),
                 _lockedAndStaked
             );
         }
@@ -445,17 +539,25 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     function verifyStaked(uint256 _quantity, bool _lockedAndStaked) internal {
         for (uint256 i = 0; i < _quantity; i++) {
             // Token is Staked
-            (bool cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), i + 1);
+            (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+                address(cre8orsNFTBase),
+                i + 1
+            );
             assertEq(cre8ing, _lockedAndStaked);
         }
     }
 
-    function generateUnstakedTokenIds(uint256 _quantity) internal returns (uint256[] memory tokenIds) {
+    function generateUnstakedTokenIds(
+        uint256 _quantity
+    ) internal returns (uint256[] memory tokenIds) {
         tokenIds = new uint256[](_quantity);
         for (uint256 i = 0; i < _quantity; i++) {
             tokenIds[i] = i + 1;
             // Token is Staked
-            (bool cre8ing,,) = cre8ingBase.cre8ingPeriod(address(cre8orsNFTBase), i + 1);
+            (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+                address(cre8orsNFTBase),
+                i + 1
+            );
             assertEq(cre8ing, false);
         }
     }

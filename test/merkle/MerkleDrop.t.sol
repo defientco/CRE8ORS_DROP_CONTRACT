@@ -14,8 +14,10 @@ contract MerkleDropTest is DSTest {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     MerkleData public merkleData;
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS = payable(address(0x21303));
-    address payable public constant DEFAULT_ZORA_DAO_ADDRESS = payable(address(0x999));
+    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
+        payable(address(0x21303));
+    address payable public constant DEFAULT_ZORA_DAO_ADDRESS =
+        payable(address(0x999));
     address public constant mediaContract = address(0x123456);
 
     function setUp() public {
@@ -53,7 +55,9 @@ contract MerkleDropTest is DSTest {
             publicSalePrice: 0 ether,
             maxSalePurchasePerAddress: 0,
             erc20PaymentToken: address(0),
-            presaleMerkleRoot: merkleData.getTestSetByName("test-3-addresses").root
+            presaleMerkleRoot: merkleData
+                .getTestSetByName("test-3-addresses")
+                .root
         });
         vm.stopPrank();
 
@@ -63,19 +67,35 @@ contract MerkleDropTest is DSTest {
         vm.deal(address(item.user), 1 ether);
         vm.startPrank(address(item.user));
 
-        zoraNFTBase.purchasePresale{value: item.mintPrice}(1, item.maxMint, item.mintPrice, item.proof);
+        zoraNFTBase.purchasePresale{value: item.mintPrice}(
+            1,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
         assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
         assertEq(zoraNFTBase.saleDetails().totalMinted, 1);
-        require(zoraNFTBase.ownerOf(1) == address(item.user), "owner is wrong for new minted token");
+        require(
+            zoraNFTBase.ownerOf(1) == address(item.user),
+            "owner is wrong for new minted token"
+        );
         vm.stopPrank();
 
         item = merkleData.getTestSetByName("test-3-addresses").entries[1];
         vm.deal(address(item.user), 1 ether);
         vm.startPrank(address(item.user));
-        zoraNFTBase.purchasePresale{value: item.mintPrice * 2}(2, item.maxMint, item.mintPrice, item.proof);
+        zoraNFTBase.purchasePresale{value: item.mintPrice * 2}(
+            2,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
         assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
         assertEq(zoraNFTBase.saleDetails().totalMinted, 3);
-        require(zoraNFTBase.ownerOf(2) == address(item.user), "owner is wrong for new minted token");
+        require(
+            zoraNFTBase.ownerOf(2) == address(item.user),
+            "owner is wrong for new minted token"
+        );
         vm.stopPrank();
     }
 
@@ -100,18 +120,44 @@ contract MerkleDropTest is DSTest {
         vm.startPrank(address(item.user));
 
         vm.expectRevert(IERC721Drop.Presale_TooManyForAddress.selector);
-        zoraNFTBase.purchasePresale{value: item.mintPrice * 3}(3, item.maxMint, item.mintPrice, item.proof);
+        zoraNFTBase.purchasePresale{value: item.mintPrice * 3}(
+            3,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
 
-        zoraNFTBase.purchasePresale{value: item.mintPrice * 1}(1, item.maxMint, item.mintPrice, item.proof);
-        zoraNFTBase.purchasePresale{value: item.mintPrice * 1}(1, item.maxMint, item.mintPrice, item.proof);
+        zoraNFTBase.purchasePresale{value: item.mintPrice * 1}(
+            1,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
+        zoraNFTBase.purchasePresale{value: item.mintPrice * 1}(
+            1,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
         assertEq(zoraNFTBase.saleDetails().totalMinted, 2);
-        require(zoraNFTBase.ownerOf(1) == address(item.user), "owner is wrong for new minted token");
+        require(
+            zoraNFTBase.ownerOf(1) == address(item.user),
+            "owner is wrong for new minted token"
+        );
 
         vm.expectRevert(IERC721Drop.Presale_TooManyForAddress.selector);
-        zoraNFTBase.purchasePresale{value: item.mintPrice * 1}(1, item.maxMint, item.mintPrice, item.proof);
+        zoraNFTBase.purchasePresale{value: item.mintPrice * 1}(
+            1,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
 
         zoraNFTBase.purchase{value: 0.1 ether}(1);
-        require(zoraNFTBase.ownerOf(3) == address(item.user), "owner is wrong for new minted token");
+        require(
+            zoraNFTBase.ownerOf(3) == address(item.user),
+            "owner is wrong for new minted token"
+        );
         vm.expectRevert(IERC721Drop.Purchase_TooManyForAddress.selector);
         zoraNFTBase.purchase{value: 0.1 ether}(1);
         vm.stopPrank();
@@ -158,7 +204,12 @@ contract MerkleDropTest is DSTest {
         vm.startPrank(address(item.user));
 
         vm.expectRevert(IERC721Drop.Mint_SoldOut.selector);
-        zeroEditions.purchasePresale{value: item.mintPrice}(1, item.maxMint, item.mintPrice, item.proof);
+        zeroEditions.purchasePresale{value: item.mintPrice}(
+            1,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
         vm.stopPrank();
     }
 
@@ -174,15 +225,24 @@ contract MerkleDropTest is DSTest {
             erc20PaymentToken: address(0),
             publicSalePrice: 0 ether,
             maxSalePurchasePerAddress: 0,
-            presaleMerkleRoot: merkleData.getTestSetByName("test-3-addresses").root
+            presaleMerkleRoot: merkleData
+                .getTestSetByName("test-3-addresses")
+                .root
         });
         vm.stopPrank();
         vm.deal(address(0x10), 1 ether);
 
         vm.startPrank(address(0x10));
-        MerkleData.MerkleEntry memory item = merkleData.getTestSetByName("test-3-addresses").entries[0];
+        MerkleData.MerkleEntry memory item = merkleData
+            .getTestSetByName("test-3-addresses")
+            .entries[0];
         vm.expectRevert(IERC721Drop.Presale_Inactive.selector);
-        zoraNFTBase.purchasePresale{value: item.mintPrice}(1, item.maxMint, item.mintPrice, item.proof);
+        zoraNFTBase.purchasePresale{value: item.mintPrice}(
+            1,
+            item.maxMint,
+            item.mintPrice,
+            item.proof
+        );
     }
 
     function test_MerklePurchase88Tokens() public {
@@ -195,24 +255,42 @@ contract MerkleDropTest is DSTest {
             publicSalePrice: 0 ether,
             maxSalePurchasePerAddress: 0,
             erc20PaymentToken: address(0),
-            presaleMerkleRoot: merkleData.getTestSetByName("test-88-founders").root
+            presaleMerkleRoot: merkleData
+                .getTestSetByName("test-88-founders")
+                .root
         });
         vm.stopPrank();
 
         MerkleData.MerkleEntry memory item;
 
-        uint256 numberOfFounders = merkleData.getTestSetByName("test-88-founders").entries.length;
+        uint256 numberOfFounders = merkleData
+            .getTestSetByName("test-88-founders")
+            .entries
+            .length;
         for (uint256 i = 0; i < numberOfFounders; i++) {
             item = merkleData.getTestSetByName("test-88-founders").entries[i];
             vm.startPrank(address(item.user));
 
-            zoraNFTBase.purchasePresale(1, item.maxMint, item.mintPrice, item.proof);
+            zoraNFTBase.purchasePresale(
+                1,
+                item.maxMint,
+                item.mintPrice,
+                item.proof
+            );
             assertEq(zoraNFTBase.saleDetails().maxSupply, 888);
             assertEq(zoraNFTBase.saleDetails().totalMinted, i + 1);
-            require(zoraNFTBase.ownerOf(i + 1) == address(item.user), "owner is wrong for new minted token");
+            require(
+                zoraNFTBase.ownerOf(i + 1) == address(item.user),
+                "owner is wrong for new minted token"
+            );
 
             vm.expectRevert();
-            zoraNFTBase.purchasePresale(1, item.maxMint, item.mintPrice, item.proof);
+            zoraNFTBase.purchasePresale(
+                1,
+                item.maxMint,
+                item.mintPrice,
+                item.proof
+            );
             vm.stopPrank();
         }
         assertEq(zoraNFTBase.saleDetails().maxSupply, 888);

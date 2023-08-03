@@ -41,7 +41,10 @@ contract IERC721OnChainDataMock {
         return "MOCK NAME";
     }
 
-    function saleDetails() external returns (IERC721Drop.ERC20SaleDetails memory) {
+    function saleDetails()
+        external
+        returns (IERC721Drop.ERC20SaleDetails memory)
+    {
         return saleDetailsInternal;
     }
 
@@ -53,7 +56,8 @@ contract IERC721OnChainDataMock {
 contract Cre8orsMetadataRendererTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     address public constant mediaContract = address(123456);
-    Cre8orsMetadataRenderer public editionRenderer = new Cre8orsMetadataRenderer();
+    Cre8orsMetadataRenderer public editionRenderer =
+        new Cre8orsMetadataRenderer();
 
     /// @notice Storage for token edition information
     struct TokenEditionInfo {
@@ -65,10 +69,14 @@ contract Cre8orsMetadataRendererTest is DSTest {
     function test_MusicGameMetadataInits() public {
         vm.startPrank(address(0x123));
         bytes memory data = abi.encode(
-            "Description for metadata", "https://example.com/image.png", "https://example.com/animation.mp4", 1
+            "Description for metadata",
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4",
+            1
         );
         editionRenderer.initializeWithData(data);
-        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer.tokenInfos(address(0x123), 1);
+        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer
+            .tokenInfos(address(0x123), 1);
         assertEq(info.description, "Description for metadata");
         assertEq(info.animationURI, "https://example.com/animation.mp4");
         assertEq(info.imageURI, "https://example.com/image.png");
@@ -77,15 +85,23 @@ contract Cre8orsMetadataRendererTest is DSTest {
     function test_MusicGameMetadataInitsDifferentTokens() public {
         vm.startPrank(address(0x123));
         bytes memory data = abi.encode(
-            "Description for metadata", "https://example.com/image.png", "https://example.com/animation.mp4", 1
+            "Description for metadata",
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4",
+            1
         );
         bytes memory data2 = abi.encode(
-            "Description for metadata 2", "https://example.com/image2.png", "https://example.com/animation2.mp4", 2
+            "Description for metadata 2",
+            "https://example.com/image2.png",
+            "https://example.com/animation2.mp4",
+            2
         );
         editionRenderer.initializeWithData(data);
         editionRenderer.initializeWithData(data2);
-        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer.tokenInfos(address(0x123), 1);
-        Cre8orsMetadataRenderer.TokenEditionInfo memory info2 = editionRenderer.tokenInfos(address(0x123), 2);
+        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer
+            .tokenInfos(address(0x123), 1);
+        Cre8orsMetadataRenderer.TokenEditionInfo memory info2 = editionRenderer
+            .tokenInfos(address(0x123), 2);
         assertEq(info.description, "Description for metadata");
         assertEq(info.animationURI, "https://example.com/animation.mp4");
         assertEq(info.imageURI, "https://example.com/image.png");
@@ -96,21 +112,28 @@ contract Cre8orsMetadataRendererTest is DSTest {
 
     function test_UpdateDescriptionAllowed() public {
         vm.startPrank(address(0x123));
-        bytes memory data =
-            abi.encode("Description for metadata", "https://example.com/image.png", "https://example.com/animation.mp4");
+        bytes memory data = abi.encode(
+            "Description for metadata",
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4"
+        );
         editionRenderer.initializeWithData(data);
 
         editionRenderer.updateDescription(address(0x123), 1, "new description");
 
-        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer.tokenInfos(address(0x123), 1);
+        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer
+            .tokenInfos(address(0x123), 1);
         assertEq(info.description, "new description");
     }
 
     function test_UpdateDescriptionNotAllowed() public {
         DropMockBase base = new DropMockBase();
         vm.startPrank(address(base));
-        bytes memory data =
-            abi.encode("Description for metadata", "https://example.com/image.png", "https://example.com/animation.mp4");
+        bytes memory data = abi.encode(
+            "Description for metadata",
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4"
+        );
         editionRenderer.initializeWithData(data);
         vm.stopPrank();
 
@@ -121,15 +144,22 @@ contract Cre8orsMetadataRendererTest is DSTest {
     function test_AllowMetadataURIUpdates() public {
         vm.startPrank(address(0x123));
         bytes memory data = abi.encode(
-            "Description for metadata", "https://example.com/image.png", "https://example.com/animation.mp4", 1
+            "Description for metadata",
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4",
+            1
         );
         editionRenderer.initializeWithData(data);
 
         editionRenderer.updateMediaURIs(
-            address(0x123), 1, "https://example.com/image.png", "https://example.com/animation.mp4"
+            address(0x123),
+            1,
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4"
         );
         editionRenderer.initializeWithData(data);
-        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer.tokenInfos(address(0x123), 1);
+        Cre8orsMetadataRenderer.TokenEditionInfo memory info = editionRenderer
+            .tokenInfos(address(0x123), 1);
         assertEq(info.description, "Description for metadata");
         assertEq(info.animationURI, "https://example.com/animation.mp4");
         assertEq(info.imageURI, "https://example.com/image.png");
@@ -139,7 +169,10 @@ contract Cre8orsMetadataRendererTest is DSTest {
         DropMockBase base = new DropMockBase();
         vm.startPrank(address(base));
         bytes memory data = abi.encode(
-            "Description for metadata", "https://example.com/image.png", "https://example.com/animation.mp4", 1
+            "Description for metadata",
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4",
+            1
         );
         editionRenderer.initializeWithData(data);
         vm.stopPrank();
@@ -147,7 +180,10 @@ contract Cre8orsMetadataRendererTest is DSTest {
         vm.prank(address(0x144));
         vm.expectRevert(MetadataRenderAdminCheck.Access_OnlyAdmin.selector);
         editionRenderer.updateMediaURIs(
-            address(base), 1, "https://example.com/image.png", "https://example.com/animation.mp4"
+            address(base),
+            1,
+            "https://example.com/image.png",
+            "https://example.com/animation.mp4"
         );
     }
 
@@ -157,7 +193,9 @@ contract Cre8orsMetadataRendererTest is DSTest {
             maxSupply: 100
         });
         vm.startPrank(address(mock));
-        editionRenderer.initializeWithData(abi.encode("Description", "image", "animation", 1));
+        editionRenderer.initializeWithData(
+            abi.encode("Description", "image", "animation", 1)
+        );
         // '{"name": "MOCK NAME 1/100", "description": "Description", "image": "image", "animation_url": "animation", "properties": {"number": 1, "name": "MOCK NAME"}}'
         assertEq(
             "data:application/json;base64,eyJuYW1lIjogIk1PQ0sgTkFNRSAxLzEwMCIsICJkZXNjcmlwdGlvbiI6ICJEZXNjcmlwdGlvbiIsICJpbWFnZSI6ICJpbWFnZSIsICJhbmltYXRpb25fdXJsIjogImFuaW1hdGlvbiIsICJwcm9wZXJ0aWVzIjogeyJudW1iZXIiOiAxLCAibmFtZSI6ICJNT0NLIE5BTUUifX0=",
@@ -171,7 +209,9 @@ contract Cre8orsMetadataRendererTest is DSTest {
             maxSupply: type(uint64).max
         });
         vm.startPrank(address(mock));
-        editionRenderer.initializeWithData(abi.encode("Description", "image", "animation", 1));
+        editionRenderer.initializeWithData(
+            abi.encode("Description", "image", "animation", 1)
+        );
         // {"name": "MOCK NAME 1", "description": "Description", "image": "image", "animation_url": "animation", "properties": {"number": 1, "name": "MOCK NAME"}}
         assertEq(
             "data:application/json;base64,eyJuYW1lIjogIk1PQ0sgTkFNRSAxIiwgImRlc2NyaXB0aW9uIjogIkRlc2NyaXB0aW9uIiwgImltYWdlIjogImltYWdlIiwgImFuaW1hdGlvbl91cmwiOiAiYW5pbWF0aW9uIiwgInByb3BlcnRpZXMiOiB7Im51bWJlciI6IDEsICJuYW1lIjogIk1PQ0sgTkFNRSJ9fQ==",
@@ -185,7 +225,9 @@ contract Cre8orsMetadataRendererTest is DSTest {
             maxSupply: 10
         });
         vm.startPrank(address(mock));
-        editionRenderer.initializeWithData(abi.encode("Description", "ipfs://image", "ipfs://animation", 1));
+        editionRenderer.initializeWithData(
+            abi.encode("Description", "ipfs://image", "ipfs://animation", 1)
+        );
         assertEq(
             "data:application/json;base64,eyJuYW1lIjogIk1PQ0sgTkFNRSIsICJkZXNjcmlwdGlvbiI6ICJEZXNjcmlwdGlvbiIsICJzZWxsZXJfZmVlX2Jhc2lzX3BvaW50cyI6IDEwMDAsICJmZWVfcmVjaXBpZW50IjogIjB4MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDE2MyIsICJpbWFnZSI6ICJpcGZzOi8vaW1hZ2UifQ==",
             editionRenderer.contractURI()

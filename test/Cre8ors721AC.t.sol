@@ -3,8 +3,7 @@ pragma solidity ^0.8.15;
 
 import {Vm} from "forge-std/Vm.sol";
 import {DSTest} from "ds-test/test.sol";
-import {CreatorTokenTransferValidator} from
-    "lib/creator-token-contracts/contracts/utils/CreatorTokenTransferValidator.sol";
+import {CreatorTokenTransferValidator} from "lib/creator-token-contracts/contracts/utils/CreatorTokenTransferValidator.sol";
 import {TransferSecurityLevels} from "lib/creator-token-contracts/contracts/utils/TransferPolicy.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
@@ -33,24 +32,35 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
     }
 
     function test_supportsERC721AC() public {
-        assertTrue(cre8orsNFTBase.supportsInterface(type(ERC721AC).interfaceId));
+        assertTrue(
+            cre8orsNFTBase.supportsInterface(type(ERC721AC).interfaceId)
+        );
     }
 
     function test_supportsOwnable() public {
-        assertTrue(cre8orsNFTBase.supportsInterface(type(IOwnable).interfaceId));
+        assertTrue(
+            cre8orsNFTBase.supportsInterface(type(IOwnable).interfaceId)
+        );
     }
 
     function test_supportsERC2981_NFTRoyaltyStandard() public {
-        assertTrue(cre8orsNFTBase.supportsInterface(type(IERC2981).interfaceId));
+        assertTrue(
+            cre8orsNFTBase.supportsInterface(type(IERC2981).interfaceId)
+        );
     }
 
     function test_supportsERC721Drop() public {
-        assertTrue(cre8orsNFTBase.supportsInterface(type(IERC721Drop).interfaceId));
+        assertTrue(
+            cre8orsNFTBase.supportsInterface(type(IERC721Drop).interfaceId)
+        );
     }
 
     function test_royaltyInfo() public {
         uint256 royaltyAmount = 1000;
-        (address receiver, uint256 amount) = cre8orsNFTBase.royaltyInfo(1, royaltyAmount);
+        (address receiver, uint256 amount) = cre8orsNFTBase.royaltyInfo(
+            1,
+            royaltyAmount
+        );
         assertEq(amount, (royaltyAmount * DEFAULT_ROYALTY_BPS) / 10_000);
         assertEq(receiver, DEFAULT_FUNDS_RECIPIENT_ADDRESS);
     }
@@ -59,19 +69,26 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
         assertEq(address(cre8orsNFTBase.getTransferValidator()), address(0));
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setTransferValidator(address(transferValidator));
-        assertEq(address(cre8orsNFTBase.getTransferValidator()), address(transferValidator));
+        assertEq(
+            address(cre8orsNFTBase.getTransferValidator()),
+            address(transferValidator)
+        );
     }
 
-    function test_setTransferValidator_revert_requireCallerIsContractOwner() public {
+    function test_setTransferValidator_revert_requireCallerIsContractOwner()
+        public
+    {
         assertEq(address(cre8orsNFTBase.getTransferValidator()), address(0));
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         cre8orsNFTBase.setTransferValidator(address(transferValidator));
         assertEq(address(cre8orsNFTBase.getTransferValidator()), address(0));
     }
 
-    function test_PolicyBlocksTransfersWhenCallerNotWhitelistedOrOwner(address caller, address from, address to)
-        public
-    {
+    function test_PolicyBlocksTransfersWhenCallerNotWhitelistedOrOwner(
+        address caller,
+        address from,
+        address to
+    ) public {
         vm.assume(caller != address(cre8orsNFTBase));
         vm.assume(caller != whitelistedOperator);
         vm.assume(caller != address(0));
@@ -84,8 +101,14 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setTransferValidator(address(transferValidator));
-        transferValidator.setTransferSecurityLevelOfCollection(address(cre8orsNFTBase), TransferSecurityLevels.One);
-        transferValidator.setOperatorWhitelistOfCollection(address(cre8orsNFTBase), 1);
+        transferValidator.setTransferSecurityLevelOfCollection(
+            address(cre8orsNFTBase),
+            TransferSecurityLevels.One
+        );
+        transferValidator.setOperatorWhitelistOfCollection(
+            address(cre8orsNFTBase),
+            1
+        );
         vm.stopPrank();
 
         assertTrue(!cre8orsNFTBase.isTransferAllowed(caller, from, to));
@@ -98,12 +121,17 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
 
         vm.prank(caller);
         vm.expectRevert(
-            CreatorTokenTransferValidator.CreatorTokenTransferValidator__CallerMustBeWhitelistedOperator.selector
+            CreatorTokenTransferValidator
+                .CreatorTokenTransferValidator__CallerMustBeWhitelistedOperator
+                .selector
         );
         cre8orsNFTBase.transferFrom(from, to, 1);
     }
 
-    function test_policyAllowsTransfersWhenCalledByOwner(address tokenOwner, address to) public {
+    function test_policyAllowsTransfersWhenCalledByOwner(
+        address tokenOwner,
+        address to
+    ) public {
         vm.assume(tokenOwner != address(cre8orsNFTBase));
         vm.assume(tokenOwner != whitelistedOperator);
         vm.assume(tokenOwner != address(0));
@@ -112,11 +140,19 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setTransferValidator(address(transferValidator));
-        transferValidator.setTransferSecurityLevelOfCollection(address(cre8orsNFTBase), TransferSecurityLevels.One);
-        transferValidator.setOperatorWhitelistOfCollection(address(cre8orsNFTBase), 1);
+        transferValidator.setTransferSecurityLevelOfCollection(
+            address(cre8orsNFTBase),
+            TransferSecurityLevels.One
+        );
+        transferValidator.setOperatorWhitelistOfCollection(
+            address(cre8orsNFTBase),
+            1
+        );
         vm.stopPrank();
 
-        assertTrue(cre8orsNFTBase.isTransferAllowed(tokenOwner, tokenOwner, to));
+        assertTrue(
+            cre8orsNFTBase.isTransferAllowed(tokenOwner, tokenOwner, to)
+        );
 
         vm.prank(tokenOwner);
         cre8orsNFTBase.purchase(1);
@@ -127,7 +163,10 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
         assertEq(cre8orsNFTBase.ownerOf(1), to);
     }
 
-    function test_policyAllowsTransfersWhenCalledByWhitelisted(address tokenOwner, address to) public {
+    function test_policyAllowsTransfersWhenCalledByWhitelisted(
+        address tokenOwner,
+        address to
+    ) public {
         vm.assume(tokenOwner != address(cre8orsNFTBase));
         vm.assume(tokenOwner != whitelistedOperator);
         vm.assume(tokenOwner != address(0));
@@ -136,14 +175,22 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setTransferValidator(address(transferValidator));
-        transferValidator.setTransferSecurityLevelOfCollection(address(cre8orsNFTBase), TransferSecurityLevels.One);
-        transferValidator.setOperatorWhitelistOfCollection(address(cre8orsNFTBase), 1);
+        transferValidator.setTransferSecurityLevelOfCollection(
+            address(cre8orsNFTBase),
+            TransferSecurityLevels.One
+        );
+        transferValidator.setOperatorWhitelistOfCollection(
+            address(cre8orsNFTBase),
+            1
+        );
         vm.stopPrank();
 
         vm.prank(tokenOwner);
         cre8orsNFTBase.setApprovalForAll(whitelistedOperator, true);
 
-        assertTrue(cre8orsNFTBase.isTransferAllowed(tokenOwner, tokenOwner, to));
+        assertTrue(
+            cre8orsNFTBase.isTransferAllowed(tokenOwner, tokenOwner, to)
+        );
 
         vm.prank(tokenOwner);
         cre8orsNFTBase.purchase(1);
