@@ -85,6 +85,14 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         _;
     }
 
+    /**
+     * @dev Internal function to lock and stake a specific token.
+     * @param _tokenId The ID of the token to be locked and staked.
+     *
+     * It will calculate the lockup date and unlock price for the given token, and then call the `initializeStakingAndLockup`
+     * function on the associated Staking contract with the required data. This will enact both locking & staking mechanisms
+     * as required by the Cre8ors contract.
+     */
     function _lockAndStake(uint256 _tokenId) internal {
         uint256[] memory _tokenIds = new uint256[](1);
         _tokenIds[0] = _tokenId;
