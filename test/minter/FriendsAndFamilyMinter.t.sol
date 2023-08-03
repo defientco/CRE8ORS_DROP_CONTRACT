@@ -109,12 +109,12 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function _setupMinter() internal {
-        bytes32 role = cre8orsNFTBase.DEFAULT_ADMIN_ROLE();
+        bytes32 role = cre8orsNFTBase.MINTER_ROLE();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(role, address(minter));
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );

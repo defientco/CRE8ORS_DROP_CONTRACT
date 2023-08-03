@@ -250,10 +250,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
-        );
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
@@ -261,7 +258,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
