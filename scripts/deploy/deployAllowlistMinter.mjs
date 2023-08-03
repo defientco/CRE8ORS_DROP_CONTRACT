@@ -14,7 +14,7 @@ export async function deployAllowlistMinter(_cre8orAddress, _minterUtility) {
   const contractAddress = contract.deploy.deployedTo;
   console.log("deployed allowlist minter to ", contractAddress);
   console.log(
-    "make sure to call grantRole with ADMIN_ROLE on cre8ors contract"
+    "make sure to call grantRole with MINTER_ROLE on cre8ors contract"
   );
   return contract;
 }

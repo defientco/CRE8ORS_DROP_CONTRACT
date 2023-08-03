@@ -15,5 +15,8 @@ export async function deployStaking() {
   console.log("deployed staking to ", contractAddress);
   console.log("make sure to call setCre8ing on core cre8or");
   console.log("make sure to call setCre8ingOpen on core cre8ing");
+  console.log(
+    "make sure to call grantRole of MINTER_ROLE to cre8ing on core cre8ing"
+  );
   return contract;
 }
