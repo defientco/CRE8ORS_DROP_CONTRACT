@@ -10,7 +10,7 @@ contract Subscription is ISubscription, ERC5643 {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice A boolean value indicating whether the subscription can be renewed
-    bool private _renewable;
+    bool private _renewable = true;
 
     /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
