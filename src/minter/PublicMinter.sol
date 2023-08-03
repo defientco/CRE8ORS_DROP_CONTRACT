@@ -48,7 +48,7 @@ contract PublicMinter is SharedPaidMinterFunctions {
             quantity
         );
         payable(address(cre8orsNFT)).call{value: msg.value}("");
-        _lockUp(carts, pfpTokenId - quantity + 1);
+        _lockUpAndStake(carts, pfpTokenId - quantity + 1);
         return pfpTokenId;
     }
 

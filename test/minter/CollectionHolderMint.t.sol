@@ -132,7 +132,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         uint256[] memory _tokenIds
     ) public {
         uint256 start = testSuccessfulMint(_buyer, _tokenIds);
-        // vm.warp(block.timestamp + 1);
         for (uint256 i = 0; i < _tokenIds.length; ) {
             assertTrue(
                 cre8ingBase.getCre8ingStarted(

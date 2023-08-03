@@ -50,7 +50,7 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
         );
         payable(address(cre8orsNFT)).call{value: msg.value}("");
 
-        _lockUp(carts, pfpTokenId - quantity + 1);
+        _lockUpAndStake(carts, pfpTokenId - quantity + 1);
 
         return pfpTokenId;
     }

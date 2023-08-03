@@ -86,10 +86,12 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testSuccess(IMinterUtilities.Cart[] memory _carts) public {
+    function testSuccess(
+        IMinterUtilities.Cart[] memory _carts
+    ) public returns (IMinterUtilities.Cart[] memory) {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
-        _setUpMinter(true);
+        _setUpMinter();
         _updateMerkleRoot();
 
         for (uint i = 0; i < _carts.length; i++) {
@@ -126,16 +128,54 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             totalQuantity,
             cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints
         );
+        emit log_uint(_carts[0].tier);
+        emit log_uint(tokenId);
+
+        uint256 checkId = 1;
+        for (uint256 i = 0; i < _carts.length; i++) {
+            if (_carts[i].tier == 3) {
+                checkId += _carts[i].quantity;
+                continue;
+            }
+
+            for (uint256 j = 0; j < _carts[i].quantity; j++) {
+                assertTrue(
+                    cre8orsNFTBase
+                        .cre8ing()
+                        .lockUp(address(cre8orsNFTBase))
+                        .isLocked(address(cre8orsNFTBase), checkId)
+                );
+                checkId++;
+            }
+        }
+        return _carts;
     }
 
     function testSuccessWithStaking(
         IMinterUtilities.Cart[] memory _carts
     ) public {
-        testSuccess(_carts);
+        IMinterUtilities.Cart[] memory finalCarts = testSuccess(_carts);
+        uint256 tokenId = 1;
+        for (uint256 i = 0; i < finalCarts.length; i++) {
+            if (finalCarts[i].tier == 3) {
+                tokenId += finalCarts[i].quantity;
+                continue;
+            }
+
+            for (uint256 j = 0; j < finalCarts[i].quantity; j++) {
+                assertTrue(
+                    cre8ingBase.getCre8ingStarted(
+                        address(cre8orsNFTBase),
+                        tokenId
+                    ) > 0
+                );
+                tokenId++;
+            }
+        }
     }
 
-    function testRevertNotWhiteListApproved(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testRevertNotWhiteListApproved() public {
+        _setUpMinter();
         _updateMerkleRoot();
         IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
         _carts[0].tier = 1;
@@ -158,8 +198,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testRevertTooMuchQuantity(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testRevertTooMuchQuantity() public {
+        _setUpMinter();
         _updateMerkleRoot();
         IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
         _carts[0].tier = 1;
@@ -182,8 +222,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testRevertEmptyCarts(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testRevertEmptyCarts() public {
+        _setUpMinter();
         _updateMerkleRoot();
         IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
 
@@ -205,7 +245,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     }
 
     function testTierDoesntExist() public {
-        _setUpMinter(true);
+        _setUpMinter();
         _updateMerkleRoot();
         IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
         _carts[0].tier = 4;
@@ -251,13 +291,17 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             });
     }
 
-    function _setUpMinter(bool withLockup) internal {
+    function _setUpMinter() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
-        if (withLockup) {
-            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-            assertTrue(minter.minterUtility() != address(0));
-        }
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
+        );
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        assertTrue(minter.minterUtility() != address(0));
 
         assertTrue(
             cre8orsNFTBase.hasRole(
