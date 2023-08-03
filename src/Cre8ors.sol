@@ -137,9 +137,8 @@ contract Cre8ors is
         bytes32[] calldata merkleProof
     ) external payable nonReentrant canMintTokens(quantity) onlyPresaleActive returns (uint256) {
         if (
-            !
             // address, uint256, uint256
-            MerkleProof.verify(
+            !MerkleProof.verify(
                 merkleProof,
                 salesConfig.presaleMerkleRoot,
                 keccak256(abi.encode(msg.sender, maxQuantity, pricePerToken))
