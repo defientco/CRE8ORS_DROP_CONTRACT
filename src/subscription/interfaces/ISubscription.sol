@@ -11,6 +11,9 @@ interface ISubscription {
     /// @notice The subscription associated with the provided token ID is invalid or has expired.
     error InvalidSubscription();
 
+    /// @notice Attempting to set a subscription contract address with a zero address value.
+    error SubscriptionCannotBeZeroAddress();
+
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/

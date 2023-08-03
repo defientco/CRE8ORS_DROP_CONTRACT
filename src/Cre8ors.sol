@@ -16,6 +16,7 @@ import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 import {Cre8ing} from "./Cre8ing.sol";
 import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
+import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -47,6 +48,16 @@ contract Cre8ors is
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 internal cre8ingTransfer = 1;
+
+    /// @dev Subscription contract address
+    address public subscription;
+
+    /// @dev Boolean flag to determine if subscription model is enabled.
+    bool public isSubscriptionEnabled;
+
+    /// @dev The address that gets returns if the subscription of a tokenId is expired.
+    ///     By default: address(0)
+    address public ownerOfOverrideReturn;
 
     constructor(
         string memory _contractName,
@@ -296,6 +307,23 @@ contract Cre8ors is
     /// ADMIN
     /////////////////////////////////////////////////
 
+    function setSubscription(address newSubscription) external onlyAdmin {
+        if (newSubscription == address(0)) {
+            revert ISubscription.SubscriptionCannotBeZeroAddress();
+        }
+
+        subscription = newSubscription;
+    }
+
+    // can be zero address
+    function setOwnerOfOverrideReturn(address addr) external onlyAdmin {
+        ownerOfOverrideReturn = addr;
+    }
+
+    function toggleSubscription() external onlyAdmin {
+        isSubscriptionEnabled = !isSubscriptionEnabled;
+    }
+
     /// @dev Set new owner for royalties / opensea
     /// @param newOwner new owner to set
     function setOwner(address newOwner) public onlyAdmin {
@@ -541,5 +569,19 @@ contract Cre8ors is
         }
 
         return config.metadataRenderer.tokenURI(tokenId);
+    }
+
+    function ownerOf(uint256 tokenId) public view override returns (address) {
+        // external call to subscription if it is enabled and present
+        if (isSubscriptionEnabled && subscription != address(0)) {
+            bool isSubscriptionValid = ISubscription(subscription).isSubscriptionValid(tokenId);
+
+            // if subscription expired
+            if (!isSubscriptionValid) {
+                return ownerOfOverrideReturn;
+            }
+        }
+
+        return super.ownerOf(tokenId);
     }
 }
