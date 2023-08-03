@@ -380,37 +380,39 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         verifyStaked(_quantity, false);
     }
 
-    // function test_inializeStakingAndLockup_revert_MissingMinterRole(
-    //     uint256 _quantity
-    // ) public {
-    //     // buy tokens
-    //     vm.assume(_quantity > 0);
-    //     vm.assume(_quantity < 10);
-    //     cre8orsNFTBase.purchase(_quantity);
+    function test_inializeStakingAndLockup_revert_MissingMinterRole(
+        uint256 _quantity
+    ) public {
+        // buy tokens
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+        cre8orsNFTBase.purchase(_quantity);
 
-    //     // init Lockup & Staking
-    //     setup_lockup();
-    //     open_staking();
+        // init Lockup & Staking
+        setup_lockup();
+        open_staking();
 
-    //     // generate list of tokens
-    //     uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
+        // generate list of tokens
+        uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
 
-    //     // generate unlock data
-    //     uint64 _unlockDate = type(uint64).max;
-    //     uint256 _priceToUnlock = 1 ether;
-    //     bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+        // generate unlock data
+        uint64 _unlockDate = type(uint64).max;
+        uint256 _priceToUnlock = 1 ether;
+        bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
 
-    //     // function under test - inializeStakingAndLockup
-    //     vm.expectRevert(ICre8ing.Cre8ing_MissingLockup.selector);
-    //     cre8ingBase.inializeStakingAndLockup(
-    //         address(cre8orsNFTBase),
-    //         tokenIds,
-    //         data
-    //     );
+        // function under test - inializeStakingAndLockup
+        vm.expectRevert(
+            MinterAdminCheck.AdminAccess_MissingMinterOrAdmin.selector
+        );
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
 
-    //     // assertions
-    //     verifyStaked(_quantity, false);
-    // }
+        // assertions
+        verifyStaked(_quantity, false);
+    }
 
     function setup_lockup() internal {
         // give Staking contract Minter Role

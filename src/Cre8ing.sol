@@ -209,7 +209,6 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
         bytes memory _data
     ) external onlyIfLockupSet(_target) onlyMinterOrAdmin(_target) {
         // TODO: require not staked
-        // TODO: require MINTER role
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
             enterWarehouse(_target, _tokenIds[i]);
