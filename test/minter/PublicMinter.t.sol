@@ -107,7 +107,7 @@ contract PublicMinterTest is DSTest, StdUtils {
     function testSuccess(
         IMinterUtilities.Cart[] memory _carts,
         address _buyer
-    ) public {
+    ) public returns (IMinterUtilities.Cart[] memory) {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
@@ -142,6 +142,50 @@ contract PublicMinterTest is DSTest, StdUtils {
             totalQuantity,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
+
+        // verify locked
+        uint256 checkId = 1;
+        for (uint256 i = 0; i < _carts.length; i++) {
+            if (_carts[i].tier == 3) {
+                checkId += _carts[i].quantity;
+                continue;
+            }
+
+            for (uint256 j = 0; j < _carts[i].quantity; j++) {
+                assertTrue(
+                    cre8orsNFTBase
+                        .cre8ing()
+                        .lockUp(address(cre8orsNFTBase))
+                        .isLocked(address(cre8orsNFTBase), checkId)
+                );
+                checkId++;
+            }
+        }
+        return _carts;
+    }
+
+    function testSuccessWithStaking(
+        IMinterUtilities.Cart[] memory _carts,
+        address _buyer
+    ) public {
+        IMinterUtilities.Cart[] memory finalCarts = testSuccess(_carts, _buyer);
+        uint256 tokenId = 1;
+        for (uint256 i = 0; i < finalCarts.length; i++) {
+            if (finalCarts[i].tier == 3) {
+                tokenId += finalCarts[i].quantity;
+                continue;
+            }
+
+            for (uint256 j = 0; j < finalCarts[i].quantity; j++) {
+                assertTrue(
+                    cre8ingBase.getCre8ingStarted(
+                        address(cre8orsNFTBase),
+                        tokenId
+                    ) > 0
+                );
+                tokenId++;
+            }
+        }
     }
 
     function testPublicSaleInactiveMintedDiscount(

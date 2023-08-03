@@ -128,9 +128,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             totalQuantity,
             cre8orsNFTBase.mintedPerAddress(DEFAULT_BUYER_ADDRESS).totalMints
         );
-        emit log_uint(_carts[0].tier);
-        emit log_uint(tokenId);
 
+        // verify locked
         uint256 checkId = 1;
         for (uint256 i = 0; i < _carts.length; i++) {
             if (_carts[i].tier == 3) {
