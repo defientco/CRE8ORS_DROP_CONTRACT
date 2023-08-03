@@ -92,6 +92,57 @@ contract TransfersTest is Test, Cre8orTestBase {
         vm.stopPrank();
     }
 
+    function test_isAdmin_correctlyIdentifiesAdminStatus() public {
+        // Check for an admin address
+        assertTrue(transferHook.isAdmin(address(cre8orsNFTBase), DEFAULT_OWNER_ADDRESS));
+
+        // Check for a non-admin address
+        assertFalse(transferHook.isAdmin(address(cre8orsNFTBase), DEFAULT_CRE8OR_ADDRESS));
+    }
+
+
+    function test_toggleHooks() public {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+
+        // Turn hooks on
+        transferHook.setBeforeTokenTransfersEnabled(address(cre8orsNFTBase), true);
+        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), true);
+
+        // Verify they are on
+        assertTrue(transferHook.beforeTokenTransfersHookEnabled(address(cre8orsNFTBase)));
+        assertTrue(transferHook.afterTokenTransfersHookEnabled(address(cre8orsNFTBase)));
+        
+        // Turn hooks off
+        transferHook.setBeforeTokenTransfersEnabled(address(cre8orsNFTBase), false);
+        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), false);
+
+        // Verify they are off
+        assertFalse(transferHook.beforeTokenTransfersHookEnabled(address(cre8orsNFTBase)));
+        assertFalse(transferHook.afterTokenTransfersHookEnabled(address(cre8orsNFTBase)));
+
+        vm.stopPrank();
+    }
+
+
+
+    modifier setupTransferHooks() {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        transferHook.setBeforeTokenTransfersEnabled(address(cre8orsNFTBase), true);
+        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), true);
+
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
+
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(transferHook)
+        );
+        vm.stopPrank();
+        _;
+    }
+
 
  
 
