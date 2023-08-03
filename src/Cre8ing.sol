@@ -213,7 +213,6 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
         onlyMinterOrAdmin(_target)
         onlyUnstakedTokens(_target, _tokenIds)
     {
-        // TODO: require not staked
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
             enterWarehouse(_target, _tokenIds[i]);
