@@ -136,13 +136,17 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         uint256[] memory _tokenIds
     ) public {
         testSuccessfulMint(_buyer, _tokenIds);
-        vm.warp(block.timestamp + 1);
-        assertTrue(
-            cre8ingBase.getCre8ingStarted(
-                address(cre8orsNFTBase),
-                _tokenIds[0]
-            ) > 0
-        );
+        for (uint256 i = 0; i < _tokenIds.length; ) {
+            assertTrue(
+                cre8ingBase.getCre8ingStarted(
+                    address(cre8orsNFTBase),
+                    _tokenIds[i]
+                ) > 0
+            );
+            unchecked {
+                i++;
+            }
+        }
     }
 
     function testSuccessfulMintWithDiscount(
