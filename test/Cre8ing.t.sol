@@ -414,7 +414,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         verifyStaked(_quantity, false);
     }
 
-    function test_inializeStakingAndLockup_revert_ALL_Cre8ing_Cre8ing(
+    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ALL(
         uint256 _quantity,
         address _minter
     ) public {
@@ -458,7 +458,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         verifyStaked(_quantity, true);
     }
 
-    function test_inializeStakingAndLockup_revert_ONE_Cre8ing_Cre8ing(
+    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ONE(
         uint256 _quantity,
         address _minter
     ) public {
