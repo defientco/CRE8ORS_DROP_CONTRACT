@@ -8,11 +8,13 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol";
+import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract PublicMinter is SharedPaidMinterFunctions {
-    constructor(address _cre8orsNFT, address _minterUtility) {
+    constructor(address _cre8orsNFT, address _minterUtility, address _subscription) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
+        subscription = _subscription;
     }
 
     function mintPfp(
@@ -35,6 +37,14 @@ contract PublicMinter is SharedPaidMinterFunctions {
         }
 
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, quantity);
+
+        // Subscribe for 1 year
+        ISubscription(subscription).updateSubscriptionForFree({
+            target: cre8orsNFT,
+            duration: ONE_YEAR_DURATION,
+            tokenId: pfpTokenId
+        });
+
         payable(address(cre8orsNFT)).call{value: msg.value}("");
         _lockUp(carts, pfpTokenId - quantity + 1);
         return pfpTokenId;
