@@ -7,8 +7,11 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract CollectionHolderMint is ICollectionHolderMint {
+    uint64 public constant ONE_YEAR_DURATION = 365 days;
+
     ///@notice Mapping to track whether a specific uint256 value (token ID) has been claimed or not.
     mapping(uint256 => bool) public freeMintClaimed;
 
@@ -21,6 +24,9 @@ contract CollectionHolderMint is ICollectionHolderMint {
     ///@notice The address of the friends and family minter contract.
     address public friendsAndFamilyMinter;
 
+    /// @dev The address of the subscription contract.
+    address public subscription;
+
     ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public totalClaimed;
 
@@ -29,11 +35,18 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
      * @param _minterUtility The address of the minter utility contract that contains shared utility info.
      * @param _friendsAndFamilyMinter The address of the friends and family minter contract.
+     * @param _subscription The address of the subscription contract.
      */
-    constructor(address _collectionContractAddress, address _minterUtility, address _friendsAndFamilyMinter) {
+    constructor(
+        address _collectionContractAddress,
+        address _minterUtility,
+        address _friendsAndFamilyMinter,
+        address _subscription
+    ) {
         collectionContractAddress = _collectionContractAddress;
         minterUtilityContractAddress = _minterUtility;
         friendsAndFamilyMinter = _friendsAndFamilyMinter;
+        subscription = _subscription;
     }
 
     /**
@@ -97,6 +110,14 @@ contract CollectionHolderMint is ICollectionHolderMint {
      */
     function toggleHasClaimedFreeMint(uint256 tokenId) external onlyAdmin {
         freeMintClaimed[tokenId] = !freeMintClaimed[tokenId];
+    }
+
+    function setSubscription(address newSubscription) external onlyAdmin {
+        if (newSubscription == address(0)) {
+            revert ISubscription.SubscriptionCannotBeZeroAddress();
+        }
+
+        subscription = newSubscription;
     }
 
     ////////////////////////////////////////
@@ -175,6 +196,14 @@ contract CollectionHolderMint is ICollectionHolderMint {
 
     function _passportMint(uint256[] calldata _tokenIds, address recipient) internal returns (uint256) {
         uint256 pfpTokenId = ICre8ors(collectionContractAddress).adminMint(recipient, _tokenIds.length);
+
+        // Subscribe for 1 year
+        ISubscription(subscription).updateSubscriptionForFree({
+            target: collectionContractAddress,
+            duration: ONE_YEAR_DURATION,
+            tokenIds: _tokenIds
+        });
+
         totalClaimed[recipient] += _tokenIds.length;
         _lockAndStakeTokens(_tokenIds);
         _setTokenIdsToClaimed(_tokenIds);
