@@ -9,11 +9,13 @@ import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol";
+import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract AllowlistMinter is SharedPaidMinterFunctions {
-    constructor(address _cre8orsNFT, address _minterUtility) {
+    constructor(address _cre8orsNFT, address _minterUtility, address _subscription) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
+        subscription = _subscription;
     }
 
     function mintPfp(
@@ -36,6 +38,14 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
         }
 
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(_recipient, quantity);
+
+        // Subscribe for 1 year
+        ISubscription(subscription).updateSubscriptionForFree({
+            target: cre8orsNFT,
+            duration: ONE_YEAR_DURATION,
+            tokenId: pfpTokenId
+        });
+
         payable(address(cre8orsNFT)).call{value: msg.value}("");
 
         _lockUp(carts, pfpTokenId - quantity + 1);
