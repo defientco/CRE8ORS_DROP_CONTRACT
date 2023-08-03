@@ -275,6 +275,12 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
         _;
     }
 
+    /**
+     * @dev Modifier to check that the tokens are not currently staked (i.e., cre8ing).
+     * Reverts with 'Cre8ing_Cre8ing' if any of the tokens are staked.
+     * @param _target The target address owning the tokens.
+     * @param _tokenIds Array of token IDs to be checked.
+     */
     modifier onlyUnstakedTokens(address _target, uint256[] memory _tokenIds) {
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             if (cre8ingStarted[_target][_tokenIds[i]] != 0) {
