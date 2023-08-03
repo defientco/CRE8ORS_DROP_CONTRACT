@@ -207,7 +207,12 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
         address _target,
         uint256[] memory _tokenIds,
         bytes memory _data
-    ) external onlyIfLockupSet(_target) onlyMinterOrAdmin(_target) {
+    )
+        external
+        onlyIfLockupSet(_target)
+        onlyMinterOrAdmin(_target)
+        onlyUnstakedTokens(_target, _tokenIds)
+    {
         // TODO: require not staked
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
@@ -267,6 +272,15 @@ contract Cre8ing is ICre8ing, MinterAdminCheck {
             revert Cre8ing_MissingLockup();
         }
 
+        _;
+    }
+
+    modifier onlyUnstakedTokens(address _target, uint256[] memory _tokenIds) {
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            if (cre8ingStarted[_target][_tokenIds[i]] != 0) {
+                revert Cre8ing_Cre8ing();
+            }
+        }
         _;
     }
 }

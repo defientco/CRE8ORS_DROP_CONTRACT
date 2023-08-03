@@ -414,6 +414,88 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         verifyStaked(_quantity, false);
     }
 
+    function test_inializeStakingAndLockup_revert_ALL_Cre8ing_Cre8ing(
+        uint256 _quantity,
+        address _minter
+    ) public {
+        // buy tokens
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+        cre8orsNFTBase.purchase(_quantity);
+
+        // init Lockup & Staking
+        setup_lockup();
+        open_staking();
+
+        // generate list of tokens
+        uint256[] memory tokenIds = generateUnstakedTokenIds(_quantity);
+
+        // generate unlock data
+        uint64 _unlockDate = type(uint64).max;
+        uint256 _priceToUnlock = 1 ether;
+        bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+
+        // stake tokens
+        grant_minter_role(_minter);
+        vm.prank(_minter);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
+        verifyStaked(_quantity, true);
+
+        // function under test - inializeStakingAndLockup
+        vm.prank(_minter);
+        vm.expectRevert(ICre8ing.Cre8ing_Cre8ing.selector);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
+
+        // assertions
+        verifyStaked(_quantity, true);
+    }
+
+    function test_inializeStakingAndLockup_revert_ONE_Cre8ing_Cre8ing(
+        uint256 _quantity,
+        address _minter
+    ) public {
+        // buy tokens
+        vm.assume(_quantity > 0);
+        vm.assume(_quantity < 10);
+        vm.assume(_minter != address(0));
+        vm.prank(_minter);
+        cre8orsNFTBase.purchase(_quantity);
+
+        // init Lockup & Staking
+        setup_lockup();
+        open_staking();
+
+        // generate list of tokens
+        uint256[] memory tokenIds = generateUnstakedTokenIds(1);
+
+        // generate unlock data
+        uint64 _unlockDate = type(uint64).max;
+        uint256 _priceToUnlock = 1 ether;
+        bytes memory data = abi.encode(_unlockDate, _priceToUnlock);
+
+        // stake 1 token
+        grant_minter_role(_minter);
+        vm.prank(_minter);
+        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+
+        // function under test - inializeStakingAndLockup
+        vm.prank(_minter);
+        vm.expectRevert(ICre8ing.Cre8ing_Cre8ing.selector);
+        cre8ingBase.inializeStakingAndLockup(
+            address(cre8orsNFTBase),
+            tokenIds,
+            data
+        );
+    }
+
     function setup_lockup() internal {
         // give Staking contract Minter Role
         grant_minter_role(address(cre8ingBase));
