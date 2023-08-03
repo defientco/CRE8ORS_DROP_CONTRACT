@@ -59,4 +59,12 @@ interface ICre8ing {
         uint256[] memory,
         bytes memory
     ) external;
+
+    /// @notice Toggles cre8ing status for multiple tokens.
+    /// @param _target The target address.
+    /// @param tokenIds Array of token IDs to toggle.
+    function toggleCre8ingTokens(
+        address _target,
+        uint256[] calldata tokenIds
+    ) external;
 }

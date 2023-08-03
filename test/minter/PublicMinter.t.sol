@@ -7,6 +7,7 @@ import {Vm} from "forge-std/Vm.sol";
 // interface imports
 import {ICollectionHolderMint} from "../../src/interfaces/ICollectionHolderMint.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
+import {ICre8ing} from "../../src/interfaces/ICre8ing.sol";
 import {IERC721A} from "../../lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
@@ -105,13 +106,12 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function testSuccess(
         IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp,
         address _buyer
     ) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
 
         for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
@@ -146,13 +146,12 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function testPublicSaleInactiveMintedDiscount(
         IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp,
         address _buyer
     ) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
         _updatePublicSaleStart(uint64(block.timestamp + 1000));
         for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
@@ -166,7 +165,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         );
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            cre8orsNFTBase.MINTER_ROLE(),
             address(friendsAndFamilyMinter)
         );
         friendsAndFamilyMinter.addDiscount(_buyer);
@@ -197,13 +196,12 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function testRevertPublicSaleInactive(
         IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp,
         address _buyer
     ) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
         _updatePublicSaleStart(uint64(block.timestamp + 1000));
         for (uint i = 0; i < _carts.length; i++) {
             uint256 tier = bound(1, 1, 3);
@@ -215,15 +213,13 @@ contract PublicMinterTest is DSTest, StdUtils {
                 _carts
             ) < 8
         );
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
-            .calculateTotalQuantity(_carts);
         uint256 totalPrice = IMinterUtilities(address(minterUtility))
             .calculateTotalCost(_carts);
 
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
         vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
-        uint256 tokenId = minter.mintPfp{value: totalPrice}(
+        minter.mintPfp{value: totalPrice}(
             _buyer,
             _carts,
             address(collectionMinter),
@@ -234,13 +230,12 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function testRevertPublicSaleInactiveOfWalletWithTransferedMintedDiscount(
         IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp,
         address _buyer
     ) public {
         vm.assume(_carts.length > 0);
         vm.assume(_carts.length < 4);
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
         // set public sale start to sometime in future
         _updatePublicSaleStart(uint64(block.timestamp + 1000000));
         for (uint i = 0; i < _carts.length; i++) {
@@ -256,7 +251,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         // grant family minter admin role
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+            cre8orsNFTBase.MINTER_ROLE(),
             address(friendsAndFamilyMinter)
         );
         address transferred = address(0x1988789);
@@ -266,19 +261,35 @@ contract PublicMinterTest is DSTest, StdUtils {
         // transfer minted pfp from buyer to transferred
         vm.startPrank(_buyer);
         friendsAndFamilyMinter.mint(_buyer);
+
+        // unlock free mint
+        vm.deal(_buyer, 100000000000000000);
+        cre8orsNFTBase.cre8ing().lockUp(address(cre8orsNFTBase)).payToUnlock{
+            value: 100000000000000000
+        }(payable(address(cre8orsNFTBase)), 1);
+
+        // unstake free mint
+        uint256[] memory tokensToUnstake = new uint256[](1);
+        tokensToUnstake[0] = 1;
+        cre8orsNFTBase.cre8ing().toggleCre8ingTokens(
+            address(cre8orsNFTBase),
+            tokensToUnstake
+        );
+
+        // function under test - transfer from
         cre8orsNFTBase.transferFrom(_buyer, transferred, 1);
-        assertEq(cre8orsNFTBase.mintedPerAddress(transferred).totalMints, 0);
         vm.stopPrank();
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
-            .calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
+
+        // verify assumptions
 
         // transferred tries to mint with transferred pfp prior to sale.
+        assertEq(cre8orsNFTBase.mintedPerAddress(transferred).totalMints, 0);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
         vm.deal(transferred, totalPrice);
         vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
         vm.prank(transferred);
-        uint256 tokenId = minter.mintPfp{value: totalPrice}(
+        minter.mintPfp{value: totalPrice}(
             transferred,
             _carts,
             address(collectionMinter),
@@ -286,20 +297,20 @@ contract PublicMinterTest is DSTest, StdUtils {
         );
     }
 
-    function _setUpMinter(bool withLockup) internal {
+    function _setUpMinter() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
         );
-        if (withLockup) {
-            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-            assertTrue(minter.minterUtility() != address(0));
-        }
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        assertTrue(minter.minterUtility() != address(0));
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
