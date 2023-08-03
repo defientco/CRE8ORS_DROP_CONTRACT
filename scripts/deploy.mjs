@@ -23,9 +23,10 @@ export async function setupContracts() {
   const hooks = await deployTransfers();
   const staking = await deployStaking();
   const lockup = await deployLockup();
-  const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
 
-  const minterUtilities = await deployMinterUtilities(passportAddress);
+  const minterUtilities = await deployMinterUtilities(
+    cre8ors.deploy.deployedTo
+  );
   const familyFriendsMinter = await deployFamilyAndFriendsMinter(
     cre8ors.deploy.deployedTo,
     minterUtilities.deploy.deployedTo
