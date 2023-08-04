@@ -234,7 +234,6 @@ contract MinterUtilities is IMinterUtilities {
         uint256 publicSaleStart = ICre8ors(cre8orsNFT)
             .saleDetails()
             .publicSaleStart;
-        uint256 preSaleStart = ICre8ors(cre8orsNFT).saleDetails().presaleStart;
         if (currentTimestamp < publicSaleStart) {
             return maxAllowlistQuantity + totalClaimedFree;
         }
