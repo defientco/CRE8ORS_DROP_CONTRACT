@@ -7,7 +7,7 @@ dotenv.config({
 
 export async function deploySubscription(cre8orAddress) {
   console.log("deploying Subscription");
-  const contractLocation = "src/utils/Lockup.sol:Lockup";
+  const contractLocation = "src/subscription/Subscription.sol:Subscription";
   const minRenewalDuration_ = 86400;
   const pricePerSecond_ = 38580246913;
   const args = [cre8orAddress, minRenewalDuration_, pricePerSecond_];
