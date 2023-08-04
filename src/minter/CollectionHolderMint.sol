@@ -234,8 +234,11 @@ contract CollectionHolderMint is ICollectionHolderMint {
         );
         uint256[] memory _pfpTokenIds = new uint256[](_passportTokenIDs.length);
         uint256 startingTokenId = pfpTokenId - _passportTokenIDs.length + 1;
-        for (uint256 i = 0; i < _passportTokenIDs.length; i++) {
+        for (uint256 i = 0; i < _passportTokenIDs.length; ) {
             _pfpTokenIds[i] = startingTokenId + i;
+            unchecked {
+              i++;
+            }
         }
         totalClaimed[recipient] += _passportTokenIDs.length;
         _lockAndStakeTokens(_pfpTokenIds);
