@@ -10,6 +10,8 @@ import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {TransferHook} from "../src/Transfers.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
+
 
 
 contract Cre8ingTest is Test, Cre8orTestBase {
