@@ -27,18 +27,18 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
 
     function mintPfp(
         address recipient,
-        IMinterUtilities.Cart[] memory carts,
+        uint256[] memory carts,
         bytes32[] calldata merkleProof
     )
         external
         payable
+        arrayLengthMustBe3(carts)
         onlyPreSaleOrAlreadyMinted(recipient)
         checkProof(recipient, merkleProof)
         verifyCost(carts)
         returns (uint256)
     {
-        uint256 quantity = IMinterUtilities(minterUtility)
-            .calculateTotalQuantity(carts);
+        uint256 quantity = calculateTotalQuantity(carts);
         address _recipient = recipient; /// @dev to avoid stack too deep error
         if (
             quantity >
@@ -85,14 +85,7 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
     modifier onlyPreSaleOrAlreadyMinted(address recipient) {
         if (
             ICre8ors(cre8orsNFT).saleDetails().presaleStart > block.timestamp &&
-            ICollectionHolderMint(collectionHolderMint).totalClaimed(
-                recipient
-            ) ==
-            0 &&
-            IFriendsAndFamilyMinter(friendsAndFamilyMinter).totalClaimed(
-                recipient
-            ) ==
-            0
+            ICre8ors(cre8orsNFT).mintedPerAddress(recipient).totalMints == 0
         ) {
             revert IERC721Drop.Presale_Inactive();
         }

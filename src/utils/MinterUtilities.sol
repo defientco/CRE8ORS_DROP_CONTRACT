@@ -83,11 +83,11 @@ contract MinterUtilities is IMinterUtilities {
     /// @param carts An array of Cart structs containing information about each item in the cart.
     /// @return The total cost of all items in the carts array.
     function calculateTotalCost(
-        Cart[] calldata carts
+        uint256[] memory carts
     ) external view returns (uint256) {
         uint256 totalCost = 0;
         for (uint256 i = 0; i < carts.length; i++) {
-            totalCost += calculatePrice(carts[i].tier, carts[i].quantity);
+            totalCost += calculatePrice(uint8(i + 1), carts[i]);
         }
         return totalCost;
     }
@@ -103,11 +103,11 @@ contract MinterUtilities is IMinterUtilities {
     /// @param carts An array of Cart structs containing information about each item in the cart.
     /// @return uint256 total quantity of items across all carts.
     function calculateTotalQuantity(
-        Cart[] calldata carts
+        uint256[] memory carts
     ) public pure returns (uint256) {
         uint256 totalQuantity = 0;
         for (uint256 i = 0; i < carts.length; i++) {
-            totalQuantity += carts[i].quantity;
+            totalQuantity += carts[i];
         }
         return totalQuantity;
     }

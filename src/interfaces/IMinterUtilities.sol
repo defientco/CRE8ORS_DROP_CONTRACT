@@ -68,7 +68,7 @@ interface IMinterUtilities {
      * @return The total cost in wei for the given list of NFTs.
      */
     function calculateTotalCost(
-        Cart[] calldata carts
+        uint256[] memory carts
     ) external view returns (uint256);
 
     /**
@@ -96,7 +96,7 @@ interface IMinterUtilities {
      */
 
     function calculateTotalQuantity(
-        Cart[] calldata carts
+        uint256[] memory carts
     ) external view returns (uint256);
 
     /**

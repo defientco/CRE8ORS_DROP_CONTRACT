@@ -89,21 +89,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testSuccess(
-        IMinterUtilities.Cart[] memory _carts,
-        bool _withLockUp
-    ) public {
-        vm.assume(_carts.length > 0);
-        vm.assume(_carts.length < 4);
-        _setUpMinter(_withLockUp);
+    function testSuccess() public {
+        uint256[] memory _carts = new uint256[](3);
+        _carts[0] = bound(_carts[0], 1, 8);
+        _carts[1] = 0;
+        _carts[2] = 0;
+        _setUpMinter();
         _updateMerkleRoot();
-
-        for (uint i = 0; i < _carts.length; i++) {
-            uint256 tier = bound(1, 1, 3);
-            emit log_named_uint("tier", tier);
-            _carts[i].tier = uint8(tier);
-            _carts[i].quantity = bound(_carts[i].quantity, 1, 19);
-        }
         vm.assume(
             IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
                 _carts
@@ -132,12 +124,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testRevertNotWhiteListApproved(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testRevertNotWhiteListApproved() public {
+        uint256[] memory _carts = new uint256[](3);
+        _carts[0] = bound(_carts[0], 1, 4);
+        _carts[1] = bound(_carts[0], 1, 3);
+        _carts[2] = bound(_carts[0], 1, 3);
+        _setUpMinter();
         _updateMerkleRoot();
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
-        _carts[0].tier = 1;
-        _carts[0].quantity = 10;
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
@@ -150,12 +143,13 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         minter.mintPfp{value: totalPrice}(address(0x25), _carts, item.proof);
     }
 
-    function testRevertTooMuchQuantity(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testRevertTooMuchQuantity() public {
         _updateMerkleRoot();
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
-        _carts[0].tier = 1;
-        _carts[0].quantity = 88;
+        uint256[] memory _carts = new uint256[](3);
+        _carts[0] = bound(_carts[0], 18, 28);
+        _carts[1] = bound(_carts[0], 18, 28);
+        _carts[2] = bound(_carts[0], 18, 28);
+        _setUpMinter();
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
@@ -168,10 +162,10 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
     }
 
-    function testRevertEmptyCarts(bool _withLockUp) public {
-        _setUpMinter(_withLockUp);
+    function testRevertEmptyCarts() public {
+        _setUpMinter();
         _updateMerkleRoot();
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
+        uint256[] memory _carts = new uint256[](3);
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
@@ -184,30 +178,30 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
     }
 
-    function testTierDoesntExist() public {
-        _setUpMinter(true);
+    function testInvalidArrayLengthExist(uint256[] memory _carts) public {
+        vm.assume(_carts.length != 3);
+        _setUpMinter();
         _updateMerkleRoot();
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
-        _carts[0].tier = 4;
-        _carts[0].quantity = 10;
 
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
-        vm.deal(item.user, totalPrice);
-        vm.expectRevert(ISharedPaidMinterFunctions.InvalidTier.selector);
+        vm.expectRevert(ISharedPaidMinterFunctions.InvalidArrayLength.selector);
         vm.prank(item.user);
-        minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
+        minter.mintPfp{value: 0 ether}(item.user, _carts, item.proof);
     }
 
     function testRevertPresaleInactiveNotOnCre8orsList(address _buyer) public {
         vm.assume(_buyer != address(0x0));
-        _setUpMinter(true);
+        uint256[] memory _carts = new uint256[](3);
+        _carts[0] = bound(_carts[0], 1, 4);
+        _carts[1] = bound(_carts[0], 1, 3);
+        _carts[2] = bound(_carts[0], 1, 3);
+        _setUpMinter();
+        for (uint i = 0; i < _carts.length; i++) {
+            _carts[i] = bound(_carts[i], 1, 8);
+        }
         _updatePresaleStart(uint64(block.timestamp + 1000));
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
-        _carts[0].tier = 1;
-        _carts[0].quantity = 88;
+
         bytes32[] memory proof = new bytes32[](0);
         uint256 totalPrice = IMinterUtilities(address(minterUtility))
             .calculateTotalCost(_carts);
@@ -218,12 +212,14 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     }
 
     function testRevertPresaleInactiveOnCre8orsList() public {
-        _setUpMinter(true);
+        uint256[] memory _carts = new uint256[](3);
+        _carts[0] = bound(_carts[0], 1, 4);
+        _carts[1] = bound(_carts[0], 1, 3);
+        _carts[2] = bound(_carts[0], 1, 3);
+        _setUpMinter();
+
         _updateMerkleRoot();
         _updatePresaleStart(uint64(block.timestamp + 1000));
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
-        _carts[0].tier = 1;
-        _carts[0].quantity = 88;
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
         uint256 totalPrice = IMinterUtilities(address(minterUtility))
@@ -237,11 +233,11 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     function testSuccessClaimDiscountPreSaleInactiveOnCre8orsList() public {
         _updateMerkleRoot();
         _updatePresaleStart(uint64(block.timestamp + 1000));
-        _setUpMinter(true);
-
-        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
-        _carts[0].tier = 1;
-        _carts[0].quantity = 7;
+        _setUpMinter();
+        uint256[] memory _carts = new uint256[](3);
+        _carts[0] = bound(_carts[0], 1, 4);
+        _carts[1] = bound(_carts[0], 1, 3);
+        _carts[2] = bound(_carts[0], 1, 3);
         MerkleData.MerkleEntry memory item;
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
         vm.startPrank(item.user);
@@ -262,7 +258,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             item.proof
         );
         vm.stopPrank();
-        assertEq(mintPFPId, _carts[0].quantity + 1);
+        assertEq(mintPFPId, _carts[0] + _carts[1] + _carts[2] + 1);
     }
 
     function _setUpContracts() internal returns (Cre8ors) {
@@ -288,7 +284,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             });
     }
 
-    function _setUpMinter(bool withLockup) internal {
+    function _setUpMinter() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         cre8orsNFTBase.grantRole(
