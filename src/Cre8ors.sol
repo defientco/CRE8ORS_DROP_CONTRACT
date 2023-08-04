@@ -46,7 +46,7 @@ contract Cre8ors is
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
-    uint256 internal cre8ingTransfer = 1;
+    uint256 public  cre8ingTransfer = 1;
 
     constructor(
         string memory _contractName,

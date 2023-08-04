@@ -26,4 +26,7 @@ interface ICre8ors is IERC721Drop, IERC721A {
         bytes32 role,
         address account
     ) external view returns (bool);
+
+    function cre8ingTransfer() external view returns (uint256);
+
 }

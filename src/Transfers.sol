@@ -8,14 +8,13 @@ import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 
+import "forge-std/console.sol";
 
 contract TransferHook is Cre8orsERC6551 {
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
-
-    uint256 internal cre8ingTransfer = 1;
 
     ICre8ing public cre8ing;
 
@@ -103,9 +102,10 @@ contract TransferHook is Cre8orsERC6551 {
     ) external {
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
+
             if (
-                cre8ing.getCre8ingStarted(address(this), tokenId) != 0 &&
-                cre8ingTransfer != 2
+                cre8ing.getCre8ingStarted(msg.sender, tokenId) != 0 &&
+                ICre8ors(msg.sender).cre8ingTransfer() != 2
             ) {
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
@@ -118,7 +118,6 @@ contract TransferHook is Cre8orsERC6551 {
     ) external virtual onlyAdmin(_target){
         cre8ing = _cre8ing;
     }
-
 
     /// @notice Only allow for users with admin access
     /// @param _target target ERC721 contract
