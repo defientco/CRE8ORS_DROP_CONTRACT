@@ -15,6 +15,7 @@ import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMin
 import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
 import {ISharedPaidMinterFunctions} from "../../src/interfaces/ISharedPaidMinterFunctions.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 // contract imports
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Cre8ors} from "../../src/Cre8ors.sol";
@@ -28,6 +29,7 @@ import {MerkleData} from "../merkle/MerkleData.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {PublicMinter} from "../../src/minter/PublicMinter.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
+import {TransferHook} from "../../src/Transfers.sol";
 
 contract SubscriptionTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -58,6 +60,11 @@ contract SubscriptionTest is DSTest, StdUtils {
     Subscription public subscriptionForBase;
     Subscription public subscriptionForPassport;
 
+    TransferHook public transferHookForBase;
+    TransferHook public transferHookForPassport;
+
+    uint64 public constant ONE_YEAR_DURATION = 365 days;
+
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
         cre8orsPassport = _setUpContracts();
@@ -67,6 +74,9 @@ contract SubscriptionTest is DSTest, StdUtils {
             100000000000000000,
             150000000000000000
         );
+
+        transferHookForBase = _setupTransferHookContract(cre8orsNFTBase);
+        transferHookForPassport = _setupTransferHookContract(cre8orsPassport);
 
         cre8ingForBase = _setupCre8ing(cre8orsNFTBase);
         cre8ingForPassport = _setupCre8ing(cre8orsPassport);
@@ -117,7 +127,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         );
 
         // 1 year passed
-        vm.warp(block.timestamp + friendsAndFamilyMinter.ONE_YEAR_DURATION());
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
 
         // ownerOf should return address(0)
         assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
@@ -165,6 +175,22 @@ contract SubscriptionTest is DSTest, StdUtils {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFT_.setSubscription(address(_subscription));
+        vm.stopPrank();
+    }
+
+    function _setupTransferHookContract(Cre8ors cre8orsNFT_) internal returns (TransferHook _transferHook) {
+        _transferHook = new TransferHook(address(cre8orsNFT_));
+        _setupMinterRole(address(_transferHook));
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFT_.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(_transferHook)
+        );
+        _transferHook.setAfterTokenTransfersEnabled(
+            address(cre8orsNFT_),
+            true
+        );
         vm.stopPrank();
     }
 
@@ -230,6 +256,15 @@ contract SubscriptionTest is DSTest, StdUtils {
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(publicMinter)
             )
+        );
+        vm.stopPrank();
+    }
+
+    function _setupMinterRole(address _assignee) internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(_assignee)
         );
         vm.stopPrank();
     }
