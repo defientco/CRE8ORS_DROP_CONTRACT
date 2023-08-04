@@ -14,7 +14,7 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Mapping to store the expiration timestamps for each tokenId representing an active subscription.
-    mapping(uint256 tokenId => uint64 expiresAt) private _expirations;
+    mapping(uint256 => uint64) private _expirations;
 
     /*//////////////////////////////////////////////////////////////
                              PUBLIC STORAGE
@@ -74,10 +74,11 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     /// @param cre8orsNFT_ The address of the cre8orsNFT contract.
     /// @param minRenewalDuration_ The minimum duration allowed for subscription renewal, can be zero.
     /// @param pricePerSecond_ The price per second for the subscription, can be zero.
-    constructor(address cre8orsNFT_, uint64 minRenewalDuration_, uint256 pricePerSecond_)
-        notZeroAddress(cre8orsNFT_)
-        PaymentSystem(pricePerSecond_)
-    {
+    constructor(
+        address cre8orsNFT_,
+        uint64 minRenewalDuration_,
+        uint256 pricePerSecond_
+    ) notZeroAddress(cre8orsNFT_) PaymentSystem(pricePerSecond_) {
         cre8orsNFT = cre8orsNFT_;
         minRenewalDuration = minRenewalDuration_;
     }
@@ -87,18 +88,26 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IERC5643
-    function isRenewable(uint256 /*tokenId*/ ) external view virtual override returns (bool) {
+    function isRenewable(
+        uint256 /*tokenId*/
+    ) external view virtual override returns (bool) {
         return _isRenewable();
     }
 
     /// @inheritdoc IERC5643
-    function expiresAt(uint256 tokenId) public view virtual override returns (uint64) {
+    function expiresAt(
+        uint256 tokenId
+    ) public view virtual override returns (uint64) {
         return _expirations[tokenId];
     }
 
     /// @dev See {IERC165-supportsInterface}.
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
-        return interfaceId == type(IERC5643).interfaceId || IERC721(cre8orsNFT).supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual returns (bool) {
+        return
+            interfaceId == type(IERC5643).interfaceId ||
+            IERC721(cre8orsNFT).supportsInterface(interfaceId);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -106,7 +115,10 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IERC5643
-    function renewSubscription(uint256 tokenId, uint64 duration)
+    function renewSubscription(
+        uint256 tokenId,
+        uint64 duration
+    )
         external
         payable
         virtual
@@ -120,7 +132,9 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     }
 
     /// @inheritdoc IERC5643
-    function cancelSubscription(uint256 tokenId)
+    function cancelSubscription(
+        uint256 tokenId
+    )
         external
         payable
         virtual
@@ -158,7 +172,9 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     /// subscription.
     /// @param duration The duration (in seconds) for which the subscription is to be extended.
     /// @return The price (in native currency) required to renew the subscription for the given duration.
-    function _getRenewalPrice(uint64 duration) internal view virtual returns (uint256);
+    function _getRenewalPrice(
+        uint64 duration
+    ) internal view virtual returns (uint256);
 
     /*//////////////////////////////////////////////////////////////
                      INTERNAL NON-CONSTANT FUNCTIONS
@@ -168,7 +184,10 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     /// @dev this function won't check that the tokenId is valid, responsibility is delegated to the caller.
     /// @param tokenId The unique identifier of the subscription token.
     /// @param duration The duration (in seconds) to extend the subscription from the current timestamp.
-    function _updateSubscriptionExpiration(uint256 tokenId, uint64 duration) internal virtual {
+    function _updateSubscriptionExpiration(
+        uint256 tokenId,
+        uint64 duration
+    ) internal virtual {
         uint64 currentExpiration = _expirations[tokenId];
         uint64 newExpiration;
 
@@ -201,12 +220,14 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
     }
 
     /// @notice Requires that spender owns or is approved for the token.
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
+    function _isApprovedOrOwner(
+        address spender,
+        uint256 tokenId
+    ) internal view virtual returns (bool) {
         address cre8orsNFT_ = cre8orsNFT;
         address owner = IERC721(cre8orsNFT_).ownerOf(tokenId);
-        return (
-            spender == owner || IERC721(cre8orsNFT_).isApprovedForAll(owner, spender)
-                || IERC721(cre8orsNFT_).getApproved(tokenId) == spender
-        );
+        return (spender == owner ||
+            IERC721(cre8orsNFT_).isApprovedForAll(owner, spender) ||
+            IERC721(cre8orsNFT_).getApproved(tokenId) == spender);
     }
 }
