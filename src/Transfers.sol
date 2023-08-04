@@ -92,7 +92,11 @@ contract TransferHook is Cre8orsERC6551 {
         uint256 startTokenId,
         uint256 quantity
     ) external {
-        if (from == address(0) && erc6551Registry[msg.sender] != address(0)) {
+        if (from != address(0)) {
+            return;
+        }
+
+        if (erc6551Registry[msg.sender] != address(0)) {
             createTokenBoundAccounts(msg.sender, startTokenId, quantity);
         }
 
