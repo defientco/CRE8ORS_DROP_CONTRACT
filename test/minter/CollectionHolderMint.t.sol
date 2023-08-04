@@ -21,6 +21,8 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {TransferHook} from "../../src/Transfers.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -43,6 +45,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
+    TransferHook transferHook = new TransferHook();
 
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
@@ -67,8 +70,17 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         cre8ingBase = new Cre8ing();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
+
+        transferHook.setCre8ing(address(cre8orsNFTBase), cre8ingBase);
+        transferHook.setBeforeTokenTransfersEnabled(
+            address(cre8orsNFTBase),
+            true
+        );
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
+
         vm.stopPrank();
     }
 

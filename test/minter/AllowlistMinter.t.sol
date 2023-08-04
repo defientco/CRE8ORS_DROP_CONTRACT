@@ -26,7 +26,6 @@ import {AllowlistMinter} from "../../src/minter/AllowlistMinter.sol";
 import {MerkleData} from "../merkle/MerkleData.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {TransferHook} from "../../src/Transfers.sol";
-
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract AllowlistMinterTest is DSTest, StdUtils {

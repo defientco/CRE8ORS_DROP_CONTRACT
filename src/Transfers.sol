@@ -99,7 +99,7 @@ contract TransferHook is ITransfers, Cre8orsERC6551 {
         address,
         uint256 startTokenId,
         uint256 quantity
-    ) external {
+    ) external view {
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (
