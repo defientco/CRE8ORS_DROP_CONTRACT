@@ -5,7 +5,6 @@ import {DSTest} from "ds-test/test.sol";
 
 import {StdUtils} from "forge-std/StdUtils.sol";
 import {Vm} from "forge-std/Vm.sol";
-import {console} from "forge-std/Console.sol";
 // interface imports
 import {ICollectionHolderMint} from "../../src/interfaces/ICollectionHolderMint.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
