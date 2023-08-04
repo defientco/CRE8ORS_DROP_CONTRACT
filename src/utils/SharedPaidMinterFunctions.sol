@@ -69,7 +69,6 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
                 tokenIds[j] = tokenId;
                 tokenId++;
             }
-            // SHOULD REFERENCE HOOK INSTEAD OF CORE CRE8OR
             ITransfers(
                 ICre8ors(cre8orsNFT).getHook(
                     IERC721ACH.HookType.BeforeTokenTransfers

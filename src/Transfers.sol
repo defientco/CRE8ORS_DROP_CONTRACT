@@ -9,8 +9,6 @@ import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ITransfers} from "./interfaces/ITransfers.sol";
 
-import "forge-std/console.sol";
-
 contract TransferHook is ITransfers, Cre8orsERC6551 {
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
