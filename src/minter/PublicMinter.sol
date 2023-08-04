@@ -8,18 +8,25 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol";
+import {ICollectionHolderMint} from "../interfaces/ICollectionHolderMint.sol";
+import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 
 contract PublicMinter is SharedPaidMinterFunctions {
-    constructor(address _cre8orsNFT, address _minterUtility) {
+    constructor(
+        address _cre8orsNFT,
+        address _minterUtility,
+        address _collectionHolderMint,
+        address _friendsAndFamilyMinter
+    ) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
+        collectionHolderMint = _collectionHolderMint;
+        friendsAndFamilyMinter = _friendsAndFamilyMinter;
     }
 
     function mintPfp(
         address recipient,
-        IMinterUtilities.Cart[] memory carts,
-        address passportHolderMinter,
-        address friendsAndFamilyMinter
+        uint256[] memory carts
     )
         external
         payable
@@ -29,12 +36,12 @@ contract PublicMinter is SharedPaidMinterFunctions {
     {
         IMinterUtilities minterUtilities = IMinterUtilities(minterUtility);
 
-        uint256 quantity = minterUtilities.calculateTotalQuantity(carts);
+        uint256 quantity = calculateTotalQuantity(carts);
 
         if (
             quantity >
             IMinterUtilities(minterUtility).quantityLeft(
-                passportHolderMinter,
+                collectionHolderMint,
                 friendsAndFamilyMinter,
                 cre8orsNFT,
                 recipient

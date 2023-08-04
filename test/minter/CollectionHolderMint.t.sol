@@ -32,7 +32,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
     address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
         payable(address(0x21303));
-    uint64 DEFAULT_EDITION_SIZE = 10_000;
+    uint64 DEFAULT_EDITION_SIZE = 888;
     uint16 DEFAULT_ROYALTY_BPS = 888;
     Cre8ors public cre8orsNFTBase;
     Cre8ing public cre8ingBase;
@@ -60,6 +60,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         minter = new CollectionHolderMint(
             address(cre8orsNFTBase),
+            address(cre8orsPassport),
             address(minterUtility),
             address(friendsAndFamilyMinter)
         );
@@ -92,55 +93,44 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         assertEq(address(minter.minterUtilityContractAddress()), _minter);
     }
 
-    function testSuccessfulMint(
-        address _buyer,
-        uint256[] memory _tokenIds
-    ) public {
+    function testSuccessfulMint(address _buyer, uint256 _mintQuantity) public {
         vm.assume(_buyer != address(0));
-        vm.assume(_tokenIds.length <= 10);
-        vm.assume(_tokenIds.length > 0);
-        uint256 maxTokenId = 888;
-        // Add loop here to fuzz each token id
-        for (uint i = 0; i < _tokenIds.length; i++) {
-            _tokenIds[i] = _bound(_tokenIds[i], 1, maxTokenId); // Use your desired maximum and minimum value here
-        }
+        vm.assume(_mintQuantity > 0);
+        vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
         _setUpMinter();
-
+        uint256[] memory tokens = generateTokens(_mintQuantity);
         vm.startPrank(_buyer);
-        cre8orsPassport.purchase(maxTokenId);
+        cre8orsPassport.purchase(_mintQuantity);
         assertTrue(
             cre8orsNFTBase.hasRole(
                 cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
-        uint256 pfpID = minter.mint(
-            _tokenIds,
-            address(cre8orsPassport),
-            _buyer
-        );
-        assertEq(_tokenIds.length, pfpID);
-        assertEq(_tokenIds.length, cre8orsNFTBase.balanceOf(_buyer));
+        uint256 pfpID = minter.mint(tokens, _buyer);
+        assertEq(tokens.length, pfpID);
+        assertEq(tokens.length, cre8orsNFTBase.balanceOf(_buyer));
         assertEq(
             0,
             cre8orsNFTBase.mintedPerAddress(address(minter)).totalMints
         );
         assertEq(
-            _tokenIds.length,
+            tokens.length,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
     }
 
     function testSuccessfulMintWithStaking(
         address _buyer,
-        uint256[] memory _tokenIds
+        uint256 _mintQuantity
     ) public {
-        testSuccessfulMint(_buyer, _tokenIds);
-        for (uint256 i = 0; i < _tokenIds.length; ) {
+        testSuccessfulMint(_buyer, _mintQuantity);
+        uint256[] memory tokens = generateTokens(_mintQuantity);
+        for (uint256 i = 0; i < tokens.length; ) {
             assertTrue(
                 cre8ingBase.getCre8ingStarted(
                     address(cre8orsNFTBase),
-                    _tokenIds[i]
+                    tokens[i]
                 ) > 0
             );
             unchecked {
@@ -174,7 +164,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
                 address(minter)
             )
         );
-        uint256 pfpID = minter.mint(tokens, address(cre8orsPassport), _buyer);
+        uint256 pfpID = minter.mint(tokens, _buyer);
         assertEq(tokens.length + 1, pfpID);
         assertEq(tokens.length + 1, cre8orsNFTBase.balanceOf(_buyer));
         assertEq(
@@ -225,9 +215,9 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(_passportQuantity);
-        minter.mint(tokens, address(cre8orsPassport), _buyer);
+        minter.mint(tokens, _buyer);
         vm.expectRevert(ICollectionHolderMint.AlreadyClaimedFreeMint.selector);
-        minter.mint(tokens, address(cre8orsPassport), _buyer);
+        minter.mint(tokens, _buyer);
         vm.stopPrank();
     }
 
@@ -247,7 +237,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(_mintQuantity);
         vm.expectRevert(IERC721A.ApprovalCallerNotOwnerNorApproved.selector);
-        minter.mint(tokens, address(cre8orsPassport), _caller);
+        minter.mint(tokens, _caller);
         vm.stopPrank();
     }
 
@@ -264,7 +254,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         cre8orsPassport.purchase(_mintQuantity);
 
-        minter.mint(tokens, address(cre8orsPassport), _buyer);
+        minter.mint(tokens, _buyer);
 
         vm.stopPrank();
 
@@ -272,6 +262,23 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         minter.toggleHasClaimedFreeMint(1);
         assert(!minter.freeMintClaimed(1));
+    }
+
+    function testRevertEmptyList(address _buyer) public {
+        vm.assume(_buyer != address(0));
+        _setUpMinter();
+        vm.expectRevert(ICollectionHolderMint.NoTokensProvided.selector);
+        minter.mint(new uint256[](0), _buyer);
+    }
+
+    function testRevertDuplicatesFound(address _buyer) public {
+        vm.assume(_buyer != address(0));
+        _setUpMinter();
+        vm.expectRevert(ICollectionHolderMint.DuplicatesFound.selector);
+        uint256[] memory tokens = generateTokens(2);
+        tokens[0] = uint256(1);
+        tokens[1] = tokens[0];
+        minter.mint(tokens, _buyer);
     }
 
     function _setUpMinter() internal {

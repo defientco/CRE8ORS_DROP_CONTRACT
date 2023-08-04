@@ -4,4 +4,6 @@ import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 
 interface ISharedPaidMinterFunctions {
     error InvalidTier();
+
+    error InvalidArrayLength();
 }
