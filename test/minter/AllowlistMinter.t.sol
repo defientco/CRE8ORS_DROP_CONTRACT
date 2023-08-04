@@ -201,7 +201,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
     }
 
-    function testRevertPresaleInactive(address _buyer) public {
+    function testRevertPresaleInactiveNotOnCre8orsList(address _buyer) public {
         vm.assume(_buyer != address(0x0));
         _setUpMinter(true);
         _updatePresaleStart(uint64(block.timestamp + 1000));
@@ -215,6 +215,54 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         vm.expectRevert(IERC721Drop.Presale_Inactive.selector);
         vm.prank(_buyer);
         minter.mintPfp{value: totalPrice}(_buyer, _carts, proof);
+    }
+
+    function testRevertPresaleInactiveOnCre8orsList() public {
+        _setUpMinter(true);
+        _updateMerkleRoot();
+        _updatePresaleStart(uint64(block.timestamp + 1000));
+        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
+        _carts[0].tier = 1;
+        _carts[0].quantity = 88;
+        MerkleData.MerkleEntry memory item;
+        item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
+        vm.deal(item.user, totalPrice);
+        vm.expectRevert(IERC721Drop.Presale_Inactive.selector);
+        vm.prank(item.user);
+        minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
+    }
+
+    function testSuccessClaimDiscountPreSaleInactiveOnCre8orsList() public {
+        _updateMerkleRoot();
+        _updatePresaleStart(uint64(block.timestamp + 1000));
+        _setUpMinter(true);
+
+        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
+        _carts[0].tier = 1;
+        _carts[0].quantity = 7;
+        MerkleData.MerkleEntry memory item;
+        item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
+        vm.startPrank(item.user);
+        cre8orsPassport.purchase(1);
+        uint256[] memory _ids = new uint256[](1);
+        _ids[0] = 1;
+        collectionMinter.mint(_ids, item.user);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
+
+        assertTrue(
+            !IERC721Drop(address(cre8orsNFTBase)).saleDetails().presaleActive
+        );
+        vm.deal(item.user, totalPrice);
+        uint256 mintPFPId = minter.mintPfp{value: totalPrice}(
+            item.user,
+            _carts,
+            item.proof
+        );
+        vm.stopPrank();
+        assertEq(mintPFPId, _carts[0].quantity + 1);
     }
 
     function _setUpContracts() internal returns (Cre8ors) {
@@ -242,10 +290,17 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(collectionMinter)
         );
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
+        );
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+
         if (withLockup) {
             cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
             assertTrue(minter.minterUtility() != address(0));
@@ -253,7 +308,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
