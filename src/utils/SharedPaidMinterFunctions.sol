@@ -40,10 +40,6 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
         IMinterUtilities.Cart[] memory carts,
         uint256 startingTokenId
     ) internal {
-        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
-        if (address(lockup) == address(0)) {
-            return;
-        }
         uint256 tokenId = startingTokenId;
         for (uint256 i = 0; i < carts.length; i++) {
             if (carts[i].tier == 3) {
@@ -53,13 +49,16 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
                 _getLockUpDateAndPrice(carts[i].tier),
                 (uint256, uint256)
             );
+            uint256[] memory tokenIds = new uint256[](carts[i].quantity);
             for (uint256 j = 0; j < carts[i].quantity; j++) {
-                lockup.setUnlockInfo(
-                    cre8orsNFT,
-                    tokenId + j,
-                    abi.encode(lockupDate, tierPrice)
-                );
+                tokenIds[j] = tokenId;
+                tokenId++;
             }
+            ICre8ors(cre8orsNFT).cre8ing().inializeStakingAndLockup(
+                cre8orsNFT,
+                tokenIds,
+                abi.encode(lockupDate, tierPrice)
+            );
         }
     }
 
