@@ -82,15 +82,15 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         // cre8orsNFTBase.setCre8ing(cre8ingBase); 
         // cre8orsPassport.setCre8ing(cre8ingBase);
 
-        transferHook.setCre8ing(address(cre8orsNFTBase), cre8ingBase);
-        transferHook.setBeforeTokenTransfersEnabled(
-            address(cre8orsNFTBase),
-            true
-        );
-        cre8orsNFTBase.setHook(
-            IERC721ACH.HookType.BeforeTokenTransfers,
-            address(transferHook)
-        );
+        // transferHook.setCre8ing(address(cre8orsNFTBase), cre8ingBase);
+        // transferHook.setBeforeTokenTransfersEnabled(
+        //     address(cre8orsNFTBase),
+        //     true
+        // );
+        // cre8orsNFTBase.setHook(
+        //     IERC721ACH.HookType.BeforeTokenTransfers,
+        //     address(transferHook)
+        // );
         vm.stopPrank();
 
         merkleData = new MerkleData();
