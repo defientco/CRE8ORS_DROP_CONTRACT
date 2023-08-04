@@ -1,4 +1,4 @@
-import { retryDeploy } from "../contract.mjs";
+import { deployAndVerify } from "../contract.mjs";
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -14,13 +14,12 @@ export async function deployFamilyAndFriendsMinter(
     "src/minter/FriendsAndFamilyMinter.sol:FriendsAndFamilyMinter";
 
   const args = [_cre8orsNFT, _minterUtilityContractAddress];
-  const contract = await retryDeploy(2, contractLocation, args);
-  console.log(`[deployed] ${contractLocation}`);
-  const contractAddress = contract.deploy.deployedTo;
+  const contract = await deployAndVerify(contractLocation, args);
+  const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed family & friends to ", contractAddress);
   console.log(
     "make sure to call grantRole with MINTER_ROLE on cre8ors contract"
   );
 
-  return contract;
+  return contract.deployed;
 }

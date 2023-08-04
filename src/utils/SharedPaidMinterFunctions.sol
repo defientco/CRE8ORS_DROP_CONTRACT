@@ -6,12 +6,22 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ICre8ing} from "../interfaces/ICre8ing.sol";
 import {ISharedPaidMinterFunctions} from "../interfaces/ISharedPaidMinterFunctions.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {ITransfers} from "../interfaces/ITransfers.sol";
 
 contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
     address public cre8orsNFT;
     address public minterUtility;
+    address public collectionHolderMint;
+    address public friendsAndFamilyMinter;
 
-    modifier verifyCost(IMinterUtilities.Cart[] memory carts) {
+    modifier arrayLengthMustBe3(uint256[] memory array) {
+        if (array.length != 3) {
+            revert ISharedPaidMinterFunctions.InvalidArrayLength();
+        }
+        _;
+    }
+    modifier verifyCost(uint256[] memory carts) {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(
             carts
         );
@@ -34,39 +44,47 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
         _;
     }
 
-    function _lockUp(
-        IMinterUtilities.Cart[] memory carts,
-        uint256 startingTokenId
-    ) internal {
-        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
-        if (address(lockup) == address(0)) {
-            return;
-        }
-        uint256 tokenId = startingTokenId;
+    function calculateTotalQuantity(
+        uint256[] memory carts
+    ) internal pure returns (uint256) {
+        uint256 totalQuantity;
         for (uint256 i = 0; i < carts.length; i++) {
-            if (carts[i].tier == 3) {
-                continue;
-            }
-            (uint256 lockupDate, uint256 tierPrice) = abi.decode(
-                _getLockUpDateAndPrice(carts[i].tier),
-                (uint256, uint256)
-            );
-            lockup.setUnlockInfo(
-                cre8orsNFT,
-                tokenId + i,
-                abi.encode(lockupDate, tierPrice)
-            );
+            totalQuantity += carts[i];
         }
+        return totalQuantity;
     }
 
-    function _getLockUpDateAndPrice(
-        uint256 tier
-    ) internal view onlyValidTier(tier) returns (bytes memory) {
+    function _lockUp(uint256[] memory carts, uint256 startingTokenId) internal {
+        uint256 tokenId = startingTokenId;
         IMinterUtilities.TierInfo[] memory tiers = abi.decode(
             IMinterUtilities(minterUtility).getTierInfo(),
             (IMinterUtilities.TierInfo[])
         );
+        for (uint256 i = 0; i < carts.length; i++) {
+            if (i == 3 || carts[i] == 0) {
+                continue;
+            }
+            uint256[] memory tokenIds = new uint256[](carts[i]);
+            for (uint256 j = 0; j < carts[i]; j++) {
+                tokenIds[j] = tokenId;
+                tokenId++;
+            }
+            ITransfers(
+                ICre8ors(cre8orsNFT).getHook(
+                    IERC721ACH.HookType.BeforeTokenTransfers
+                )
+            ).cre8ing().inializeStakingAndLockup(
+                    cre8orsNFT,
+                    tokenIds,
+                    _getLockUpDateAndPrice(tiers, i + 1)
+                );
+        }
+    }
 
+    function _getLockUpDateAndPrice(
+        IMinterUtilities.TierInfo[] memory tiers,
+        uint256 tier
+    ) internal view onlyValidTier(tier) returns (bytes memory) {
         IMinterUtilities.TierInfo memory selectedTier = tiers[tier - 1];
         uint256 lockupDate = block.timestamp + selectedTier.lockup;
         uint256 tierPrice = selectedTier.price;

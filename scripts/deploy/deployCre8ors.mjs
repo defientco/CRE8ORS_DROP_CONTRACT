@@ -10,15 +10,15 @@ export async function deployCre8ors(root) {
   const contractName = "cre8ors";
   const contractSymbol = "CRE8";
   const _initialOwner = "0x4D977d9aEceC3776DD73F2f9080C9AF3BC31f505"; // cre8ors.eth
-  const _fundsRecipient = "0x4D977d9aEceC3776DD73F2f9080C9AF3BC31f505"; // cre8ors.eth
+  const _fundsRecipient = "0xcfBf34d385EA2d5Eb947063b67eA226dcDA3DC38"; // sweetman.eth
   const _editionSize = "8888";
   const _royaltyBPS = "888";
   const publicSalePrice = "150000000000000000";
   const erc20PaymentToken = "0x0000000000000000000000000000000000000000";
   const maxSalePurchasePerAddress = 18;
-  const publicSaleStart = "1691078400"; // Aug 3, 2023 3PM ET
+  const publicSaleStart = "1691167800"; // Friday, August 4, 2023 12:50:00 PM  ET
   const publicSaleEnd = "18446744073709551615"; // forever
-  const presaleStart = 0; // always
+  const presaleStart = "1691167200"; // Friday, August 4, 2023 12:40:00 PM ET
   const presaleEnd = "18446744073709551615"; // forever
   const presaleMerkleRoot = root;
 

@@ -7,6 +7,8 @@ import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
+import {ITransfers} from "../interfaces/ITransfers.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ///@notice Mapping to track whether an address has discount for free mint.
@@ -39,7 +41,11 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         hasDiscount[recipient] = false;
 
         // Set lockup information (optional)
-        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
+        ILockup lockup = ITransfers(
+            ICre8ors(cre8orsNFT).getHook(
+                IERC721ACH.HookType.BeforeTokenTransfers
+            )
+        ).cre8ing().lockUp(cre8orsNFT);
         if (address(lockup) != address(0)) {
             IMinterUtilities minterUtility = IMinterUtilities(
                 minterUtilityContractAddress

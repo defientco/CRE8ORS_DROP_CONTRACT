@@ -2,15 +2,13 @@
 pragma solidity ^0.8.15;
 
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
-
 import {Cre8ing} from "./Cre8ing.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
+import {ITransfers} from "./interfaces/ITransfers.sol";
 
-import "forge-std/console.sol";
-
-contract TransferHook is Cre8orsERC6551 {
+contract TransferHook is ITransfers, Cre8orsERC6551 {
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
@@ -80,7 +78,6 @@ contract TransferHook is Cre8orsERC6551 {
         return beforeTokenTransfersHookEnabled[msg.sender];
     }
 
-
     /// @notice Custom implementation for AfterTokenTransfers Hook.
     function afterTokenTransfersOverrideHook(
         address from,
@@ -95,14 +92,13 @@ contract TransferHook is Cre8orsERC6551 {
 
     /// @notice Custom implementation for BeforeTokenTransfers Hook.
     function beforeTokenTransfersOverrideHook(
-        address ,
+        address,
         address,
         uint256 startTokenId,
         uint256 quantity
-    ) external {
+    ) external view {
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-
             if (
                 cre8ing.getCre8ingStarted(msg.sender, tokenId) != 0 &&
                 ICre8ors(msg.sender).cre8ingTransfer() != 2
@@ -115,7 +111,7 @@ contract TransferHook is Cre8orsERC6551 {
     function setCre8ing(
         address _target,
         ICre8ing _cre8ing
-    ) external virtual onlyAdmin(_target){
+    ) external virtual onlyAdmin(_target) {
         cre8ing = _cre8ing;
     }
 

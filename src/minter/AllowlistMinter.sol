@@ -8,34 +8,42 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
+import {ICollectionHolderMint} from "../interfaces/ICollectionHolderMint.sol";
 import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol";
 
 contract AllowlistMinter is SharedPaidMinterFunctions {
-    constructor(address _cre8orsNFT, address _minterUtility) {
+    constructor(
+        address _cre8orsNFT,
+        address _minterUtility,
+        address _collectionHolderMint,
+        address _friendsAndFamilyMinter
+    ) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
+        collectionHolderMint = _collectionHolderMint;
+        friendsAndFamilyMinter = _friendsAndFamilyMinter;
     }
 
     function mintPfp(
         address recipient,
-        IMinterUtilities.Cart[] memory carts,
-        address passportHolderMinter,
-        address friendsAndFamilyMinter,
+        uint256[] memory carts,
         bytes32[] calldata merkleProof
     )
         external
         payable
+        arrayLengthMustBe3(carts)
+        onlyPreSaleOrAlreadyMinted(recipient)
         checkProof(recipient, merkleProof)
         verifyCost(carts)
         returns (uint256)
     {
-        uint256 quantity = IMinterUtilities(minterUtility)
-            .calculateTotalQuantity(carts);
+        uint256 quantity = calculateTotalQuantity(carts);
         address _recipient = recipient; /// @dev to avoid stack too deep error
         if (
             quantity >
             IMinterUtilities(minterUtility).quantityLeft(
-                passportHolderMinter,
+                collectionHolderMint,
                 friendsAndFamilyMinter,
                 cre8orsNFT,
                 _recipient
@@ -70,6 +78,16 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
             )
         ) {
             revert IERC721Drop.Presale_MerkleNotApproved();
+        }
+        _;
+    }
+
+    modifier onlyPreSaleOrAlreadyMinted(address recipient) {
+        if (
+            ICre8ors(cre8orsNFT).saleDetails().presaleStart > block.timestamp &&
+            ICre8ors(cre8orsNFT).mintedPerAddress(recipient).totalMints == 0
+        ) {
+            revert IERC721Drop.Presale_Inactive();
         }
         _;
     }

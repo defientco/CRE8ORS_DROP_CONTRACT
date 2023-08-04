@@ -15,19 +15,19 @@ contract MinterUtilities is IMinterUtilities {
     uint256 public maxPublicMintQuantity = 18;
 
     /// @dev The address of the collection contract.
-    address public collectionAddress;
+    address public cre8orsNFT;
 
     /// @dev Mapping to store tier information for each tier represented by an integer key.
     /// @notice Tier information includes price and lockup details.
     mapping(uint8 => TierInfo) public tierInfo;
 
     constructor(
-        address _collectionAddress,
+        address _cre8orsNFT,
         uint256 _tier1Price,
         uint256 _tier2Price,
         uint256 _tier3Price
     ) {
-        collectionAddress = _collectionAddress;
+        cre8orsNFT = _cre8orsNFT;
         tierInfo[1] = TierInfo(_tier1Price, 32 weeks);
         tierInfo[2] = TierInfo(_tier2Price, 8 weeks);
         tierInfo[3] = TierInfo(_tier3Price, 0 weeks);
@@ -83,11 +83,11 @@ contract MinterUtilities is IMinterUtilities {
     /// @param carts An array of Cart structs containing information about each item in the cart.
     /// @return The total cost of all items in the carts array.
     function calculateTotalCost(
-        Cart[] calldata carts
+        uint256[] memory carts
     ) external view returns (uint256) {
         uint256 totalCost = 0;
         for (uint256 i = 0; i < carts.length; i++) {
-            totalCost += calculatePrice(carts[i].tier, carts[i].quantity);
+            totalCost += calculatePrice(uint8(i + 1), carts[i]);
         }
         return totalCost;
     }
@@ -103,11 +103,11 @@ contract MinterUtilities is IMinterUtilities {
     /// @param carts An array of Cart structs containing information about each item in the cart.
     /// @return uint256 total quantity of items across all carts.
     function calculateTotalQuantity(
-        Cart[] calldata carts
+        uint256[] memory carts
     ) public pure returns (uint256) {
         uint256 totalQuantity = 0;
         for (uint256 i = 0; i < carts.length; i++) {
-            totalQuantity += carts[i].quantity;
+            totalQuantity += carts[i];
         }
         return totalQuantity;
     }
@@ -214,7 +214,7 @@ contract MinterUtilities is IMinterUtilities {
     /// @dev Modifier that restricts access to only the contract's admin.
     modifier onlyAdmin() {
         require(
-            ICre8ors(collectionAddress).isAdmin(msg.sender),
+            ICre8ors(cre8orsNFT).isAdmin(msg.sender),
             "IERC721Drop: Access restricted to admin"
         );
         _;
@@ -231,7 +231,7 @@ contract MinterUtilities is IMinterUtilities {
         uint256 totalClaimedFree
     ) internal view returns (uint256) {
         uint256 currentTimestamp = block.timestamp;
-        uint256 publicSaleStart = ICre8ors(collectionAddress)
+        uint256 publicSaleStart = ICre8ors(cre8orsNFT)
             .saleDetails()
             .publicSaleStart;
         if (currentTimestamp < publicSaleStart) {
