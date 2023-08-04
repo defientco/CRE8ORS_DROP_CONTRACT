@@ -207,7 +207,6 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function testRevertPublicSaleInactiveOfWalletWithTransferedMintedDiscount(
         uint256[] memory _carts,
-        bool _withLockUp,
         address _buyer
     ) public {
         uint256[] memory _carts = new uint256[](3);
@@ -215,7 +214,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         _carts[1] = 0;
         _carts[2] = 0;
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter(true);
         // set public sale start to sometime in future
         _updatePublicSaleStart(uint64(block.timestamp + 1000000));
 
