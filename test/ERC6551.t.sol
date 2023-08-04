@@ -18,7 +18,6 @@ import {TransferHook} from "../src/Transfers.sol";
 import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
-import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 
 import "forge-std/console.sol";
@@ -33,6 +32,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     EntryPoint entryPoint;
     Account erc6551Implementation;
     TransferHook public transferHook;
+
     address constant DEAD_ADDRESS =
         address(0x000000000000000000000000000000000000dEaD);
 

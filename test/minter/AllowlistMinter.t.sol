@@ -25,6 +25,10 @@ import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {AllowlistMinter} from "../../src/minter/AllowlistMinter.sol";
 import {MerkleData} from "../merkle/MerkleData.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {TransferHook} from "../../src/Transfers.sol";
+
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+
 
 contract AllowlistMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -44,6 +48,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     MerkleData public merkleData;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
+    TransferHook transferHook = new TransferHook();
 
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
@@ -74,9 +79,21 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(friendsAndFamilyMinter)
         );
 
+        // activate hooks here
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
+
+        // cre8orsNFTBase.setCre8ing(cre8ingBase); 
+        // cre8orsPassport.setCre8ing(cre8ingBase);
+
+        transferHook.setCre8ing(address(cre8orsNFTBase), cre8ingBase);
+        transferHook.setBeforeTokenTransfersEnabled(
+            address(cre8orsNFTBase),
+            true
+        );
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
         vm.stopPrank();
 
         merkleData = new MerkleData();
