@@ -300,11 +300,14 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(cre8ingBase)
         );
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
+        );
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        if (withLockup) {
-            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-            assertTrue(minter.minterUtility() != address(0));
-        }
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        assertTrue(minter.minterUtility() != address(0));
 
         assertTrue(
             cre8orsNFTBase.hasRole(

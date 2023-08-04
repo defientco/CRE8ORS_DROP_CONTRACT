@@ -274,18 +274,19 @@ contract PublicMinterTest is DSTest, StdUtils {
 
     function _setUpMinter(bool withLockup) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
         );
-        if (withLockup) {
-            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-            assertTrue(minter.minterUtility() != address(0));
-        }
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        assertTrue(minter.minterUtility() != address(0));
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
