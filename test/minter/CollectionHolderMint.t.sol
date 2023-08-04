@@ -85,18 +85,14 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         );
     }
 
-    function testSetNewMinterContract(
-        bool _withLockup,
-        address _minter
-    ) public {
-        _setUpMinter(_withLockup);
+    function testSetNewMinterContract(address _minter) public {
+        _setUpMinter();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         minter.setNewMinterUtilityContractAddress(_minter);
         assertEq(address(minter.minterUtilityContractAddress()), _minter);
     }
 
     function testSuccessfulMint(
-        bool _withLockup,
         address _buyer,
         uint256[] memory _tokenIds
     ) public {
@@ -108,13 +104,13 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         for (uint i = 0; i < _tokenIds.length; i++) {
             _tokenIds[i] = _bound(_tokenIds[i], 1, maxTokenId); // Use your desired maximum and minimum value here
         }
-        _setUpMinter(_withLockup);
+        _setUpMinter();
 
         vm.startPrank(_buyer);
         cre8orsPassport.purchase(maxTokenId);
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
@@ -133,11 +129,27 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             _tokenIds.length,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
-        vm.stopPrank();
+    }
+
+    function testSuccessfulMintWithStaking(
+        address _buyer,
+        uint256[] memory _tokenIds
+    ) public {
+        testSuccessfulMint(_buyer, _tokenIds);
+        for (uint256 i = 0; i < _tokenIds.length; ) {
+            assertTrue(
+                cre8ingBase.getCre8ingStarted(
+                    address(cre8orsNFTBase),
+                    _tokenIds[i]
+                ) > 0
+            );
+            unchecked {
+                i++;
+            }
+        }
     }
 
     function testSuccessfulMintWithDiscount(
-        bool _withLockup,
         address _buyer,
         uint256 _mintQuantity
     ) public {
@@ -145,7 +157,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.assume(_buyer != address(0));
         vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
         uint256[] memory tokens = generateTokens(_mintQuantity);
-        _setUpMinter(_withLockup);
+        _setUpMinter();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
@@ -158,7 +170,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         cre8orsPassport.purchase(_mintQuantity);
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
@@ -202,14 +214,13 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     }
 
     function testRevertAlreadyClaimed(
-        bool _withLockup,
         address _buyer,
         uint256 _passportQuantity
     ) public {
         vm.assume(_buyer != address(0));
         vm.assume(_passportQuantity > 0);
         vm.assume(_passportQuantity < DEFAULT_EDITION_SIZE);
-        _setUpMinter(_withLockup);
+        _setUpMinter();
         uint256[] memory tokens = generateTokens(_passportQuantity);
 
         vm.startPrank(_buyer);
@@ -221,7 +232,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     }
 
     function testRevertNotOwnerOfPassport(
-        bool _withLockup,
         address _buyer,
         address _caller,
         uint256 _mintQuantity
@@ -231,7 +241,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.assume(_buyer != _caller);
         vm.assume(_mintQuantity > 0);
         vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
-        _setUpMinter(_withLockup);
+        _setUpMinter();
         uint256[] memory tokens = generateTokens(_mintQuantity);
 
         vm.startPrank(_buyer);
@@ -242,14 +252,13 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     }
 
     function testManualPassportClaimToggle(
-        bool _withLockup,
         address _buyer,
         uint256 _mintQuantity
     ) public {
         vm.assume(_buyer != address(0));
         vm.assume(_mintQuantity > 0);
         vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
-        _setUpMinter(_withLockup);
+        _setUpMinter();
         vm.startPrank(_buyer);
         uint256[] memory tokens = generateTokens(_mintQuantity);
 
@@ -265,20 +274,21 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         assert(!minter.freeMintClaimed(1));
     }
 
-    function _setUpMinter(bool withLockup) internal {
+    function _setUpMinter() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(minter)
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
         );
-        if (withLockup) {
-            cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-            assertTrue(minter.minterUtilityContractAddress() != address(0));
-        }
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
+        assertTrue(minter.minterUtilityContractAddress() != address(0));
 
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );

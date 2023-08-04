@@ -41,7 +41,10 @@ contract MinterUtilities is IMinterUtilities {
         uint8 tier,
         uint256 quantity
     ) public view returns (uint256) {
-        uint256 price = tierInfo[tier].price * quantity;
+        uint256 tierPrice = tier > 0 && tier < 4
+            ? tierInfo[tier].price
+            : tierInfo[3].price;
+        uint256 price = tierPrice * quantity;
         return price;
     }
 
@@ -69,12 +72,11 @@ contract MinterUtilities is IMinterUtilities {
         uint256 totalClaimed = passportMinter.totalClaimed(recipient) +
             friendsAndFamily.totalClaimed(recipient);
         uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
-        uint256 quantityRemaining = maxQuantity - totalMints;
 
-        if (quantityRemaining < 0) {
+        if (maxQuantity < totalMints) {
             return 0;
         }
-        return quantityRemaining;
+        return maxQuantity - totalMints;
     }
 
     /// @dev Calculates the total cost of all items in the given carts array.
@@ -142,30 +144,6 @@ contract MinterUtilities is IMinterUtilities {
         tierInfo[3].price = tier3;
     }
 
-    /// @dev Updates the price for Tier 1.
-    /// @param _tier1 The new price for Tier 1.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierOnePrice(uint256 _tier1) external onlyAdmin {
-        tierInfo[1].price = _tier1;
-        emit TierPriceUpdated(1, _tier1);
-    }
-
-    /// @dev Updates the price for Tier 2.
-    /// @param _tier2 The new price for Tier 2.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierTwoPrice(uint256 _tier2) external onlyAdmin {
-        tierInfo[2].price = _tier2;
-        emit TierPriceUpdated(2, _tier2);
-    }
-
-    /// @dev Updates the price for Tier 3.
-    /// @param _tier3 The new price for Tier 3.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierThreePrice(uint256 _tier3) external onlyAdmin {
-        tierInfo[3].price = _tier3;
-        emit TierPriceUpdated(3, _tier3);
-    }
-
     /// @dev Sets new default lockup periods for all tiers.
     /// @param lockupInfo A bytes array containing the new lockup periods for tier 1, tier 2, and tier 3.
     ///                   The bytes array should be encoded using the `abi.encode` function with three uint256 values
@@ -190,20 +168,26 @@ contract MinterUtilities is IMinterUtilities {
         return tierInfo[tier];
     }
 
-    /// @dev Updates the lockup period for Tier 1.
-    /// @param _tier1 The new lockup period for Tier 1.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierOneLockup(uint256 _tier1) external onlyAdmin {
-        tierInfo[1].lockup = _tier1;
-        emit TierLockupUpdated(1, _tier1);
+    /// @dev Retrieves tier information for all tiers.
+    /// @return A bytes array containing the tier information for all tiers.
+    function getTierInfo() external view returns (bytes memory) {
+        TierInfo[] memory tierInfoArray = new TierInfo[](3);
+        tierInfoArray[0] = tierInfo[1];
+        tierInfoArray[1] = tierInfo[2];
+        tierInfoArray[2] = tierInfo[3];
+        return abi.encode(tierInfoArray);
     }
 
-    /// @dev Updates the lockup period for Tier 2.
-    /// @param _tier2 The new lockup period for Tier 2.
-    /// @notice This function can only be called by the contract's admin.
-    function updateTierTwoLockup(uint256 _tier2) external onlyAdmin {
-        tierInfo[2].lockup = _tier2;
-        emit TierLockupUpdated(2, _tier2);
+    /// @dev allows user to convert tier prices or tier unlock periods to bytes for using in update functions.
+    /// @param tierOne The price(in wei) or lockup period (in seconds) for tier 1.
+    /// @param tierTwo The price(in wei) or lockup period (in seconds) for tier 2.
+    /// @param tierThree The price(in wei) or lockup period (in seconds) for tier 3.
+    function convertTierInfoToBytes(
+        uint256 tierOne,
+        uint256 tierTwo,
+        uint256 tierThree
+    ) external pure returns (bytes memory) {
+        return abi.encode(tierOne, tierTwo, tierThree);
     }
 
     /// @dev Updates the maximum allowed quantity for the whitelist.
@@ -241,17 +225,22 @@ contract MinterUtilities is IMinterUtilities {
     //////////////////////////
 
     /// @dev Calculates the maximum allowed quantity based on the current timestamp and the public sale start time.
-    /// @param startingPoint The base starting point for calculating the maximum allowed quantity.
+    /// @param totalClaimedFree The base starting point for calculating the maximum allowed quantity.
     /// @return The maximum allowed quantity based on the current timestamp and the public sale start time.
     function maxAllowedQuantity(
-        uint256 startingPoint
+        uint256 totalClaimedFree
     ) internal view returns (uint256) {
-        if (
-            block.timestamp <
-            ICre8ors(collectionAddress).saleDetails().publicSaleStart
-        ) {
-            return maxAllowlistQuantity + startingPoint;
+        uint256 currentTimestamp = block.timestamp;
+        uint256 publicSaleStart = ICre8ors(collectionAddress)
+            .saleDetails()
+            .publicSaleStart;
+        if (currentTimestamp < publicSaleStart) {
+            return maxAllowlistQuantity + totalClaimedFree;
         }
-        return maxPublicMintQuantity + startingPoint;
+        if (totalClaimedFree > 0) {
+            return
+                maxAllowlistQuantity + maxPublicMintQuantity + totalClaimedFree;
+        }
+        return maxPublicMintQuantity + totalClaimedFree;
     }
 }

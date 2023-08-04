@@ -44,6 +44,13 @@ const testDataInput = [
     ],
   },
   {
+    name: "test-max-count",
+    entries: [
+      { minter: makeAddress(0x10), maxCount: 2, price: parseEther("0.1") },
+      { minter: makeAddress(0x10), maxCount: 2, price: parseEther("0.2") },
+    ],
+  },
+  {
     name: "pre-mint-defient",
     entries: [
       {
@@ -67,6 +74,12 @@ const testDataInput = [
       {
         // sameer
         minter: getAddress("0x45a3143dC8e28A6d73ad6c6Fd78d80a4CAA17524"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
+      {
+        // joe
+        minter: getAddress("0x9B33A23d46d18300E9fCEfa1A88d6a73D216F58D"),
         maxCount: 8,
         price: parseEther("0.15"),
       },
@@ -603,6 +616,15 @@ const testDataInput = [
         maxCount: 1,
         price: parseEther("0.0"),
       },
+    ],
+  },
+  {
+    name: "test-allowlist-minter",
+    entries: [
+      { minter: makeAddress(0x111), maxCount: 8, price: parseEther("0.15") },
+      { minter: makeAddress(0x100), maxCount: 8, price: parseEther("0.15") },
+      { minter: makeAddress(0x101), maxCount: 8, price: parseEther("0.15") },
+      { minter: makeAddress(0x102), maxCount: 8, price: parseEther("0.15") },
     ],
   },
 ];
