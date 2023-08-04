@@ -11,10 +11,9 @@ import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol"
 import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract PublicMinter is SharedPaidMinterFunctions {
-    constructor(address _cre8orsNFT, address _minterUtility, address _subscription) {
+    constructor(address _cre8orsNFT, address _minterUtility) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
-        subscription = _subscription;
     }
 
     function mintPfp(
@@ -46,6 +45,8 @@ contract PublicMinter is SharedPaidMinterFunctions {
         }
 
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, quantity);
+
+        address subscription = ICre8ors(cre8orsNFT).subscription();
 
         // Subscribe for 1 year
         ISubscription(subscription).updateSubscriptionForFree({

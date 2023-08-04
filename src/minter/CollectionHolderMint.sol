@@ -24,9 +24,6 @@ contract CollectionHolderMint is ICollectionHolderMint {
     ///@notice The address of the friends and family minter contract.
     address public friendsAndFamilyMinter;
 
-    /// @dev The address of the subscription contract.
-    address public subscription;
-
     ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public totalClaimed;
 
@@ -35,18 +32,15 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
      * @param _minterUtility The address of the minter utility contract that contains shared utility info.
      * @param _friendsAndFamilyMinter The address of the friends and family minter contract.
-     * @param _subscription The address of the subscription contract.
      */
     constructor(
         address _collectionContractAddress,
         address _minterUtility,
-        address _friendsAndFamilyMinter,
-        address _subscription
+        address _friendsAndFamilyMinter
     ) {
         collectionContractAddress = _collectionContractAddress;
         minterUtilityContractAddress = _minterUtility;
         friendsAndFamilyMinter = _friendsAndFamilyMinter;
-        subscription = _subscription;
     }
 
     /**
@@ -118,14 +112,6 @@ contract CollectionHolderMint is ICollectionHolderMint {
      */
     function toggleHasClaimedFreeMint(uint256 tokenId) external onlyAdmin {
         freeMintClaimed[tokenId] = !freeMintClaimed[tokenId];
-    }
-
-    function setSubscription(address newSubscription) external onlyAdmin {
-        if (newSubscription == address(0)) {
-            revert ISubscription.SubscriptionCannotBeZeroAddress();
-        }
-
-        subscription = newSubscription;
     }
 
     ////////////////////////////////////////
@@ -218,6 +204,8 @@ contract CollectionHolderMint is ICollectionHolderMint {
             recipient,
             _tokenIds.length
         );
+
+        address subscription = ICre8ors(collectionContractAddress).subscription();
 
         // Subscribe for 1 year
         ISubscription(subscription).updateSubscriptionForFree({

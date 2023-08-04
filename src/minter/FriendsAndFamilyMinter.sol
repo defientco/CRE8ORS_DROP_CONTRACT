@@ -20,16 +20,12 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ///@notice The address of the minter utility contract that contains shared utility info.
     address public minterUtilityContractAddress;
 
-    /// @dev The address of the subscription contract.
-    address public subscription;
-
     ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public totalClaimed;
 
-    constructor(address _cre8orsNFT, address _minterUtilityContractAddress, address _subscription) {
+    constructor(address _cre8orsNFT, address _minterUtilityContractAddress) {
         cre8orsNFT = _cre8orsNFT;
         minterUtilityContractAddress = _minterUtilityContractAddress;
-        subscription = _subscription;
     }
 
     /// @dev Mints a new token for the specified recipient and performs additional actions, such as setting the lockup (if applicable).
@@ -40,6 +36,8 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ) external onlyExistingDiscount(recipient) returns (uint256) {
         // Mint the token
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
+
+        address subscription = ICre8ors(cre8orsNFT).subscription();
 
         // Subscribe for 1 year
         ISubscription(subscription).updateSubscriptionForFree({
@@ -92,14 +90,6 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         address _newMinterUtilityContractAddress
     ) external onlyAdmin {
         minterUtilityContractAddress = _newMinterUtilityContractAddress;
-    }
-
-    function setSubscription(address newSubscription) external onlyAdmin {
-        if (newSubscription == address(0)) {
-            revert ISubscription.SubscriptionCannotBeZeroAddress();
-        }
-
-        subscription = newSubscription;
     }
 
     /// @dev Modifier that restricts access to only the contract's admin.

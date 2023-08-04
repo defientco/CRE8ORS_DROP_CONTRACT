@@ -40,8 +40,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         subscription = _setupSubscriptionContract(cre8orsNFTBase);
         minter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
-            address(minterUtility),
-            address(subscription)
+            address(minterUtility)
         );
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);

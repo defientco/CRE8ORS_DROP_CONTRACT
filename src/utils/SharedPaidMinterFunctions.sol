@@ -14,9 +14,6 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
     address public cre8orsNFT;
     address public minterUtility;
 
-    /// @dev The address of the subscription contract.
-    address public subscription;
-
     modifier verifyCost(IMinterUtilities.Cart[] memory carts) {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(
             carts
@@ -38,14 +35,6 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
             revert IERC721Drop.Access_OnlyAdmin();
         }
         _;
-    }
-
-    function setSubscription(address newSubscription) external onlyAdmin {
-        if (newSubscription == address(0)) {
-            revert ISubscription.SubscriptionCannotBeZeroAddress();
-        }
-
-        subscription = newSubscription;
     }
 
     function _lockUp(

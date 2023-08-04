@@ -59,22 +59,19 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         subscription = _setupSubscriptionContract(cre8orsNFTBase);
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
-            address(minterUtility),
-            address(subscription)
+            address(minterUtility)
         );
 
         collectionMinter = new CollectionHolderMint(
             address(cre8orsNFTBase),
             address(minterUtility),
-            address(friendsAndFamilyMinter),
-            address(subscription)
+            address(friendsAndFamilyMinter)
         );
 
         cre8ingBase = new Cre8ing();
         minter = new AllowlistMinter(
             address(cre8orsNFTBase),
-            address(minterUtility),
-            address(subscription)
+            address(minterUtility)
         );
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

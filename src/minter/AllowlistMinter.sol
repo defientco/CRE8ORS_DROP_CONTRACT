@@ -12,10 +12,9 @@ import {SharedPaidMinterFunctions} from "../utils/SharedPaidMinterFunctions.sol"
 import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract AllowlistMinter is SharedPaidMinterFunctions {
-    constructor(address _cre8orsNFT, address _minterUtility, address _subscription) {
+    constructor(address _cre8orsNFT, address _minterUtility) {
         cre8orsNFT = _cre8orsNFT;
         minterUtility = _minterUtility;
-        subscription = _subscription;
     }
 
     function mintPfp(
@@ -50,6 +49,8 @@ contract AllowlistMinter is SharedPaidMinterFunctions {
             _recipient,
             quantity
         );
+
+        address subscription = ICre8ors(cre8orsNFT).subscription();
 
         // Subscribe for 1 year
         ISubscription(subscription).updateSubscriptionForFree({
