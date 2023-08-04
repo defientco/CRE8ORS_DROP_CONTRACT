@@ -7,6 +7,8 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {ITransfers} from "../interfaces/ITransfers.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract CollectionHolderMint is ICollectionHolderMint {
     ///@notice Mapping to track whether a specific uint256 value (token ID) has been claimed or not.
@@ -217,11 +219,15 @@ contract CollectionHolderMint is ICollectionHolderMint {
         uint256 lockupDate = block.timestamp + 8 weeks;
         uint256 unlockPrice = minterUtility.getTierInfo(3).price;
         bytes memory data = abi.encode(lockupDate, unlockPrice);
-        ICre8ors(cre8orsNFTContractAddress).cre8ing().inializeStakingAndLockup(
-            cre8orsNFTContractAddress,
-            _mintedPFPTokenIDs,
-            data
-        );
+        ITransfers(
+            ICre8ors(cre8orsNFTContractAddress).getHook(
+                IERC721ACH.HookType.BeforeTokenTransfers
+            )
+        ).cre8ing().inializeStakingAndLockup(
+                cre8orsNFTContractAddress,
+                _mintedPFPTokenIDs,
+                data
+            );
     }
 
     function _passportMint(
@@ -237,7 +243,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
         for (uint256 i = 0; i < _passportTokenIDs.length; ) {
             _pfpTokenIds[i] = startingTokenId + i;
             unchecked {
-              i++;
+                i++;
             }
         }
         totalClaimed[recipient] += _passportTokenIDs.length;

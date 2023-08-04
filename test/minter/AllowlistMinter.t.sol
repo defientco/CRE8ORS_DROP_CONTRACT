@@ -29,7 +29,6 @@ import {TransferHook} from "../../src/Transfers.sol";
 
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
-
 contract AllowlistMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
@@ -82,7 +81,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         // activate hooks here
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
 
-        // cre8orsNFTBase.setCre8ing(cre8ingBase); 
+        // cre8orsNFTBase.setCre8ing(cre8ingBase);
         // cre8orsPassport.setCre8ing(cre8ingBase);
 
         transferHook.setCre8ing(address(cre8orsNFTBase), cre8ingBase);
@@ -128,6 +127,9 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         vm.deal(item.user, totalPrice);
         vm.startPrank(item.user);
+
+        assertEq(address(transferHook.cre8ing()), address(cre8ingBase));
+
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
             item.user,
             _carts,

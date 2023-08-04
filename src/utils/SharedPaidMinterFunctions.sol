@@ -6,6 +6,8 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ICre8ing} from "../interfaces/ICre8ing.sol";
 import {ISharedPaidMinterFunctions} from "../interfaces/ISharedPaidMinterFunctions.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {ITransfers} from "../interfaces/ITransfers.sol";
 
 contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
     address public cre8orsNFT;
@@ -67,11 +69,16 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
                 tokenIds[j] = tokenId;
                 tokenId++;
             }
-            ICre8ors(cre8orsNFT).cre8ing().inializeStakingAndLockup(
-                cre8orsNFT,
-                tokenIds,
-                _getLockUpDateAndPrice(tiers, i + 1)
-            );
+            // SHOULD REFERENCE HOOK INSTEAD OF CORE CRE8OR
+            ITransfers(
+                ICre8ors(cre8orsNFT).getHook(
+                    IERC721ACH.HookType.BeforeTokenTransfers
+                )
+            ).cre8ing().inializeStakingAndLockup(
+                    cre8orsNFT,
+                    tokenIds,
+                    _getLockUpDateAndPrice(tiers, i + 1)
+                );
         }
     }
 
