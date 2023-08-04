@@ -7,11 +7,8 @@ import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
-import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
-    uint64 public constant ONE_YEAR_DURATION = 365 days;
-
     ///@notice Mapping to track whether an address has discount for free mint.
     mapping(address => bool) public hasDiscount;
 
@@ -36,16 +33,6 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ) external onlyExistingDiscount(recipient) returns (uint256) {
         // Mint the token
         uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(recipient, 1);
-
-        address subscription = ICre8ors(cre8orsNFT).subscription();
-
-        // Subscribe for 1 year
-        ISubscription(subscription).updateSubscriptionForFree({
-            target: cre8orsNFT,
-            duration: ONE_YEAR_DURATION,
-            tokenId: pfpTokenId
-        });
-
         totalClaimed[recipient] += 1;
 
         // Reset discount for the recipient

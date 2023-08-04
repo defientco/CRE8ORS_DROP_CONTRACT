@@ -6,11 +6,8 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ICre8ing} from "../interfaces/ICre8ing.sol";
 import {ISharedPaidMinterFunctions} from "../interfaces/ISharedPaidMinterFunctions.sol";
-import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
-    uint64 public constant ONE_YEAR_DURATION = 365 days;
-
     address public cre8orsNFT;
     address public minterUtility;
 

@@ -17,14 +17,12 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
-import {Subscription} from "../../src/subscription/Subscription.sol";
 
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
     address public familyMinter = address(0x1234567);
-    Subscription public subscription;
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
@@ -37,7 +35,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
             100000000000000000,
             150000000000000000
         );
-        subscription = _setupSubscriptionContract(cre8orsNFTBase);
         minter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
@@ -128,17 +125,5 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         minter.addDiscount(_buyer);
         assertTrue(minter.hasDiscount(_buyer));
-    }
-
-    function _setupSubscriptionContract(Cre8ors cre8orsNFT_) internal returns (Subscription _subscription) {
-        _subscription = new Subscription({
-            cre8orsNFT_: address(cre8orsNFT_),
-            minRenewalDuration_: 1 days,
-            pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
-        });
-
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFT_.setSubscription(address(_subscription));
-        vm.stopPrank();
     }
 }

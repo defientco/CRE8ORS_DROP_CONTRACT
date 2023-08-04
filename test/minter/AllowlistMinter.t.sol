@@ -25,7 +25,6 @@ import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {AllowlistMinter} from "../../src/minter/AllowlistMinter.sol";
 import {MerkleData} from "../merkle/MerkleData.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
-import {Subscription} from "../../src/subscription/Subscription.sol";
 
 contract AllowlistMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -45,7 +44,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     MerkleData public merkleData;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
-    Subscription public subscription;
 
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
@@ -56,7 +54,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             100000000000000000,
             150000000000000000
         );
-        subscription = _setupSubscriptionContract(cre8orsNFTBase);
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
@@ -249,18 +246,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
                     presaleMerkleRoot: bytes32(0)
                 })
             });
-    }
-
-    function _setupSubscriptionContract(Cre8ors cre8orsNFT_) internal returns (Subscription _subscription) {
-        _subscription = new Subscription({
-            cre8orsNFT_: address(cre8orsNFT_),
-            minRenewalDuration_: 1 days,
-            pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
-        });
-
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFT_.setSubscription(address(_subscription));
-        vm.stopPrank();
     }
 
     function _setUpMinter(bool withLockup) internal {

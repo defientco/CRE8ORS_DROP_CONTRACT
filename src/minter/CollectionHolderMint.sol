@@ -7,11 +7,8 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
-import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract CollectionHolderMint is ICollectionHolderMint {
-    uint64 public constant ONE_YEAR_DURATION = 365 days;
-
     ///@notice Mapping to track whether a specific uint256 value (token ID) has been claimed or not.
     mapping(uint256 => bool) public freeMintClaimed;
 
@@ -204,16 +201,6 @@ contract CollectionHolderMint is ICollectionHolderMint {
             recipient,
             _tokenIds.length
         );
-
-        address subscription = ICre8ors(collectionContractAddress).subscription();
-
-        // Subscribe for 1 year
-        ISubscription(subscription).updateSubscriptionForFree({
-            target: collectionContractAddress,
-            duration: ONE_YEAR_DURATION,
-            tokenIds: _tokenIds
-        });
-
         totalClaimed[recipient] += _tokenIds.length;
         _lockAndStakeTokens(_tokenIds);
         _setTokenIdsToClaimed(_tokenIds);
