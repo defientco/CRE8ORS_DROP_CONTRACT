@@ -20,8 +20,7 @@ contract LockupTest is DSTest, Cre8orTestBase {
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+       
     }
 
     function test_lockup() public {

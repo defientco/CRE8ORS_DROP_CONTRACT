@@ -19,8 +19,7 @@ contract TransfersTest is Test, Cre8orTestBase {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
         transferHook = new TransferHook();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+       
     }
 
     function test_setBeforeTokenTransfersEnabled_revert_Access_OnlyAdmin()

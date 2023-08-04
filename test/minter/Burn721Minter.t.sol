@@ -67,10 +67,7 @@ contract Burn721MinterTest is DSTest {
         });
         minter = new Burn721Minter();
         cre8ingBase = new Cre8ing();
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        burn721.setCre8ing(cre8ingBase);
-        vm.stopPrank();
+     
     }
 
     function test_isAdmin() public {

@@ -44,9 +44,7 @@ contract Cre8orTest is DSTest {
         });
         cre8ingBase = new Cre8ing();
 
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        vm.stopPrank();
+    
 
         _;
     }

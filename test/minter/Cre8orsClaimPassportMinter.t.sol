@@ -74,10 +74,7 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
             address(cre8orsPassport)
         );
         cre8ingBase = new Cre8ing();
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
-        vm.stopPrank();
+   
     }
 
     function test_purchase() public {
