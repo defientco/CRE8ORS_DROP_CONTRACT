@@ -50,10 +50,8 @@ contract Cre8ors is
     uint256 internal cre8ingTransfer = 1;
 
     /// @dev Subscription contract address
+    ///     address(0) means subscription is turned off
     address public subscription;
-
-    /// @dev Boolean flag to determine if subscription model is enabled.
-    bool public isSubscriptionEnabled;
 
     /// @dev The address that gets returns if the subscription of a tokenId is expired.
     ///     By default: address(0)
@@ -307,21 +305,16 @@ contract Cre8ors is
     /// ADMIN
     /////////////////////////////////////////////////
 
+    /// @dev Setter function for subscription contract address.
+    ///     - if we want to turn off subscription: `setSubscription(address(0))`
+    ///     - if we want to enable subscription: `setSubscription(address(Subscription))`
     function setSubscription(address newSubscription) external onlyAdmin {
-        if (newSubscription == address(0)) {
-            revert ISubscription.SubscriptionCannotBeZeroAddress();
-        }
-
         subscription = newSubscription;
     }
 
     // can be zero address
     function setOwnerOfOverrideReturn(address addr) external onlyAdmin {
         ownerOfOverrideReturn = addr;
-    }
-
-    function toggleSubscription() external onlyAdmin {
-        isSubscriptionEnabled = !isSubscriptionEnabled;
     }
 
     /// @dev Set new owner for royalties / opensea
@@ -572,8 +565,8 @@ contract Cre8ors is
     }
 
     function ownerOf(uint256 tokenId) public view override returns (address) {
-        // external call to subscription if it is enabled and present
-        if (isSubscriptionEnabled && subscription != address(0)) {
+        // external call to subscription if it is present
+        if (subscription != address(0)) {
             bool isSubscriptionValid = ISubscription(subscription).isSubscriptionValid(tokenId);
 
             // if subscription expired

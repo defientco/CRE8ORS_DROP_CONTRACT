@@ -342,7 +342,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFT_.setSubscription(address(_subscription));
-        cre8orsNFT_.toggleSubscription();
         vm.stopPrank();
     }
 }
