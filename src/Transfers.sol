@@ -11,7 +11,7 @@ contract TransferHook is Cre8orsERC6551 {
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
     /// @notice To toggle free subscription in future
-    bool public isFreeSubscriptionEnabled;
+    bool public isFreeSubscriptionEnabled = true;
 
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
