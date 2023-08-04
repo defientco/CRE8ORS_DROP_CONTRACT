@@ -95,7 +95,7 @@ contract TransferHook is Cre8orsERC6551 {
 
     /// @notice Custom implementation for BeforeTokenTransfers Hook.
     function beforeTokenTransfersOverrideHook(
-        address from,
+        address ,
         address,
         uint256 startTokenId,
         uint256 quantity
