@@ -79,10 +79,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         // activate hooks here
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-
-        // cre8orsNFTBase.setCre8ing(cre8ingBase);
-        // cre8orsPassport.setCre8ing(cre8ingBase);
-
         transferHook.setCre8ing(address(cre8orsNFTBase), cre8ingBase);
         transferHook.setBeforeTokenTransfersEnabled(
             address(cre8orsNFTBase),
