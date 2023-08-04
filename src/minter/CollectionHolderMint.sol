@@ -13,31 +13,37 @@ contract CollectionHolderMint is ICollectionHolderMint {
     mapping(uint256 => bool) public freeMintClaimed;
 
     ///@notice The address of the collection contract that mints and manages the tokens.
-    address public collectionContractAddress;
+    address public cre8orsNFTContractAddress;
+
+    ///@notice The address of the passport contract.
+    address public passportContractAddress;
 
     ///@notice The address of the minter utility contract that contains shared utility info.
     address public minterUtilityContractAddress;
 
     ///@notice The address of the friends and family minter contract.
-    address public friendsAndFamilyMinter;
+    address public friendsAndFamilyMinterContractAddress;
 
     ///@notice mapping of address to quantity of free mints claimed.
     mapping(address => uint256) public totalClaimed;
 
     /**
      * @notice Constructs a new CollectionHolderMint contract.
-     * @param _collectionContractAddress The address of the collection contract that mints and manages the tokens.
+     * @param _cre8orsNFTContractAddress The address of the collection contract that mints and manages the tokens.
+     * @param _passportContractAddress The address of the passport contract.
      * @param _minterUtility The address of the minter utility contract that contains shared utility info.
-     * @param _friendsAndFamilyMinter The address of the friends and family minter contract.
+     * @param _friendsAndFamilyMinterContractAddress The address of the friends and family minter contract.
      */
     constructor(
-        address _collectionContractAddress,
+        address _cre8orsNFTContractAddress,
+        address _passportContractAddress,
         address _minterUtility,
-        address _friendsAndFamilyMinter
+        address _friendsAndFamilyMinterContractAddress
     ) {
-        collectionContractAddress = _collectionContractAddress;
+        cre8orsNFTContractAddress = _cre8orsNFTContractAddress;
+        passportContractAddress = _passportContractAddress;
         minterUtilityContractAddress = _minterUtility;
-        friendsAndFamilyMinter = _friendsAndFamilyMinter;
+        friendsAndFamilyMinterContractAddress = _friendsAndFamilyMinterContractAddress;
     }
 
     /**
@@ -47,60 +53,25 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * It requires the `tokenId` to be eligible for a free mint, and the caller must be the owner of the specified `tokenId`
      * to successfully execute the minting process.
      *
-     * After the minting process, the function performs the following actions:
-     * 1. Calls the `adminMint` function from the `ICre8ors` contract to create a corresponding PFP (Profile Picture) token
-     *    for the `recipient` address. The newly minted PFP token ID is returned and stored in `pfpTokenId`.
-     * 2. If a valid lockup contract is associated with the `target` address, this function sets the unlock information for
-     *    the newly minted PFP token using the `setUnlockInfo` function of the `lockup` contract. The unlock information
-     *    includes the lockup duration (8 weeks) and the lockup amount (0.15 ether).
-     *
-     * @param tokenIds The IDs of passports.
-     * @param passportContract The address of the Passport contract that will check if owner of passport is same as recipient.
+     * @param passportTokenIDs The IDs of passports.
      * @param recipient The address to whom the newly minted token will be assigned.
      * @return pfpTokenId The ID of the corresponding PFP token that was minted for the `recipient`.
      *
-     * Requirements:
-     * - The caller must be the owner of the token specified by `tokenId`.
-     * - The `tokenId` must be eligible for a free mint, indicated by the `hasFreeMint` modifier.
-     *
-     * Note: This function is external, which means it can only be called from outside the contract.
      */
     function mint(
-        uint256[] calldata tokenIds,
-        address passportContract,
+        uint256[] calldata passportTokenIDs,
         address recipient
     )
         external
-        tokensPresentInList(tokenIds)
-        onlyTokenOwner(passportContract, tokenIds, recipient)
-        hasFreeMint(tokenIds)
+        tokensPresentInList(passportTokenIDs)
+        noDuplicates(passportTokenIDs)
+        onlyTokenOwner(passportTokenIDs, recipient)
+        hasFreeMint(passportTokenIDs)
         returns (uint256)
     {
         _friendsAndFamilyMint(recipient);
 
-        return _passportMint(tokenIds, recipient);
-    }
-
-    /**
-     * @notice Set New Minter Utility Contract Address
-     * @notice Allows the admin to set a new address for the Minter Utility Contract.
-     * @param _newMinterUtilityContractAddress The address of the new Minter Utility Contract.
-     * @dev Only the admin can call this function.
-     */
-    function setNewMinterUtilityContractAddress(
-        address _newMinterUtilityContractAddress
-    ) external onlyAdmin {
-        minterUtilityContractAddress = _newMinterUtilityContractAddress;
-    }
-
-    /**
-     * @notice Set the address of the friends and family minter contract.
-     * @param _newfriendsAndFamilyMinterAddress The address of the new friends and family minter contract.
-     */
-    function setFriendsAndFamilyMinter(
-        address _newfriendsAndFamilyMinterAddress
-    ) external onlyAdmin {
-        friendsAndFamilyMinter = _newfriendsAndFamilyMinterAddress;
+        return _passportMint(passportTokenIDs, recipient);
     }
 
     /**
@@ -117,17 +88,19 @@ contract CollectionHolderMint is ICollectionHolderMint {
 
     /**
      * @dev Modifier to ensure the caller owns the specified tokens or has appropriate approval.
-     * @param passportContract The address of the Passport contract.
-     * @param tokenIds An array of token IDs.
+     * @param passportTokenIDs An array of token IDs.
      * @param recipient The recipient address.
      */
     modifier onlyTokenOwner(
-        address passportContract,
-        uint256[] calldata tokenIds,
+        uint256[] calldata passportTokenIDs,
         address recipient
     ) {
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            if (IERC721A(passportContract).ownerOf(tokenIds[i]) != recipient) {
+        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+            if (
+                IERC721A(passportContractAddress).ownerOf(
+                    passportTokenIDs[i]
+                ) != recipient
+            ) {
                 revert IERC721A.ApprovalCallerNotOwnerNorApproved();
             }
         }
@@ -138,7 +111,7 @@ contract CollectionHolderMint is ICollectionHolderMint {
      * @dev Modifier to ensure the caller is an admin.
      */
     modifier onlyAdmin() {
-        if (!ICre8ors(collectionContractAddress).isAdmin(msg.sender)) {
+        if (!ICre8ors(cre8orsNFTContractAddress).isAdmin(msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
         }
 
@@ -146,12 +119,21 @@ contract CollectionHolderMint is ICollectionHolderMint {
     }
 
     /**
-     * @dev Modifier to ensure the specified token IDs are eligible for a free mint.
-     * @param tokenIds An array of token IDs.
+     * @dev Modifier to ensure the specified token IDs are not duplicates.
      */
-    modifier hasFreeMint(uint256[] calldata tokenIds) {
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            if (freeMintClaimed[tokenIds[i]]) {
+    modifier noDuplicates(uint[] calldata _passportpassportTokenIDs) {
+        if (_hasDuplicates(_passportpassportTokenIDs)) {
+            revert DuplicatesFound();
+        }
+        _;
+    }
+    /**
+     * @dev Modifier to ensure the specified token IDs are eligible for a free mint.
+     * @param passportTokenIDs An array of token IDs.
+     */
+    modifier hasFreeMint(uint256[] calldata passportTokenIDs) {
+        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+            if (freeMintClaimed[passportTokenIDs[i]]) {
                 revert AlreadyClaimedFreeMint();
             }
         }
@@ -160,60 +142,127 @@ contract CollectionHolderMint is ICollectionHolderMint {
 
     /**
      * @dev Modifier to ensure the specified token ID list is not empty.
-     * @param tokenIds An array of token IDs.
+     * @param passportTokenIDs An array of token IDs.
      */
-    modifier tokensPresentInList(uint256[] calldata tokenIds) {
-        if (tokenIds.length == 0) {
+    modifier tokensPresentInList(uint256[] calldata passportTokenIDs) {
+        if (passportTokenIDs.length == 0) {
             revert NoTokensProvided();
         }
         _;
+    }
+
+    ///////////////////////////////////////
+    ////////// SETTER FUNCTIONS //////////
+    /////////////////////////////////////
+    /**
+     * @notice Set New Minter Utility Contract Address
+     * @notice Allows the admin to set a new address for the Minter Utility Contract.
+     * @param _newMinterUtilityContractAddress The address of the new Minter Utility Contract.
+     * @dev Only the admin can call this function.
+     */
+    function setNewMinterUtilityContractAddress(
+        address _newMinterUtilityContractAddress
+    ) external onlyAdmin {
+        minterUtilityContractAddress = _newMinterUtilityContractAddress;
+    }
+
+    /**
+     * @notice Set the address of the friends and family minter contract.
+     * @param _newfriendsAndFamilyMinterContractAddressAddress The address of the new friends and family minter contract.
+     */
+    function setFriendsAndFamilyMinterContractAddress(
+        address _newfriendsAndFamilyMinterContractAddressAddress
+    ) external onlyAdmin {
+        friendsAndFamilyMinterContractAddress = _newfriendsAndFamilyMinterContractAddressAddress;
+    }
+
+    /**
+     * @notice Updates the passport contract address.
+     * @dev This function can only be called by the admin.
+     * @param _newPassportContractAddress The new passport contract address.
+     */
+    function setNewPassportContractAddress(
+        address _newPassportContractAddress
+    ) external onlyAdmin {
+        passportContractAddress = _newPassportContractAddress;
+    }
+
+    /**
+     * @notice Updates the Cre8ors NFT contract address.
+     * @dev This function can only be called by the admin.
+     * @param _newCre8orsNFTContractAddress The new Cre8ors NFT contract address.
+     */
+    function setNewCre8orsNFTContractAddress(
+        address _newCre8orsNFTContractAddress
+    ) external onlyAdmin {
+        cre8orsNFTContractAddress = _newCre8orsNFTContractAddress;
     }
 
     ////////////////////////////////////////
     ////////// INTERNALFUNCTIONS //////////
     ///////////////////////////////////////
 
-    function _setTokenIdsToClaimed(uint256[] calldata tokenIds) internal {
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            freeMintClaimed[tokenIds[i]] = true;
+    function _setpassportTokenIDsToClaimed(
+        uint256[] calldata passportTokenIDs
+    ) internal {
+        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+            freeMintClaimed[passportTokenIDs[i]] = true;
         }
     }
 
-    function _lockAndStakeTokens(uint256[] calldata _tokenIds) internal {
+    function _lockAndStakeTokens(uint256[] memory _mintedPFPTokenIDs) internal {
         IMinterUtilities minterUtility = IMinterUtilities(
             minterUtilityContractAddress
         );
         uint256 lockupDate = block.timestamp + 8 weeks;
-        uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
+        uint256 unlockPrice = minterUtility.getTierInfo(3).price;
         bytes memory data = abi.encode(lockupDate, unlockPrice);
-        ICre8ors(collectionContractAddress).cre8ing().inializeStakingAndLockup(
-            collectionContractAddress,
-            _tokenIds,
+        ICre8ors(cre8orsNFTContractAddress).cre8ing().inializeStakingAndLockup(
+            cre8orsNFTContractAddress,
+            _mintedPFPTokenIDs,
             data
         );
     }
 
     function _passportMint(
-        uint256[] calldata _tokenIds,
+        uint256[] calldata _passportTokenIDs,
         address recipient
     ) internal returns (uint256) {
-        uint256 pfpTokenId = ICre8ors(collectionContractAddress).adminMint(
+        uint256 pfpTokenId = ICre8ors(cre8orsNFTContractAddress).adminMint(
             recipient,
-            _tokenIds.length
+            _passportTokenIDs.length
         );
-        totalClaimed[recipient] += _tokenIds.length;
-        _lockAndStakeTokens(_tokenIds);
-        _setTokenIdsToClaimed(_tokenIds);
+        uint256[] memory _pfpTokenIds = new uint256[](_passportTokenIDs.length);
+        uint256 startingTokenId = pfpTokenId - _passportTokenIDs.length + 1;
+        for (uint256 i = 0; i < _passportTokenIDs.length; i++) {
+            _pfpTokenIds[i] = startingTokenId + i;
+        }
+        totalClaimed[recipient] += _passportTokenIDs.length;
+        _lockAndStakeTokens(_pfpTokenIds);
+        _setpassportTokenIDsToClaimed(_passportTokenIDs);
         return pfpTokenId;
     }
 
     function _friendsAndFamilyMint(address buyer) internal {
         IFriendsAndFamilyMinter ffMinter = IFriendsAndFamilyMinter(
-            friendsAndFamilyMinter
+            friendsAndFamilyMinterContractAddress
         );
 
         if (ffMinter.hasDiscount(buyer)) {
             ffMinter.mint(buyer);
         }
+    }
+
+    function _hasDuplicates(
+        uint[] calldata values
+    ) internal pure returns (bool) {
+        for (uint i = 0; i < values.length; i++) {
+            for (uint j = i + 1; j < values.length; j++) {
+                if (values[i] == values[j]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -10,6 +10,8 @@ import {ISharedPaidMinterFunctions} from "../interfaces/ISharedPaidMinterFunctio
 contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
     address public cre8orsNFT;
     address public minterUtility;
+    address public collectionHolderMint;
+    address public friendsAndFamilyMinter;
 
     modifier verifyCost(IMinterUtilities.Cart[] memory carts) {
         uint256 totalCost = IMinterUtilities(minterUtility).calculateTotalCost(
@@ -51,11 +53,13 @@ contract SharedPaidMinterFunctions is ISharedPaidMinterFunctions {
                 _getLockUpDateAndPrice(carts[i].tier),
                 (uint256, uint256)
             );
-            lockup.setUnlockInfo(
-                cre8orsNFT,
-                tokenId + i,
-                abi.encode(lockupDate, tierPrice)
-            );
+            for (uint256 j = 0; j < carts[i].quantity; j++) {
+                lockup.setUnlockInfo(
+                    cre8orsNFT,
+                    tokenId + j,
+                    abi.encode(lockupDate, tierPrice)
+                );
+            }
         }
     }
 

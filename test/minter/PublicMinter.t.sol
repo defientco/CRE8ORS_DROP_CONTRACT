@@ -58,13 +58,16 @@ contract PublicMinterTest is DSTest, StdUtils {
 
         collectionMinter = new CollectionHolderMint(
             address(cre8orsNFTBase),
+            address(cre8orsPassport),
             address(minterUtility),
             address(friendsAndFamilyMinter)
         );
 
         minter = new PublicMinter(
             address(cre8orsNFTBase),
-            address(minterUtility)
+            address(minterUtility),
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
         cre8ingBase = new Cre8ing();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -130,12 +133,7 @@ contract PublicMinterTest is DSTest, StdUtils {
 
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
-        uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            _buyer,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter)
-        );
+        uint256 tokenId = minter.mintPfp{value: totalPrice}(_buyer, _carts);
         vm.stopPrank();
         assertEq(totalQuantity, tokenId);
         assertEq(
@@ -181,12 +179,7 @@ contract PublicMinterTest is DSTest, StdUtils {
 
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
-        uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            _buyer,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter)
-        );
+        uint256 tokenId = minter.mintPfp{value: totalPrice}(_buyer, _carts);
         vm.stopPrank();
         assertEq(totalQuantity + 1, tokenId);
         assertEq(
@@ -223,12 +216,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         vm.deal(_buyer, totalPrice);
         vm.startPrank(_buyer);
         vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
-        uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            _buyer,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter)
-        );
+        uint256 tokenId = minter.mintPfp{value: totalPrice}(_buyer, _carts);
         vm.stopPrank();
     }
 
@@ -280,9 +268,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         vm.prank(transferred);
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
             transferred,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter)
+            _carts
         );
     }
 

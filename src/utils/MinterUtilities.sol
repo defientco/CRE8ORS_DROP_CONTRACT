@@ -234,6 +234,9 @@ contract MinterUtilities is IMinterUtilities {
         uint256 publicSaleStart = ICre8ors(collectionAddress)
             .saleDetails()
             .publicSaleStart;
+        uint256 preSaleStart = ICre8ors(collectionAddress)
+            .saleDetails()
+            .presaleStart;
         if (currentTimestamp < publicSaleStart) {
             return maxAllowlistQuantity + totalClaimedFree;
         }

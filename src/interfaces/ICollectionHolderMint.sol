@@ -9,6 +9,7 @@ interface ICollectionHolderMint {
     // Events
     error AlreadyClaimedFreeMint(); // Fired when a free mint has already been claimed
     error NoTokensProvided(); // Fired when a mint function is called with no tokens provided
+    error DuplicatesFound(); // Fired when a mint function is called with duplicate tokens
 
     /**
      * @dev Returns whether a specific mint has been claimed
@@ -21,7 +22,7 @@ interface ICollectionHolderMint {
      * @dev Returns the address of the collection contract
      * @return The address of the collection contract
      */
-    function collectionContractAddress() external view returns (address);
+    function cre8orsNFTContractAddress() external view returns (address);
 
     /**
      * @dev Returns the address of the minter utility contract
@@ -38,13 +39,11 @@ interface ICollectionHolderMint {
     /**
      * @dev Mints a batch of tokens and sends them to a recipient
      * @param tokenIds An array of token IDs to mint
-     * @param passportContract The address of the passport contract
      * @param recipient The address to send the minted tokens to
      * @return The last token ID minted in this batch
      */
     function mint(
         uint256[] calldata tokenIds,
-        address passportContract,
         address recipient
     ) external returns (uint256);
 
@@ -61,12 +60,4 @@ interface ICollectionHolderMint {
      * @param tokenId The ID of the token whose claim status is being toggled
      */
     function toggleHasClaimedFreeMint(uint256 tokenId) external;
-
-    /**
-     * @dev Sets a new address for the friends and family minter
-     * @param _newfriendsAndFamilyMinterAddress The new friends and family minter address
-     */
-    function setFriendsAndFamilyMinter(
-        address _newfriendsAndFamilyMinterAddress
-    ) external;
 }

@@ -5,6 +5,7 @@ import {DSTest} from "ds-test/test.sol";
 
 import {StdUtils} from "forge-std/StdUtils.sol";
 import {Vm} from "forge-std/Vm.sol";
+import {console} from "forge-std/Console.sol";
 // interface imports
 import {ICollectionHolderMint} from "../../src/interfaces/ICollectionHolderMint.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
@@ -61,6 +62,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
 
         collectionMinter = new CollectionHolderMint(
             address(cre8orsNFTBase),
+            address(cre8orsPassport),
             address(minterUtility),
             address(friendsAndFamilyMinter)
         );
@@ -68,7 +70,9 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         cre8ingBase = new Cre8ing();
         minter = new AllowlistMinter(
             address(cre8orsNFTBase),
-            address(minterUtility)
+            address(minterUtility),
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -119,8 +123,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         uint256 tokenId = minter.mintPfp{value: totalPrice}(
             item.user,
             _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
             item.proof
         );
         vm.stopPrank();
@@ -146,13 +148,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         vm.deal(address(0x25), totalPrice);
         vm.prank(address(0x25));
         vm.expectRevert(IERC721Drop.Presale_MerkleNotApproved.selector);
-        minter.mintPfp{value: totalPrice}(
-            address(0x25),
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
-        );
+        minter.mintPfp{value: totalPrice}(address(0x25), _carts, item.proof);
     }
 
     function testRevertTooMuchQuantity(bool _withLockUp) public {
@@ -170,13 +166,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         vm.deal(item.user, totalPrice);
         vm.prank(item.user);
         vm.expectRevert(IERC721Drop.Presale_TooManyForAddress.selector);
-        minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
-        );
+        minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
     }
 
     function testRevertEmptyCarts(bool _withLockUp) public {
@@ -192,13 +182,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         vm.deal(item.user, totalPrice);
         vm.prank(item.user);
         vm.expectRevert(IERC721A.MintZeroQuantity.selector);
-        minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
-        );
+        minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
     }
 
     function testTierDoesntExist() public {
@@ -212,17 +196,26 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
         uint256 totalPrice = IMinterUtilities(address(minterUtility))
             .calculateTotalCost(_carts);
-
         vm.deal(item.user, totalPrice);
         vm.expectRevert(ISharedPaidMinterFunctions.InvalidTier.selector);
         vm.prank(item.user);
-        minter.mintPfp{value: totalPrice}(
-            item.user,
-            _carts,
-            address(collectionMinter),
-            address(friendsAndFamilyMinter),
-            item.proof
-        );
+        minter.mintPfp{value: totalPrice}(item.user, _carts, item.proof);
+    }
+
+    function testRevertPresaleInactive(address _buyer) public {
+        vm.assume(_buyer != address(0x0));
+        _setUpMinter(true);
+        _updatePresaleStart(uint64(block.timestamp + 1000));
+        IMinterUtilities.Cart[] memory _carts = new IMinterUtilities.Cart[](1);
+        _carts[0].tier = 1;
+        _carts[0].quantity = 88;
+        bytes32[] memory proof = new bytes32[](0);
+        uint256 totalPrice = IMinterUtilities(address(minterUtility))
+            .calculateTotalCost(_carts);
+        vm.deal(_buyer, totalPrice);
+        vm.expectRevert(IERC721Drop.Presale_Inactive.selector);
+        vm.prank(_buyer);
+        minter.mintPfp{value: totalPrice}(_buyer, _carts, proof);
     }
 
     function _setUpContracts() internal returns (Cre8ors) {
@@ -264,6 +257,32 @@ contract AllowlistMinterTest is DSTest, StdUtils {
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(minter)
             )
+        );
+        vm.stopPrank();
+    }
+
+    function _updatePresaleStart(uint64 _presaleStart) internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        (
+            uint104 _publicSalePrice,
+            address _erc20PaymentToken,
+            uint32 _maxSalePurchasePerAddress,
+            uint64 _publicSaleStart,
+            uint64 _publicSaleEnd,
+            ,
+            uint64 _presaleEnd,
+            bytes32 _presaleMerkleRoot
+        ) = cre8orsNFTBase.salesConfig();
+
+        cre8orsNFTBase.setSaleConfiguration(
+            _erc20PaymentToken,
+            _publicSalePrice,
+            _maxSalePurchasePerAddress,
+            _publicSaleStart,
+            _publicSaleEnd,
+            _presaleStart,
+            _presaleEnd,
+            _presaleMerkleRoot
         );
         vm.stopPrank();
     }
