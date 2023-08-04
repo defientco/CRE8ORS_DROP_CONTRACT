@@ -52,7 +52,11 @@ contract SubscriptionTest is DSTest, StdUtils {
     MerkleData public merkleData;
     Lockup lockup = new Lockup();
 
-    Subscription public subscription;
+    Cre8ing public cre8ingForBase;
+    Cre8ing public cre8ingForPassport;
+
+    Subscription public subscriptionForBase;
+    Subscription public subscriptionForPassport;
 
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
@@ -63,6 +67,9 @@ contract SubscriptionTest is DSTest, StdUtils {
             100000000000000000,
             150000000000000000
         );
+
+        cre8ingForBase = _setupCre8ing(cre8orsNFTBase);
+        cre8ingForPassport = _setupCre8ing(cre8orsPassport);
 
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
@@ -82,15 +89,43 @@ contract SubscriptionTest is DSTest, StdUtils {
             address(minterUtility)
         );
 
-        subscription = _setupSubscriptionContract(cre8orsNFTBase);
-
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setSubscription(address(subscription));
-        cre8orsPassport.setSubscription(address(subscription));
-        vm.stopPrank();
+        subscriptionForBase = _setupSubscriptionContract(cre8orsNFTBase);
+        subscriptionForPassport = _setupSubscriptionContract(cre8orsPassport);
 
         merkleData = new MerkleData();
     }
+
+    function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(address _friendOrFamily) public {
+        vm.assume(_friendOrFamily != address(0));
+
+        // Setup FriendsAndFamilyMinter
+        _setUpFriendsAndFamilyMinter();
+
+        // Apply Discount
+        _addFriendsAndFamilyMinterDiscount(_friendOrFamily);
+
+        // Mint
+        uint256 tokenId = friendsAndFamilyMinter.mint(_friendOrFamily);
+
+        // Asserts
+        assertTrue(!friendsAndFamilyMinter.hasDiscount(_friendOrFamily));
+        assertEq(tokenId, 1);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+        assertEq(
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+            1
+        );
+
+        // 1 year passed
+        vm.warp(block.timestamp + friendsAndFamilyMinter.ONE_YEAR_DURATION());
+
+        // ownerOf should return address(0)
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                             SETUP FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _setUpContracts() internal returns (Cre8ors) {
         return
@@ -115,6 +150,12 @@ contract SubscriptionTest is DSTest, StdUtils {
             });
     }
 
+    function _setupCre8ing(Cre8ors cre8orsNFT_) internal returns (Cre8ing _cre8ing) {
+        _cre8ing = new Cre8ing();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFT_.setCre8ing(_cre8ing);
+    }
+
     function _setupSubscriptionContract(Cre8ors cre8orsNFT_) internal returns (Subscription _subscription) {
         _subscription = new Subscription({
             cre8orsNFT_: address(cre8orsNFT_),
@@ -128,19 +169,22 @@ contract SubscriptionTest is DSTest, StdUtils {
     }
 
     function _setUpFriendsAndFamilyMinter() internal {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(friendsAndFamilyMinter)
-        );
-
+        bytes32 role = cre8orsNFTBase.DEFAULT_ADMIN_ROLE();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(role, address(friendsAndFamilyMinter));
         assertTrue(
             cre8orsNFTBase.hasRole(
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(friendsAndFamilyMinter)
             )
         );
-        vm.stopPrank();
+    }
+
+    function _addFriendsAndFamilyMinterDiscount(address _buyer) internal {
+        assertTrue(!friendsAndFamilyMinter.hasDiscount(_buyer));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        friendsAndFamilyMinter.addDiscount(_buyer);
+        assertTrue(friendsAndFamilyMinter.hasDiscount(_buyer));
     }
 
     function _setUpCollectionMinter() internal {
@@ -186,32 +230,6 @@ contract SubscriptionTest is DSTest, StdUtils {
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(publicMinter)
             )
-        );
-        vm.stopPrank();
-    }
-
-    function _updateMerkleRoot() internal {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        (
-            uint104 _publicSalePrice,
-            address _erc20PaymentToken,
-            uint32 _maxSalePurchasePerAddress,
-            uint64 _publicSaleStart,
-            uint64 _publicSaleEnd,
-            uint64 _presaleStart,
-            uint64 _presaleEnd,
-
-        ) = cre8orsNFTBase.salesConfig();
-
-        cre8orsNFTBase.setSaleConfiguration(
-            _erc20PaymentToken,
-            _publicSalePrice,
-            _maxSalePurchasePerAddress,
-            _publicSaleStart,
-            _publicSaleEnd,
-            _presaleStart,
-            _presaleEnd,
-            merkleData.getTestSetByName("test-allowlist-minter").root
         );
         vm.stopPrank();
     }
