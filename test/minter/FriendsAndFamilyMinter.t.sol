@@ -91,10 +91,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         // Setup Minter
         _setupMinter();
 
-        // Setup Lockup
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
-
         // Apply Discount
         _addDiscount(_friendOrFamily);
 
@@ -122,15 +118,23 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function _setupMinter() internal {
-        bytes32 role = cre8orsNFTBase.DEFAULT_ADMIN_ROLE();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
+        bytes32 role = cre8orsNFTBase.MINTER_ROLE();
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(role, address(minter));
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(cre8ingBase)
+        );
+        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+
+        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
         assertTrue(
             cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
+                cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
         );
+        vm.stopPrank();
     }
 
     function _addDiscount(address _buyer) internal {
