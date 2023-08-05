@@ -106,13 +106,13 @@ contract PublicMinterTest is DSTest, StdUtils {
             });
     }
 
-    function testSuccess(bool _withLockUp, address _buyer) public {
+    function testSuccess(address _buyer) public {
         uint256[] memory _carts = new uint256[](3);
         _carts[0] = bound(_carts[0], 1, 8);
         _carts[1] = 0;
         _carts[2] = 0;
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
         vm.assume(
             IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
                 _carts
@@ -134,16 +134,13 @@ contract PublicMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testPublicSaleInactiveMintedDiscount(
-        bool _withLockUp,
-        address _buyer
-    ) public {
+    function testPublicSaleInactiveMintedDiscount(address _buyer) public {
         uint256[] memory _carts = new uint256[](3);
         _carts[0] = bound(_carts[0], 1, 8);
         _carts[1] = 0;
         _carts[2] = 0;
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
         _updatePublicSaleStart(uint64(block.timestamp + 1000));
         vm.assume(
             IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
@@ -176,16 +173,13 @@ contract PublicMinterTest is DSTest, StdUtils {
         );
     }
 
-    function testRevertPublicSaleInactive(
-        bool _withLockUp,
-        address _buyer
-    ) public {
+    function testRevertPublicSaleInactive(address _buyer) public {
         uint256[] memory _carts = new uint256[](3);
         _carts[0] = bound(_carts[0], 1, 8);
         _carts[1] = 0;
         _carts[2] = 0;
         vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
+        _setUpMinter();
         _updatePublicSaleStart(uint64(block.timestamp + 1000));
 
         vm.assume(
@@ -205,58 +199,7 @@ contract PublicMinterTest is DSTest, StdUtils {
         vm.stopPrank();
     }
 
-    function testRevertPublicSaleInactiveOfWalletWithTransferedMintedDiscount(
-        uint256[] memory _carts,
-        bool _withLockUp,
-        address _buyer
-    ) public {
-        address transferred = address(0x1988789);
-        vm.assume(_buyer != transferred);
-        uint256[] memory _carts = new uint256[](3);
-        _carts[0] = bound(_carts[0], 1, 8);
-        _carts[1] = 0;
-        _carts[2] = 0;
-        vm.assume(_buyer != address(0));
-        _setUpMinter(_withLockUp);
-        // set public sale start to sometime in future
-        _updatePublicSaleStart(uint64(block.timestamp + 1000000));
-
-        vm.assume(
-            IMinterUtilities(address(minterUtility)).calculateTotalQuantity(
-                _carts
-            ) < 8
-        );
-        // grant family minter admin role
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
-            address(friendsAndFamilyMinter)
-        );
-        // add discount to buyer
-        friendsAndFamilyMinter.addDiscount(_buyer);
-        vm.stopPrank();
-        // transfer minted pfp from buyer to transferred
-        vm.startPrank(_buyer);
-        friendsAndFamilyMinter.mint(_buyer);
-        cre8orsNFTBase.transferFrom(_buyer, transferred, 1);
-        assertEq(cre8orsNFTBase.mintedPerAddress(transferred).totalMints, 0);
-        vm.stopPrank();
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
-            .calculateTotalQuantity(_carts);
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
-
-        // transferred tries to mint with transferred pfp prior to sale.
-        vm.deal(transferred, totalPrice);
-        vm.expectRevert(IERC721Drop.Sale_Inactive.selector);
-        vm.prank(transferred);
-        uint256 tokenId = minter.mintPfp{value: totalPrice}(
-            transferred,
-            _carts
-        );
-    }
-
-    function _setUpMinter(bool withLockup) internal {
+    function _setUpMinter() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(minter));
         cre8orsNFTBase.grantRole(

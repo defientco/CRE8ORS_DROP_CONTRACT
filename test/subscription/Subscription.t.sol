@@ -110,7 +110,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         merkleData = new MerkleData();
     }
 
-    function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(
+    function testSuccessfulMintAndSubscriptionByFriendsAndFamilyMinter(
         address _friendOrFamily
     ) public {
         vm.assume(_friendOrFamily != address(0));
@@ -122,6 +122,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         _addFriendsAndFamilyMinterDiscount(_friendOrFamily);
 
         // Mint
+        _setupLockup();
         uint256 tokenId = friendsAndFamilyMinter.mint(_friendOrFamily);
 
         // Asserts
@@ -173,6 +174,14 @@ contract SubscriptionTest is DSTest, StdUtils {
         _cre8ing = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFT_.setCre8ing(_cre8ing);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        _cre8ing.setCre8ingOpen(address(cre8orsNFT_), true);
+        _setupMinterRole(address(_cre8ing));
+    }
+
+    function _setupLockup() internal {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8ingForBase.setLockup(address(cre8orsNFTBase), lockup);
     }
 
     function _setupSubscriptionContract(

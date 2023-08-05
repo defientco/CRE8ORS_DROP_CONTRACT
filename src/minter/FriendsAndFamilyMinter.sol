@@ -39,16 +39,19 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         hasDiscount[recipient] = false;
 
         // Set lockup information (optional)
-        ILockup lockup = ICre8ors(cre8orsNFT).cre8ing().lockUp(cre8orsNFT);
-        if (address(lockup) != address(0)) {
-            IMinterUtilities minterUtility = IMinterUtilities(
-                minterUtilityContractAddress
-            );
-            uint256 lockupDate = block.timestamp + 8 weeks;
-            uint256 unlockPrice = minterUtility.calculateUnlockPrice(1, true);
-            bytes memory data = abi.encode(lockupDate, unlockPrice);
-            lockup.setUnlockInfo(cre8orsNFT, pfpTokenId, data);
-        }
+        IMinterUtilities minterUtility = IMinterUtilities(
+            minterUtilityContractAddress
+        );
+        uint256 lockupDate = block.timestamp + 8 weeks;
+        uint256 unlockPrice = minterUtility.getTierInfo(3).price;
+        bytes memory data = abi.encode(lockupDate, unlockPrice);
+        uint256[] memory tokenIDs = new uint256[](1);
+        tokenIDs[0] = pfpTokenId;
+        ICre8ors(cre8orsNFT).cre8ing().inializeStakingAndLockup(
+            cre8orsNFT,
+            tokenIDs,
+            data
+        );
 
         // Return the token ID of the minted token
         return pfpTokenId;
