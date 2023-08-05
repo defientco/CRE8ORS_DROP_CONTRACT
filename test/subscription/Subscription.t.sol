@@ -108,7 +108,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         merkleData = new MerkleData();
     }
 
-    function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(
+    function testSuccessfulMintAndSubscriptionByFriendsAndFamilyMinter(
         address _friendOrFamily
     ) public {
         vm.assume(_friendOrFamily != address(0));
