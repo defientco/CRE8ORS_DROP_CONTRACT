@@ -58,14 +58,10 @@ export async function deployCre8ors(root) {
     _salesConfig2,
     _metadataRenderer,
   ];
-  await retryVerify(
-    2,
-    "0xe05ae2fF6D24cfE14d62C72978f4e1eCf583e956",
-    contractLocation,
-    args2
-  );
-  console.log(`[verified] ${contractLocation}`);
   const dropContractAddress = dropContract.deploy.deployedTo;
+
+  await retryVerify(2, dropContractAddress, contractLocation, args2);
+  console.log(`[verified] ${contractLocation}`);
   console.log("deployed cre8ors to ", dropContractAddress);
 
   return dropContract;
