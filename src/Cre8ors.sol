@@ -12,7 +12,6 @@ import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
-import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
 
 
@@ -32,8 +31,8 @@ contract Cre8ors is
     ReentrancyGuard,
     IERC721Drop,
     OwnableSkeleton,
-    ERC721DropStorageV1,
-    Cre8orsERC6551
+    ERC721DropStorageV1
+    
 {
     /// @dev This is the max mint batch size for the optimized ERC721ACH mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
