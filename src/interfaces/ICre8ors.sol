@@ -29,7 +29,5 @@ interface ICre8ors is IERC721Drop, IERC721A, IERC721ACH {
         address account
     ) external view returns (bool);
 
-    function cre8ingTransfer() external view returns (uint256);
-
     function subscription() external view returns (address);
 }
