@@ -20,6 +20,7 @@ import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
+import {Subscription} from "../src/subscription/Subscription.sol";
 
 import "forge-std/console.sol";
 
@@ -35,9 +36,11 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     TransferHook public transferHook;
     address constant DEAD_ADDRESS =
         address(0x000000000000000000000000000000000000dEaD);
+    Subscription public subscription;
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
+        subscription = _setupSubscriptionContract(cre8orsNFTBase);
         erc6551Registry = new ERC6551Registry();
         guardian = new AccountGuardian();
         entryPoint = new EntryPoint();
@@ -46,7 +49,8 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
+        _setupMinterRole(address(transferHook));
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
         cre8orsNFTBase.setHook(
@@ -241,5 +245,29 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             )
         );
         return tokenBoundAccount;
+    }
+
+    function _setupMinterRole(address _assignee) internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(_assignee)
+        );
+        vm.stopPrank();
+    }
+
+    function _setupSubscriptionContract(Cre8ors cre8orsNFT_)
+        internal
+        returns (Subscription _subscription)
+    {
+        _subscription = new Subscription({
+            cre8orsNFT_: address(cre8orsNFT_),
+            minRenewalDuration_: 1 days,
+            pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
+        });
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFT_.setSubscription(address(_subscription));
+        vm.stopPrank();
     }
 }
