@@ -16,8 +16,6 @@ import {TransferHook} from "../src/Transfers.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
 
-
-
 contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     TransferHook public transferHook;
@@ -31,7 +29,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         cre8ingBase = new Cre8ing();
         transferHook = new TransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        
+
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
@@ -40,14 +38,9 @@ contract Cre8ingTest is Test, Cre8orTestBase {
             address(cre8orsNFTBase),
             true
         );
-        transferHook.setCre8ing(
-            address(cre8orsNFTBase),
-            ICre8ing(cre8ingBase)
-        );
-
+        transferHook.setCre8ing(address(cre8orsNFTBase), ICre8ing(cre8ingBase));
 
         vm.stopPrank();
-        
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {
@@ -138,8 +131,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
         cre8orsNFTBase.purchase(1);
 
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
+        open_staking();
 
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
@@ -166,7 +158,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
-        cre8orsNFTBase.safeTransferWhileCre8ing(
+        transferHook.safeTransferWhileCre8ing(
+            address(cre8orsNFTBase),
             DEFAULT_CRE8OR_ADDRESS,
             DEFAULT_TRANSFER_ADDRESS,
             _tokenId
@@ -179,9 +172,13 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(cre8ing, true);
     }
 
-    function test_safeTransferWhileCre8ingRevert_Access_OnlyOwner() public {
+    function test_safeTransferWhileCre8ingRevert_Access_OnlyOwner(
+        address _tokenOwner,
+        address _caller
+    ) public {
+        vm.assume(_caller != _tokenOwner);
         uint256 _tokenId = 1;
-        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        vm.prank(_tokenOwner);
         cre8orsNFTBase.purchase(1);
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
@@ -189,17 +186,18 @@ contract Cre8ingTest is Test, Cre8orTestBase {
 
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
-        vm.prank(DEFAULT_CRE8OR_ADDRESS);
+        vm.prank(_tokenOwner);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
-        assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
-        vm.startPrank(DEFAULT_TRANSFER_ADDRESS);
+        assertEq(cre8orsNFTBase.ownerOf(_tokenId), _tokenOwner);
+        vm.startPrank(_caller);
         vm.expectRevert(abi.encodeWithSignature("Access_OnlyOwner()"));
-        cre8orsNFTBase.safeTransferWhileCre8ing(
-            DEFAULT_CRE8OR_ADDRESS,
-            DEFAULT_TRANSFER_ADDRESS,
+        transferHook.safeTransferWhileCre8ing(
+            address(cre8orsNFTBase),
+            _tokenOwner,
+            _caller,
             _tokenId
         );
-        assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
+        assertEq(cre8orsNFTBase.ownerOf(_tokenId), _tokenOwner);
     }
 
     function test_expelFromWarehouseRevert_uncre8ed() public {

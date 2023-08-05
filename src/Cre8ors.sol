@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ERC721ACH} from "ERC721H/ERC721ACH.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
@@ -33,25 +34,12 @@ contract Cre8ors is
     IERC721Drop,
     OwnableSkeleton,
     ERC721DropStorageV1
-    
 {
     /// @dev This is the max mint batch size for the optimized ERC721ACH mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
-
-    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
-    uint256 internal cre8ingTransfer = 1;
-
-    /// @dev Subscription contract address
-    ///     address(0) means subscription is turned off
-    address public subscription;
-
-    /// @dev The address that gets returns if the subscription of a tokenId is expired.
-    ///     By default: address(0)
-    address public ownerOfOverrideReturn;
 
     constructor(
         string memory _contractName,
@@ -301,13 +289,6 @@ contract Cre8ors is
     /// ADMIN
     /////////////////////////////////////////////////
 
-    /// @dev Setter function for subscription contract address.
-    ///     - if we want to turn off subscription: `setSubscription(address(0))`
-    ///     - if we want to enable subscription: `setSubscription(address(Subscription))`
-    function setSubscription(address newSubscription) external onlyAdmin {
-        subscription = newSubscription;
-    }
-
     // can be zero address
     function setOwnerOfOverrideReturn(address addr) external onlyAdmin {
         ownerOfOverrideReturn = addr;
@@ -400,21 +381,6 @@ contract Cre8ors is
         }
     }
 
-    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
-    ///     thus not resetting the cre8ing period.
-    function safeTransferWhileCre8ing(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external {
-        if (ownerOf(tokenId) != _msgSender()) {
-            revert Access_OnlyOwner();
-        }
-        cre8ingTransfer = 2;
-        safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer = 1;
-    }
-
     /////////////////////////////////////////////////
     /// ERC721C - cre8or royalties
     /////////////////////////////////////////////////
@@ -448,7 +414,6 @@ contract Cre8ors is
             salesConfig.presaleStart <= block.timestamp &&
             salesConfig.presaleEnd > block.timestamp;
     }
-
 
     /////////////////////////////////////////////////
     /// MODIFIERS
@@ -489,10 +454,6 @@ contract Cre8ors is
 
         _;
     }
-
-    /////////////////////////////////////////////////
-    /// OVERRIDES
-    /////////////////////////////////////////////////
 
     /// @notice ERC165 supports interface
     /// @param interfaceId interface id to check if supported
@@ -536,10 +497,16 @@ contract Cre8ors is
         return config.metadataRenderer.tokenURI(tokenId);
     }
 
+    /////////////////////////////////////////////////
+    /// MOVE TO ERC721H repo
+    /////////////////////////////////////////////////
+
+    // TODO: MOVE TO HOOKS
     function ownerOf(uint256 tokenId) public view override returns (address) {
         // external call to subscription if it is present
         if (subscription != address(0)) {
-            bool isSubscriptionValid = ISubscription(subscription).isSubscriptionValid(tokenId);
+            bool isSubscriptionValid = ISubscription(subscription)
+                .isSubscriptionValid(tokenId);
 
             // if subscription expired
             if (!isSubscriptionValid) {
@@ -548,5 +515,39 @@ contract Cre8ors is
         }
 
         return super.ownerOf(tokenId);
+    }
+
+    // TODO: MOVE TO HOOKS
+    /// @dev Setup auto-approval for Zora v3 access to sell NFT
+    ///      Still requires approval for module
+    /// @param nftOwner owner of the nft
+    /// @param operator operator wishing to transfer/burn/etc the NFTs
+    function isApprovedForAll(
+        address nftOwner,
+        address operator
+    ) public view override returns (bool) {
+        if (operator == hooks[IERC721ACH.HookType.BeforeTokenTransfers]) {
+            return true;
+        }
+        return super.isApprovedForAll(nftOwner, operator);
+    }
+
+    /////////////////////////////////////////////////
+    /// MOVE TO new OwnerOf Hook
+    /////////////////////////////////////////////////
+    /// @dev Subscription contract address
+    ///     address(0) means subscription is turned off
+    address public subscription;
+
+    /// @dev The address that gets returns if the subscription of a tokenId is expired.
+    ///     By default: address(0)
+    address public ownerOfOverrideReturn;
+
+    // TODO: MOVE TO HOOKS
+    /// @dev Setter function for subscription contract address.
+    ///     - if we want to turn off subscription: `setSubscription(address(0))`
+    ///     - if we want to enable subscription: `setSubscription(address(Subscription))`
+    function setSubscription(address newSubscription) external onlyAdmin {
+        subscription = newSubscription;
     }
 }

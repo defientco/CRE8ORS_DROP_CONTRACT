@@ -16,21 +16,23 @@ contract TransferHook is Cre8orsERC6551 {
     /// @notice To toggle free subscription in future
     bool public isFreeSubscriptionEnabled = true;
 
-
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
 
-
     /// @notice Toggle the status of the free subscription feature.
-    /// @dev This function can only be called by an admin, identified by the 
+    /// @dev This function can only be called by an admin, identified by the
     ///     "cre8orsNFT" contract address.
     function toggleIsFreeSubscriptionEnabled() public onlyAdmin(msg.sender) {
         isFreeSubscriptionEnabled = !isFreeSubscriptionEnabled;
     }
 
     ICre8ing public cre8ing;
+
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
+    mapping(address => uint256) internal cre8ingTransfer;
 
     /// @notice Set ERC6551 registry
     /// @param _target target ERC721 contract
@@ -139,7 +141,7 @@ contract TransferHook is Cre8orsERC6551 {
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (
                 cre8ing.getCre8ingStarted(msg.sender, tokenId) != 0 &&
-                ICre8ors(msg.sender).cre8ingTransfer() != 2
+                cre8ingTransfer[msg.sender] != 1
             ) {
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
@@ -171,23 +173,38 @@ contract TransferHook is Cre8orsERC6551 {
         return IERC721Drop(_target).isAdmin(user);
     }
 
-    /// @notice Get an array of token IDs starting from a given token ID and up 
+    /// @notice Get an array of token IDs starting from a given token ID and up
     ///     to a specified quantity.
     /// @param startTokenId The starting token ID.
     /// @param quantity The number of token IDs to generate.
     /// @return tokenIds An array containing the generated token IDs.
-    function getTokenIds(uint256 startTokenId, uint256 quantity)
-        public
-        pure
-        returns (uint256[] memory tokenIds)
-    {
+    function getTokenIds(
+        uint256 startTokenId,
+        uint256 quantity
+    ) public pure returns (uint256[] memory tokenIds) {
         tokenIds = new uint256[](quantity);
-        for (uint256 i = 0; i < quantity;) {
+        for (uint256 i = 0; i < quantity; ) {
             tokenIds[i] = startTokenId + i;
 
             unchecked {
                 ++i;
             }
         }
+    }
+
+    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
+    ///     thus not resetting the cre8ing period.
+    function safeTransferWhileCre8ing(
+        address target,
+        address from,
+        address to,
+        uint256 tokenId
+    ) external {
+        if (ICre8ors(target).ownerOf(tokenId) != msg.sender) {
+            revert IERC721Drop.Access_OnlyOwner();
+        }
+        cre8ingTransfer[target] = 1;
+        ICre8ors(target).safeTransferFrom(from, to, tokenId);
+        cre8ingTransfer[target] = 0;
     }
 }
