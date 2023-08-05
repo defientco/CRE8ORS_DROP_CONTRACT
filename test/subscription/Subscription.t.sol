@@ -14,6 +14,7 @@ import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
+import {ICre8ing} from "../../src/interfaces/ICre8ing.sol";
 import {ISharedPaidMinterFunctions} from "../../src/interfaces/ISharedPaidMinterFunctions.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 // contract imports
@@ -168,7 +169,14 @@ contract SubscriptionTest is DSTest, StdUtils {
         Cre8ors cre8orsNFT_
     ) internal returns (Cre8ing _cre8ing) {
         _cre8ing = new Cre8ing();
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        transferHookForBase.setCre8ing(address(cre8orsNFT_), _cre8ing);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        _cre8ing.setCre8ingOpen(address(cre8orsNFT_), true);
+        _setupMinterRole(address(_cre8ing));
     }
+
+    function _setupLockup() internal {}
 
     function _setupSubscriptionContract(
         Cre8ors cre8orsNFT_
