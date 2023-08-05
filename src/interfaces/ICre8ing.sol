@@ -59,4 +59,9 @@ interface ICre8ing {
         uint256[] memory,
         bytes memory
     ) external;
+
+    /// @notice Set a new lockup for the target.
+    /// @param _target The target address.
+    /// @param newLockup The new lockup contract address.
+    function setLockup(address _target, ILockup newLockup) external;
 }
