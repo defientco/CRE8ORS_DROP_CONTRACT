@@ -81,6 +81,7 @@ contract InitializerTest is Test, Cre8orTestBase {
         _grantAdminRole(address(initializer));
         _grantAdminRole(_caller);
         _initialize(_caller);
+        assumeProperSetup();
     }
 
     function test_Initialize_revert_Access_OnlyAdmin(address _caller) public {
@@ -91,6 +92,10 @@ contract InitializerTest is Test, Cre8orTestBase {
         _grantAdminRole(address(initializer));
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         _initialize(_caller);
+    }
+
+    function assumeProperSetup() internal {
+        assertTrue(cre8ingBase.cre8ingOpen(address(cre8orsNFTBase)));
     }
 
     function _grantAdminRole(address _admin) internal {
