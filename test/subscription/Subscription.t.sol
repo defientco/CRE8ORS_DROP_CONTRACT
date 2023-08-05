@@ -78,8 +78,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         transferHookForBase = _setupTransferHookContract(cre8orsNFTBase);
         transferHookForPassport = _setupTransferHookContract(cre8orsPassport);
 
-        cre8ingForBase = _setupCre8ing(cre8orsNFTBase);
-        cre8ingForPassport = _setupCre8ing(cre8orsPassport);
+    
 
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
@@ -171,8 +170,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         Cre8ors cre8orsNFT_
     ) internal returns (Cre8ing _cre8ing) {
         _cre8ing = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFT_.setCre8ing(_cre8ing);
+        
     }
 
     function _setupSubscriptionContract(
@@ -192,7 +190,7 @@ contract SubscriptionTest is DSTest, StdUtils {
     function _setupTransferHookContract(
         Cre8ors cre8orsNFT_
     ) internal returns (TransferHook _transferHook) {
-        _transferHook = new TransferHook(address(cre8orsNFT_));
+        _transferHook = new TransferHook();
         _setupMinterRole(address(_transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

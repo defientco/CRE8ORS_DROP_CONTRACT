@@ -16,35 +16,18 @@ contract TransferHook is Cre8orsERC6551 {
     /// @notice To toggle free subscription in future
     bool public isFreeSubscriptionEnabled = true;
 
-    ///@notice The address of the collection contract that mints and manages the tokens.
-    address public cre8orsNFT;
 
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
 
-    /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
-    /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
-    constructor(address _cre8orsNFT) {
-        cre8orsNFT = _cre8orsNFT;
-    }
 
     /// @notice Toggle the status of the free subscription feature.
     /// @dev This function can only be called by an admin, identified by the 
     ///     "cre8orsNFT" contract address.
-    function toggleIsFreeSubscriptionEnabled() public onlyAdmin(cre8orsNFT) {
+    function toggleIsFreeSubscriptionEnabled() public onlyAdmin(msg.sender) {
         isFreeSubscriptionEnabled = !isFreeSubscriptionEnabled;
-    }
-
-    /// @notice Set the Cre8orsNFT contract address.
-    /// @dev This function can only be called by an admin, identified by the 
-    ///     "cre8orsNFT" contract address.
-    /// @param _cre8orsNFT The new address of the Cre8orsNFT contract to be set.
-    function setCre8orsNFT(
-        address _cre8orsNFT
-    ) public onlyAdmin(cre8orsNFT) {
-        cre8orsNFT = _cre8orsNFT;
     }
 
     ICre8ing public cre8ing;
@@ -128,18 +111,17 @@ contract TransferHook is Cre8orsERC6551 {
 
         // Subscription logic
         uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);
-        address _cre8orsNFT = cre8orsNFT;
-        address subscription = ICre8ors(_cre8orsNFT).subscription();
+        address subscription = ICre8ors(msg.sender).subscription();
 
         if (isFreeSubscriptionEnabled) {
             ISubscription(subscription).updateSubscriptionForFree({
-                target: _cre8orsNFT,
+                target: msg.sender,
                 duration: ONE_YEAR_DURATION,
                 tokenIds: tokenIds
             });
         } else {
             ISubscription(subscription).updateSubscription({
-                target: _cre8orsNFT,
+                target: msg.sender,
                 duration: ONE_YEAR_DURATION,
                 tokenIds: tokenIds
             });
