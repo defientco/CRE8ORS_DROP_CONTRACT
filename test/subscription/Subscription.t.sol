@@ -78,8 +78,6 @@ contract SubscriptionTest is DSTest, StdUtils {
         transferHookForBase = _setupTransferHookContract(cre8orsNFTBase);
         transferHookForPassport = _setupTransferHookContract(cre8orsPassport);
 
-    
-
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
@@ -109,7 +107,37 @@ contract SubscriptionTest is DSTest, StdUtils {
         merkleData = new MerkleData();
     }
 
-    function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(
+    // function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(
+    //     address _friendOrFamily
+    // ) public {
+    //     vm.assume(_friendOrFamily != address(0));
+
+    //     // Setup FriendsAndFamilyMinter
+    //     _setUpFriendsAndFamilyMinter();
+
+    //     // Apply Discount
+    //     _addFriendsAndFamilyMinterDiscount(_friendOrFamily);
+
+    //     // Mint
+    //     uint256 tokenId = friendsAndFamilyMinter.mint(_friendOrFamily);
+
+    //     // Asserts
+    //     assertTrue(!friendsAndFamilyMinter.hasDiscount(_friendOrFamily));
+    //     assertEq(tokenId, 1);
+    //     assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+    //     assertEq(
+    //         cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+    //         1
+    //     );
+
+    //     // 1 year passed
+    //     vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+    //     // ownerOf should return address(0)
+    //     assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
+    // }
+
+    function testSuccessfulMintAndSubscriptionByFriendsAndFamilyMinter(
         address _friendOrFamily
     ) public {
         vm.assume(_friendOrFamily != address(0));
@@ -121,6 +149,7 @@ contract SubscriptionTest is DSTest, StdUtils {
         _addFriendsAndFamilyMinterDiscount(_friendOrFamily);
 
         // Mint
+        _setupLockup();
         uint256 tokenId = friendsAndFamilyMinter.mint(_friendOrFamily);
 
         // Asserts
@@ -170,7 +199,6 @@ contract SubscriptionTest is DSTest, StdUtils {
         Cre8ors cre8orsNFT_
     ) internal returns (Cre8ing _cre8ing) {
         _cre8ing = new Cre8ing();
-        
     }
 
     function _setupSubscriptionContract(
