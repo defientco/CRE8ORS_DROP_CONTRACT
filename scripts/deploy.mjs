@@ -27,23 +27,30 @@ export async function setupContracts() {
   const lockup = await deployLockup();
   const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
 
-  const minterUtilities = await deployMinterUtilities(passportAddress);
+  const minterUtilities = await deployMinterUtilities(
+    cre8ors.deploy.deployedTo
+  );
   const familyFriendsMinter = await deployFamilyAndFriendsMinter(
     cre8ors.deploy.deployedTo,
     minterUtilities.deploy.deployedTo
   );
   const passportMinter = await deployPassportMinter(
     cre8ors.deploy.deployedTo,
+    passportAddress,
     minterUtilities.deploy.deployedTo,
     familyFriendsMinter.deploy.deployedTo
   );
   const allowlistMinter = await deployAllowlistMinter(
     cre8ors.deploy.deployedTo,
-    minterUtilities.deploy.deployedTo
+    minterUtilities.deploy.deployedTo,
+    passportMinter.deploy.deployedTo,
+    familyFriendsMinter.deploy.deployedTo
   );
   const publicMinter = await deployPublicMinter(
     cre8ors.deploy.deployedTo,
-    minterUtilities.deploy.deployedTo
+    minterUtilities.deploy.deployedTo,
+    passportMinter.deploy.deployedTo,
+    familyFriendsMinter.deploy.deployedTo
   );
   return {
     allowlistMinter,
