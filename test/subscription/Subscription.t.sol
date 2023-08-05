@@ -87,16 +87,21 @@ contract SubscriptionTest is DSTest, StdUtils {
         );
         collectionMinter = new CollectionHolderMint(
             address(cre8orsNFTBase),
+            address(cre8orsPassport),
             address(minterUtility),
             address(friendsAndFamilyMinter)
         );
         allowlistMinter = new AllowlistMinter(
             address(cre8orsNFTBase),
-            address(minterUtility)
+            address(minterUtility),
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
         publicMinter = new PublicMinter(
             address(cre8orsNFTBase),
-            address(minterUtility)
+            address(minterUtility),
+            address(collectionMinter),
+            address(friendsAndFamilyMinter)
         );
 
         subscriptionForBase = _setupSubscriptionContract(cre8orsNFTBase);
@@ -105,7 +110,9 @@ contract SubscriptionTest is DSTest, StdUtils {
         merkleData = new MerkleData();
     }
 
-    function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(address _friendOrFamily) public {
+    function testSuccessfulMintAndSubscriptionWithoutLockupByFriendsAndFamilyMinter(
+        address _friendOrFamily
+    ) public {
         vm.assume(_friendOrFamily != address(0));
 
         // Setup FriendsAndFamilyMinter
@@ -160,13 +167,17 @@ contract SubscriptionTest is DSTest, StdUtils {
             });
     }
 
-    function _setupCre8ing(Cre8ors cre8orsNFT_) internal returns (Cre8ing _cre8ing) {
+    function _setupCre8ing(
+        Cre8ors cre8orsNFT_
+    ) internal returns (Cre8ing _cre8ing) {
         _cre8ing = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFT_.setCre8ing(_cre8ing);
     }
 
-    function _setupSubscriptionContract(Cre8ors cre8orsNFT_) internal returns (Subscription _subscription) {
+    function _setupSubscriptionContract(
+        Cre8ors cre8orsNFT_
+    ) internal returns (Subscription _subscription) {
         _subscription = new Subscription({
             cre8orsNFT_: address(cre8orsNFT_),
             minRenewalDuration_: 1 days,
@@ -178,7 +189,9 @@ contract SubscriptionTest is DSTest, StdUtils {
         vm.stopPrank();
     }
 
-    function _setupTransferHookContract(Cre8ors cre8orsNFT_) internal returns (TransferHook _transferHook) {
+    function _setupTransferHookContract(
+        Cre8ors cre8orsNFT_
+    ) internal returns (TransferHook _transferHook) {
         _transferHook = new TransferHook(address(cre8orsNFT_));
         _setupMinterRole(address(_transferHook));
 
@@ -187,10 +200,7 @@ contract SubscriptionTest is DSTest, StdUtils {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(_transferHook)
         );
-        _transferHook.setAfterTokenTransfersEnabled(
-            address(cre8orsNFT_),
-            true
-        );
+        _transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFT_), true);
         vm.stopPrank();
     }
 
@@ -215,9 +225,14 @@ contract SubscriptionTest is DSTest, StdUtils {
 
     function _setUpCollectionMinter() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(cre8orsNFTBase.MINTER_ROLE(), address(collectionMinter));
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(collectionMinter)
+        );
 
-        assertTrue(collectionMinter.minterUtilityContractAddress() != address(0));
+        assertTrue(
+            collectionMinter.minterUtilityContractAddress() != address(0)
+        );
 
         assertTrue(
             cre8orsNFTBase.hasRole(
