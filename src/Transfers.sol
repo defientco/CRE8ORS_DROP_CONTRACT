@@ -28,19 +28,17 @@ contract TransferHook is Cre8orsERC6551 {
     }
 
     /// @notice Toggle the status of the free subscription feature.
-    /// @dev This function can only be called by an admin, identified by the 
+    /// @dev This function can only be called by an admin, identified by the
     ///     "cre8orsNFT" contract address.
     function toggleIsFreeSubscriptionEnabled() public onlyAdmin(cre8orsNFT) {
         isFreeSubscriptionEnabled = !isFreeSubscriptionEnabled;
     }
 
     /// @notice Set the Cre8orsNFT contract address.
-    /// @dev This function can only be called by an admin, identified by the 
+    /// @dev This function can only be called by an admin, identified by the
     ///     "cre8orsNFT" contract address.
     /// @param _cre8orsNFT The new address of the Cre8orsNFT contract to be set.
-    function setCre8orsNFT(
-        address _cre8orsNFT
-    ) public onlyAdmin(cre8orsNFT) {
+    function setCre8orsNFT(address _cre8orsNFT) public onlyAdmin(cre8orsNFT) {
         cre8orsNFT = _cre8orsNFT;
     }
 
@@ -138,18 +136,17 @@ contract TransferHook is Cre8orsERC6551 {
         return IERC721Drop(_target).isAdmin(user);
     }
 
-    /// @notice Get an array of token IDs starting from a given token ID and up 
+    /// @notice Get an array of token IDs starting from a given token ID and up
     ///     to a specified quantity.
     /// @param startTokenId The starting token ID.
     /// @param quantity The number of token IDs to generate.
     /// @return tokenIds An array containing the generated token IDs.
-    function getTokenIds(uint256 startTokenId, uint256 quantity)
-        public
-        pure
-        returns (uint256[] memory tokenIds)
-    {
+    function getTokenIds(
+        uint256 startTokenId,
+        uint256 quantity
+    ) public pure returns (uint256[] memory tokenIds) {
         tokenIds = new uint256[](quantity);
-        for (uint256 i = 0; i < quantity;) {
+        for (uint256 i = 0; i < quantity; ) {
             tokenIds[i] = startTokenId + i;
 
             unchecked {

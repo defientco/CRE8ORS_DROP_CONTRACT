@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
+import {ICre8orsERC6551} from "../interfaces/ICre8orsERC6551.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -12,7 +13,7 @@ import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol"
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
-contract Cre8orsERC6551 {
+contract Cre8orsERC6551 is ICre8orsERC6551 {
     /// @dev The address of ERC6551 Registry
     mapping(address => address) public erc6551Registry;
 
@@ -21,6 +22,14 @@ contract Cre8orsERC6551 {
 
     /// @dev Initial data for ERC6551 createAccount
     bytes public constant INIT_DATA = "0x8129fc1c";
+
+    /// @notice gets ERC6551 Registry
+    /// @param _target target ERC721 contract
+    function getRegistry(
+        address _target
+    ) public view returns (IERC6551Registry registry) {
+        registry = IERC6551Registry(erc6551Registry[_target]);
+    }
 
     /// @notice creates TBA with ERC6551
     /// @param _target target ERC721 contract

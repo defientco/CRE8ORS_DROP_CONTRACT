@@ -9,6 +9,7 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {IERC721A} from "lib/ERC721A/contracts/IERC721A.sol";
 import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC2981.sol";
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
+import {ICre8orsERC6551} from "../src/interfaces/ICre8orsERC6551.sol";
 import {ERC6551Registry} from "lib/ERC6551/src/ERC6551Registry.sol";
 import {Account} from "lib/tokenbound/src/Account.sol";
 import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
@@ -94,6 +95,14 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         // MINT REGISTERS WITH ERC6511
         cre8orsNFTBase.purchase(_quantity);
         assertTrue(isContract(tokenBoundAccount));
+    }
+
+    function test_getRegistry(address _target) public {
+        IERC6551Registry _registry = ICre8orsERC6551(
+            cre8orsNFTBase.getHook(IERC721ACH.HookType.AfterTokenTransfers)
+        ).getRegistry(_target);
+        // TODO: update to expect fallback ERC6551Registry address
+        assertEq(address(_registry), address(0));
     }
 
     function test_createMultipleAccounts(
@@ -256,10 +265,9 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
     }
 
-    function _setupSubscriptionContract(Cre8ors cre8orsNFT_)
-        internal
-        returns (Subscription _subscription)
-    {
+    function _setupSubscriptionContract(
+        Cre8ors cre8orsNFT_
+    ) internal returns (Subscription _subscription) {
         _subscription = new Subscription({
             cre8orsNFT_: address(cre8orsNFT_),
             minRenewalDuration_: 1 days,
