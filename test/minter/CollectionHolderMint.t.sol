@@ -186,6 +186,8 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.assume(_mintQuantity > 0);
         vm.assume(_buyer != address(0));
         vm.assume(_recipient != address(0));
+        vm.assume(_buyer != address(cre8ingBase));
+        vm.assume(_recipient != address(cre8ingBase));
         vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
 
         vm.startPrank(_buyer);
