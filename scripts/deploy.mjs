@@ -71,11 +71,11 @@ export async function setupContracts() {
 
 async function main() {
   const output = await setupContracts();
-  // const date = new Date().toISOString().slice(0, 10);
-  // writeFile(
-  //   `./deployments/${date}.${process.env.CHAIN}.json`,
-  //   JSON.stringify(output, null, 2)
-  // );
+  const date = new Date().toISOString().slice(0, 10);
+  writeFile(
+    `./deployments/${date}.${process.env.CHAIN}.json`,
+    JSON.stringify(output, null, 2)
+  );
 }
 
 if (esMain(import.meta)) {
