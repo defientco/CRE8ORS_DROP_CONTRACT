@@ -1,4 +1,4 @@
-import { retryDeploy } from "../contract.mjs";
+import { retryDeploy, retryVerify } from "../contract.mjs";
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -37,6 +37,34 @@ export async function deployCre8ors(root) {
   ];
   const dropContract = await retryDeploy(2, contractLocation, args);
   console.log(`[deployed] ${contractLocation}`);
+
+  const _salesConfig2 = [
+    publicSalePrice,
+    erc20PaymentToken,
+    maxSalePurchasePerAddress,
+    publicSaleStart,
+    publicSaleEnd,
+    presaleStart,
+    presaleEnd,
+    presaleMerkleRoot,
+  ];
+  const args2 = [
+    contractName,
+    contractSymbol,
+    _initialOwner,
+    _fundsRecipient,
+    _editionSize,
+    _royaltyBPS,
+    _salesConfig2,
+    _metadataRenderer,
+  ];
+  await retryVerify(
+    2,
+    "0xe05ae2fF6D24cfE14d62C72978f4e1eCf583e956",
+    contractLocation,
+    args2
+  );
+  console.log(`[verified] ${contractLocation}`);
   const dropContractAddress = dropContract.deploy.deployedTo;
   console.log("deployed cre8ors to ", dropContractAddress);
 
