@@ -25,9 +25,6 @@ export async function deploy(contract, args = undefined) {
       process.env.PRIVATE_KEY,
       "--rpc-url",
       process.env.ETH_RPC_URL,
-      "--etherscan-api-key",
-      process.env.ETHERSCAN_API_KEY,
-      "--verify",
       ...constructorArgs,
       "--json",
     ].join(" ")

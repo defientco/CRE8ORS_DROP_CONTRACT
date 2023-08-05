@@ -1,4 +1,4 @@
-import { retryDeploy } from "../contract.mjs";
+import { deployAndVerify } from "../contract.mjs";
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -11,12 +11,12 @@ export async function deploySubscription(cre8orAddress) {
   const minRenewalDuration_ = 86400;
   const pricePerSecond_ = 38580246913;
   const args = [cre8orAddress, minRenewalDuration_, pricePerSecond_];
-  const contract = await retryDeploy(2, contractLocation, args);
+  const contract = await deployAndVerify(contractLocation, args);
   console.log(`[deployed] ${contractLocation}`);
-  const contractAddress = contract.deploy.deployedTo;
+  const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed subscription to ", contractAddress);
   console.log(
     "make sure to call cre8orsNFT.setSubscription(address(subscription))"
   );
-  return contract;
+  return contract.deployed;
 }

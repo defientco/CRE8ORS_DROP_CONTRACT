@@ -13,7 +13,10 @@ export async function deployTransfers(cre8orsNftAddress) {
   const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed transfer hook to ", contractAddress);
   console.log(
-    "make sure to call setHook on cre8ors contract for afterTokenTransferHook"
+    "make sure to call cre8ors.setHook(0) for beforeTokenTransferHook"
+  );
+  console.log(
+    "make sure to call cre8ors.setHook(1) for afterTokenTransferHook"
   );
   return contract.deployed;
 }
