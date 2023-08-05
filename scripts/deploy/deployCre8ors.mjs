@@ -1,4 +1,4 @@
-import { retryDeploy } from "../contract.mjs";
+import { retryDeploy, retryVerify } from "../contract.mjs";
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -16,10 +16,10 @@ export async function deployCre8ors(root) {
   const publicSalePrice = "150000000000000000";
   const erc20PaymentToken = "0x0000000000000000000000000000000000000000";
   const maxSalePurchasePerAddress = 18;
-  const publicSaleStart = "1691167800"; // Friday, August 4, 2023 12:50:00 PM  ET
-  const publicSaleEnd = "18446744073709551615"; // forever
-  const presaleStart = "1691167200"; // Friday, August 4, 2023 12:40:00 PM ET
+  const presaleStart = "1691254500"; // Saturday, August 5, 2023 12:55:00 PM PM ET
   const presaleEnd = "18446744073709551615"; // forever
+  const publicSaleStart = "1691255100"; // Saturday, August 5, 2023 1:05:00 PM  ET
+  const publicSaleEnd = "18446744073709551615"; // forever
   const presaleMerkleRoot = root;
 
   const _salesConfig = `"(${publicSalePrice},${erc20PaymentToken},${maxSalePurchasePerAddress},${publicSaleStart},${publicSaleEnd},${presaleStart},${presaleEnd},${presaleMerkleRoot})"`;
@@ -37,6 +37,34 @@ export async function deployCre8ors(root) {
   ];
   const dropContract = await retryDeploy(2, contractLocation, args);
   console.log(`[deployed] ${contractLocation}`);
+
+  const _salesConfig2 = [
+    publicSalePrice,
+    erc20PaymentToken,
+    maxSalePurchasePerAddress,
+    publicSaleStart,
+    publicSaleEnd,
+    presaleStart,
+    presaleEnd,
+    presaleMerkleRoot,
+  ];
+  const args2 = [
+    contractName,
+    contractSymbol,
+    _initialOwner,
+    _fundsRecipient,
+    _editionSize,
+    _royaltyBPS,
+    _salesConfig2,
+    _metadataRenderer,
+  ];
+  await retryVerify(
+    2,
+    "0xe05ae2fF6D24cfE14d62C72978f4e1eCf583e956",
+    contractLocation,
+    args2
+  );
+  console.log(`[verified] ${contractLocation}`);
   const dropContractAddress = dropContract.deploy.deployedTo;
   console.log("deployed cre8ors to ", dropContractAddress);
 
