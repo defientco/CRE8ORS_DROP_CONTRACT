@@ -13,7 +13,9 @@ import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
-
+import {Cre8ing} from "./Cre8ing.sol";
+import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
+import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -42,7 +44,15 @@ contract Cre8ors is
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     ///     the _beforeTokenTransfer() block while cre8ing is disabled.
-    uint256 public  cre8ingTransfer = 1;
+    uint256 internal cre8ingTransfer = 1;
+
+    /// @dev Subscription contract address
+    ///     address(0) means subscription is turned off
+    address public subscription;
+
+    /// @dev The address that gets returns if the subscription of a tokenId is expired.
+    ///     By default: address(0)
+    address public ownerOfOverrideReturn;
 
     constructor(
         string memory _contractName,
@@ -292,6 +302,18 @@ contract Cre8ors is
     /// ADMIN
     /////////////////////////////////////////////////
 
+    /// @dev Setter function for subscription contract address.
+    ///     - if we want to turn off subscription: `setSubscription(address(0))`
+    ///     - if we want to enable subscription: `setSubscription(address(Subscription))`
+    function setSubscription(address newSubscription) external onlyAdmin {
+        subscription = newSubscription;
+    }
+
+    // can be zero address
+    function setOwnerOfOverrideReturn(address addr) external onlyAdmin {
+        ownerOfOverrideReturn = addr;
+    }
+
     /// @dev Set new owner for royalties / opensea
     /// @param newOwner new owner to set
     function setOwner(address newOwner) public onlyAdmin {
@@ -513,5 +535,19 @@ contract Cre8ors is
         }
 
         return config.metadataRenderer.tokenURI(tokenId);
+    }
+
+    function ownerOf(uint256 tokenId) public view override returns (address) {
+        // external call to subscription if it is present
+        if (subscription != address(0)) {
+            bool isSubscriptionValid = ISubscription(subscription).isSubscriptionValid(tokenId);
+
+            // if subscription expired
+            if (!isSubscriptionValid) {
+                return ownerOfOverrideReturn;
+            }
+        }
+
+        return super.ownerOf(tokenId);
     }
 }

@@ -219,6 +219,8 @@ contract PublicMinterTest is DSTest, StdUtils {
         uint256[] memory _carts,
         address _buyer
     ) public {
+        address transferred = address(0x1988789);
+        vm.assume(_buyer != transferred);
         uint256[] memory _carts = new uint256[](3);
         _carts[0] = bound(_carts[0], 1, 8);
         _carts[1] = 0;
@@ -239,7 +241,6 @@ contract PublicMinterTest is DSTest, StdUtils {
             cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
             address(friendsAndFamilyMinter)
         );
-        address transferred = address(0x1988789);
         // add discount to buyer
         friendsAndFamilyMinter.addDiscount(_buyer);
         vm.stopPrank();

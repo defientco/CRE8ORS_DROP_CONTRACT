@@ -6,6 +6,7 @@ import {ILockup} from "./ILockup.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {ICre8ing} from "./ICre8ing.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -29,4 +30,6 @@ interface ICre8ors is IERC721Drop, IERC721A, IERC721ACH {
     ) external view returns (bool);
 
     function cre8ingTransfer() external view returns (uint256);
+
+    function subscription() external view returns (address);
 }

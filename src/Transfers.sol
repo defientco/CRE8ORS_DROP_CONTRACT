@@ -6,13 +6,46 @@ import {Cre8ing} from "./Cre8ing.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
+import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 import {ITransfers} from "./interfaces/ITransfers.sol";
 
-contract TransferHook is ITransfers, Cre8orsERC6551 {
+contract TransferHook is Cre8orsERC6551 {
+    /// @notice Represents the duration of one year in seconds.
+    uint64 public constant ONE_YEAR_DURATION = 365 days;
+
+    /// @notice To toggle free subscription in future
+    bool public isFreeSubscriptionEnabled = true;
+
+    ///@notice The address of the collection contract that mints and manages the tokens.
+    address public cre8orsNFT;
+
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
+
+    /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
+    /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
+    constructor(address _cre8orsNFT) {
+        cre8orsNFT = _cre8orsNFT;
+    }
+
+    /// @notice Toggle the status of the free subscription feature.
+    /// @dev This function can only be called by an admin, identified by the 
+    ///     "cre8orsNFT" contract address.
+    function toggleIsFreeSubscriptionEnabled() public onlyAdmin(cre8orsNFT) {
+        isFreeSubscriptionEnabled = !isFreeSubscriptionEnabled;
+    }
+
+    /// @notice Set the Cre8orsNFT contract address.
+    /// @dev This function can only be called by an admin, identified by the 
+    ///     "cre8orsNFT" contract address.
+    /// @param _cre8orsNFT The new address of the Cre8orsNFT contract to be set.
+    function setCre8orsNFT(
+        address _cre8orsNFT
+    ) public onlyAdmin(cre8orsNFT) {
+        cre8orsNFT = _cre8orsNFT;
+    }
 
     ICre8ing public cre8ing;
 
@@ -85,8 +118,31 @@ contract TransferHook is ITransfers, Cre8orsERC6551 {
         uint256 startTokenId,
         uint256 quantity
     ) external {
-        if (from == address(0) && erc6551Registry[msg.sender] != address(0)) {
+        if (from != address(0)) {
+            return;
+        }
+
+        if (erc6551Registry[msg.sender] != address(0)) {
             createTokenBoundAccounts(msg.sender, startTokenId, quantity);
+        }
+
+        // Subscription logic
+        uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);
+        address _cre8orsNFT = cre8orsNFT;
+        address subscription = ICre8ors(_cre8orsNFT).subscription();
+
+        if (isFreeSubscriptionEnabled) {
+            ISubscription(subscription).updateSubscriptionForFree({
+                target: _cre8orsNFT,
+                duration: ONE_YEAR_DURATION,
+                tokenIds: tokenIds
+            });
+        } else {
+            ISubscription(subscription).updateSubscription({
+                target: _cre8orsNFT,
+                duration: ONE_YEAR_DURATION,
+                tokenIds: tokenIds
+            });
         }
     }
 
@@ -131,5 +187,25 @@ contract TransferHook is ITransfers, Cre8orsERC6551 {
     /// @return boolean if address is admin
     function isAdmin(address _target, address user) public view returns (bool) {
         return IERC721Drop(_target).isAdmin(user);
+    }
+
+    /// @notice Get an array of token IDs starting from a given token ID and up 
+    ///     to a specified quantity.
+    /// @param startTokenId The starting token ID.
+    /// @param quantity The number of token IDs to generate.
+    /// @return tokenIds An array containing the generated token IDs.
+    function getTokenIds(uint256 startTokenId, uint256 quantity)
+        public
+        pure
+        returns (uint256[] memory tokenIds)
+    {
+        tokenIds = new uint256[](quantity);
+        for (uint256 i = 0; i < quantity;) {
+            tokenIds[i] = startTokenId + i;
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 }
