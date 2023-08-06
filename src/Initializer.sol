@@ -17,6 +17,8 @@ import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol"
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 contract Initializer {
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+
     function setup(
         address _target,
         address _subscription,
@@ -60,6 +62,7 @@ contract Initializer {
             ICre8ors(_target).MINTER_ROLE(),
             _hookAddress
         );
+        IAccessControl(_target).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
     }
 
     /// @notice Modifier for admin access only.
