@@ -2,8 +2,6 @@
 pragma solidity ^0.8.15;
 
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
-
-// FOR INITIALIZER
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
