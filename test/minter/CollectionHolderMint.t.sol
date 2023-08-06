@@ -12,6 +12,7 @@ import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 import {IFriendsAndFamilyMinter} from "../../src/interfaces/IFriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 // contract imports
 import {CollectionHolderMint} from "../../src/minter/CollectionHolderMint.sol";
 import {Cre8ors} from "../../src/Cre8ors.sol";
@@ -21,6 +22,9 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
+import {TransferHook} from "../../src/Transfers.sol";
+import {Subscription} from "../../src/subscription/Subscription.sol";
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -44,6 +48,12 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
 
+    OwnerOfHook public ownerOfHook;
+    TransferHook public transferHook;
+    Subscription public subscription;
+
+    uint64 public constant ONE_YEAR_DURATION = 365 days;
+
     function setUp() public {
         cre8orsNFTBase = _setUpContracts();
         cre8orsPassport = _setUpContracts();
@@ -65,6 +75,11 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             address(friendsAndFamilyMinter)
         );
         cre8ingBase = new Cre8ing();
+
+        transferHook = _setupTransferHook();
+        ownerOfHook = _setupOwnerOfHook();
+
+        subscription = _setupSubscription();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
@@ -118,6 +133,16 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             tokens.length,
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
+
+        // Subscription Asserts
+        assertTrue(subscription.isSubscriptionValid(pfpID));
+
+        // 1 year passed
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+        // ownerOf should return address(0)
+        assertEq(cre8orsNFTBase.ownerOf(pfpID), address(0));
+        assertTrue(!subscription.isSubscriptionValid(pfpID));
     }
 
     function testSuccessfulMintWithStaking(
@@ -176,6 +201,16 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             cre8orsNFTBase.mintedPerAddress(_buyer).totalMints
         );
         vm.stopPrank();
+
+        // Subscription Asserts
+        assertTrue(subscription.isSubscriptionValid(pfpID));
+
+        // 1 year passed
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+        // ownerOf should return address(0)
+        assertEq(cre8orsNFTBase.ownerOf(pfpID), address(0));
+        assertTrue(!subscription.isSubscriptionValid(pfpID));
     }
 
     function testTotalMintsWithTransfer(
@@ -186,6 +221,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.assume(_mintQuantity > 0);
         vm.assume(_buyer != address(0));
         vm.assume(_recipient != address(0));
+        vm.assume(_recipient.code.length == 0); // make sure it is an EOA
         vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
 
         vm.startPrank(_buyer);
@@ -219,6 +255,12 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.expectRevert(ICollectionHolderMint.AlreadyClaimedFreeMint.selector);
         minter.mint(tokens, _buyer);
         vm.stopPrank();
+
+        // Due to Revert there will be no tokenId greater than tokens.length
+        uint256 tokenId = tokens.length + 1;
+
+        assertTrue(!subscription.isSubscriptionValid(tokenId));
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
     }
 
     function testRevertNotOwnerOfPassport(
@@ -262,6 +304,20 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         minter.toggleHasClaimedFreeMint(1);
         assert(!minter.freeMintClaimed(1));
+
+        // Subscription Asserts
+        for (uint256 i = 0; i < tokens.length; i++) {
+            assertTrue(subscription.isSubscriptionValid(tokens[i]));
+        }
+
+        // 1 year passed
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            // ownerOf should return address(0)
+            assertEq(cre8orsNFTBase.ownerOf(tokens[i]), address(0));
+            assertTrue(!subscription.isSubscriptionValid(tokens[i]));
+        }
     }
 
     function testRevertEmptyList(address _buyer) public {
@@ -333,5 +389,65 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
                     presaleMerkleRoot: bytes32(0)
                 })
             });
+    }
+
+    function _setMinterRole(address _assignee) internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(_assignee)
+        );
+        vm.stopPrank();
+    }
+
+    function _setupOwnerOfHook() internal returns (OwnerOfHook) {
+        ownerOfHook = new OwnerOfHook();
+        _setMinterRole(address(ownerOfHook));
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        // set hook
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.OwnerOf,
+            address(ownerOfHook)
+        );
+        // enable hook
+        ownerOfHook.setOwnerOfHookEnabled(
+            address(cre8orsNFTBase),
+            true
+        );
+        vm.stopPrank();
+
+        return ownerOfHook;
+    }
+
+    function _setupTransferHook() internal returns (TransferHook) {
+        transferHook = new TransferHook();
+        _setMinterRole(address(transferHook));
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        // set hook
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(transferHook)
+        );
+        // enable hook
+        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), true);
+        vm.stopPrank();
+
+        return transferHook;
+    }
+
+    function _setupSubscription() internal returns (Subscription) {
+        subscription = new Subscription({
+            cre8orsNFT_: address(cre8orsNFTBase),
+            minRenewalDuration_: 1 days,
+            pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
+        });
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setSubscription(address(subscription));
+        vm.stopPrank();
+
+        return subscription;
     }
 }
