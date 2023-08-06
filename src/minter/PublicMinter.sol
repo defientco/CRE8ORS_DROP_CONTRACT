@@ -34,8 +34,6 @@ contract PublicMinter is SharedPaidMinterFunctions {
         onlyPublicSaleOrAlreadyMinted(recipient)
         returns (uint256)
     {
-        IMinterUtilities minterUtilities = IMinterUtilities(minterUtility);
-
         uint256 quantity = calculateTotalQuantity(carts);
 
         if (
