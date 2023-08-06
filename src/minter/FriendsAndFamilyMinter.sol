@@ -66,6 +66,20 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         hasDiscount[recipient] = true;
     }
 
+    /// @dev Grants a discount to the specified array of recipients, allowing them to mint tokens without paying the regular price.
+    /// @param recipient The address of the recipients who will receive the discount.
+    function addDiscount(address[] memory recipient) external onlyAdmin {
+        for (uint256 i = 0; i < recipient.length; ) {
+            if (hasDiscount[recipient[i]]) {
+                revert ExistingDiscount();
+            }
+            hasDiscount[recipient[i]] = true;
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
     /// @dev Removes the discount from the specified recipient, preventing them from minting tokens with a discount.
     /// @param recipient The address of the recipient whose discount will be removed.
     function removeDiscount(
