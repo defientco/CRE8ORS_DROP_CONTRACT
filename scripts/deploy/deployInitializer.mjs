@@ -12,7 +12,9 @@ export async function deployInitializer() {
   const contract = await deployAndVerify(contractLocation, args);
   const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed initializer to ", contractAddress);
-  console.log("make sure to TEMPORARILY grant ADMIN role to initializer");
-  console.log("make sure to setup on initializer");
+  console.log(
+    "make sure to TEMPORARILY grant cre8ors.grantRole(DEFAULT_ADMINT_ROLE, initializer)"
+  );
+  console.log("make sure to call initializer.setup()");
   return contract.deployed;
 }
