@@ -181,7 +181,7 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook();
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

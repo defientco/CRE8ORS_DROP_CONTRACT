@@ -206,7 +206,7 @@ contract SubscriptionTest is DSTest, StdUtils {
     function _setupTransferHookContract(
         Cre8ors cre8orsNFT_
     ) internal returns (TransferHook _transferHook) {
-        _transferHook = new TransferHook(address(cre8orsNFT_));
+        _transferHook = new TransferHook();
         _setupMinterRole(address(_transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
