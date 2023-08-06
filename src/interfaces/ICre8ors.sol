@@ -29,4 +29,10 @@ interface ICre8ors is IERC721Drop, IERC721A {
     ) external view returns (bool);
 
     function subscription() external view returns (address);
+
+    function setSubscription(address newSubscription) external;
+
+    function setCre8ing(ICre8ing _cre8ing) external;
+
+    function MINTER_ROLE() external returns (bytes32);
 }

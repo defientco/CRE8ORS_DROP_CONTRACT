@@ -424,11 +424,7 @@ contract Cre8ors is
     /////////////////////////////////////////////////
 
     /// @notice ERC721C required override
-    function _requireCallerIsContractOwner() internal view override {
-        if (msg.sender != owner()) {
-            revert Access_OnlyAdmin();
-        }
-    }
+    function _requireCallerIsContractOwner() internal view override onlyAdmin {}
 
     /////////////////////////////////////////////////
     /// UTILITY FUNCTIONS
@@ -567,7 +563,8 @@ contract Cre8ors is
     function ownerOf(uint256 tokenId) public view override returns (address) {
         // external call to subscription if it is present
         if (subscription != address(0)) {
-            bool isSubscriptionValid = ISubscription(subscription).isSubscriptionValid(tokenId);
+            bool isSubscriptionValid = ISubscription(subscription)
+                .isSubscriptionValid(tokenId);
 
             // if subscription expired
             if (!isSubscriptionValid) {

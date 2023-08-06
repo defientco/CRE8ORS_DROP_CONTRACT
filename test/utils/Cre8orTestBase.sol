@@ -40,4 +40,26 @@ contract Cre8orTestBase {
             })
         });
     }
+
+    function _deployCre8or(Cre8ors _target) internal {
+        _target = new Cre8ors({
+            _contractName: "CRE8ORS",
+            _contractSymbol: "CRE8",
+            _initialOwner: DEFAULT_OWNER_ADDRESS,
+            _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
+            _editionSize: DEFAULT_EDITION_SIZE,
+            _royaltyBPS: DEFAULT_ROYALTY_BPS,
+            _metadataRenderer: dummyRenderer,
+            _salesConfig: IERC721Drop.SalesConfiguration({
+                publicSaleStart: 0,
+                erc20PaymentToken: address(0),
+                publicSaleEnd: type(uint64).max,
+                presaleStart: 0,
+                presaleEnd: 0,
+                publicSalePrice: 0,
+                maxSalePurchasePerAddress: 0,
+                presaleMerkleRoot: bytes32(0)
+            })
+        });
+    }
 }
