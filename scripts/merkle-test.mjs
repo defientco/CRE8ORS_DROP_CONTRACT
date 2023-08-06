@@ -83,6 +83,24 @@ const testDataInput = [
         maxCount: 8,
         price: parseEther("0.15"),
       },
+      {
+        // sameer #2
+        minter: getAddress("0x282a134a17a330E0a238be2201506D5D786190F7"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
+      {
+        // sid #2
+        minter: getAddress("0x402E5373F770fb7D7E68Df7D02d5aB7fC43B4116"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
+      {
+        // sweets #2
+        minter: getAddress("0x22e82D83A37CfD6aF2aCa7Db666799Bf14613D85"),
+        maxCount: 8,
+        price: parseEther("0.15"),
+      },
     ],
   },
   {

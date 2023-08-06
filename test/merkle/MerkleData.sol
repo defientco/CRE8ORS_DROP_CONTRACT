@@ -96,7 +96,32 @@ contract MerkleData {
     }));
     
     
-    data["pre-mint-defient"].root = 0x36c161febf4b54734baf31a4d6b00da9f4a1cc6eeae64bb328e095b1ab00ec96;
+    data["test-max-count"].root = 0xb7d8ff9be4b222c3049431d7b5982cbd3e64e5902f0ca4a2e3527be999a12d87;
+    
+    proof = new bytes32[](1);
+    
+    proof[0] = bytes32(0xcd1f92f2177fa8f6c51829045204caf23439f3e448bb0b94e5134e5b9f11ea4c);
+    
+    data["test-max-count"].entries.push(MerkleEntry({
+      user: 0x0000000000000000000000000000000000000010,
+      maxMint: 2,
+      mintPrice: 100000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](1);
+    
+    proof[0] = bytes32(0xbabae39e08c9636595a1a4edd5850334f105c1cedb96c37659d1a9e39cb48615);
+    
+    data["test-max-count"].entries.push(MerkleEntry({
+      user: 0x0000000000000000000000000000000000000010,
+      maxMint: 2,
+      mintPrice: 200000000000000000,
+      proof: proof 
+    }));
+    
+    
+    data["pre-mint-defient"].root = 0x669913b64a51840c67f9ccdb361fd44335e64f8500d01a253b5ab5cf3d526226;
     
     proof = new bytes32[](3);
     
@@ -104,7 +129,7 @@ contract MerkleData {
     
     proof[1] = bytes32(0xf320bae2fd47cb734e6f8e6ca2319456e0ac63079c2b02750c43d6ca3a7c8fd0);
     
-    proof[2] = bytes32(0xc8824bbe033cca37de055ee2b61cad9d3ebcc2897cf09eb5d20d9ac7bc954e77);
+    proof[2] = bytes32(0x74027e9a6f841db228d8bf7ae1ea4a383535b83ee0455a72164220326856e6cc);
     
     data["pre-mint-defient"].entries.push(MerkleEntry({
       user: 0xa061fBfa7dC7Ee9f838a717e8B55Fbc34641Bf6e,
@@ -119,7 +144,7 @@ contract MerkleData {
     
     proof[1] = bytes32(0xf320bae2fd47cb734e6f8e6ca2319456e0ac63079c2b02750c43d6ca3a7c8fd0);
     
-    proof[2] = bytes32(0xc8824bbe033cca37de055ee2b61cad9d3ebcc2897cf09eb5d20d9ac7bc954e77);
+    proof[2] = bytes32(0x74027e9a6f841db228d8bf7ae1ea4a383535b83ee0455a72164220326856e6cc);
     
     data["pre-mint-defient"].entries.push(MerkleEntry({
       user: 0xEc11a95acA582F5ECF614695D2825b353Daf2454,
@@ -134,7 +159,7 @@ contract MerkleData {
     
     proof[1] = bytes32(0x120fca78c4c80b783ab2d47d061270e8bfb9a41751d408ef70044057c7a8efee);
     
-    proof[2] = bytes32(0xc8824bbe033cca37de055ee2b61cad9d3ebcc2897cf09eb5d20d9ac7bc954e77);
+    proof[2] = bytes32(0x74027e9a6f841db228d8bf7ae1ea4a383535b83ee0455a72164220326856e6cc);
     
     data["pre-mint-defient"].entries.push(MerkleEntry({
       user: 0xcfBf34d385EA2d5Eb947063b67eA226dcDA3DC38,
@@ -149,7 +174,7 @@ contract MerkleData {
     
     proof[1] = bytes32(0x120fca78c4c80b783ab2d47d061270e8bfb9a41751d408ef70044057c7a8efee);
     
-    proof[2] = bytes32(0xc8824bbe033cca37de055ee2b61cad9d3ebcc2897cf09eb5d20d9ac7bc954e77);
+    proof[2] = bytes32(0x74027e9a6f841db228d8bf7ae1ea4a383535b83ee0455a72164220326856e6cc);
     
     data["pre-mint-defient"].entries.push(MerkleEntry({
       user: 0x45a3143dC8e28A6d73ad6c6Fd78d80a4CAA17524,
@@ -158,12 +183,55 @@ contract MerkleData {
       proof: proof 
     }));
     
-    proof = new bytes32[](1);
+    proof = new bytes32[](3);
     
-    proof[0] = bytes32(0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e);
+    proof[0] = bytes32(0x041a901bf0cd0468688a8084290aaea6fa91f2cd78c791a2cf46853fb2dc8eb6);
+    
+    proof[1] = bytes32(0x9b7887f7032d6beeeece352e4da2dc2cafdc3ef532980ac4ca6ee0eae474f460);
+    
+    proof[2] = bytes32(0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e);
     
     data["pre-mint-defient"].entries.push(MerkleEntry({
       user: 0x9B33A23d46d18300E9fCEfa1A88d6a73D216F58D,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](0);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0x282a134a17a330E0a238be2201506D5D786190F7,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](3);
+    
+    proof[0] = bytes32(0xdcb2fe1605e52d59b92cf30db67ca547aded1d9196ec59831ee80ba30ff1b879);
+    
+    proof[1] = bytes32(0x07671f1f2780ceba3c633cc6b111c7abd5067226b4ed75142ad4df58fdc81c94);
+    
+    proof[2] = bytes32(0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0x402E5373F770fb7D7E68Df7D02d5aB7fC43B4116,
+      maxMint: 8,
+      mintPrice: 150000000000000000,
+      proof: proof 
+    }));
+    
+    proof = new bytes32[](3);
+    
+    proof[0] = bytes32(0x3502d2e39b4f640159322121b5d73154d42934023d87df20c4a3f39bdb274775);
+    
+    proof[1] = bytes32(0x07671f1f2780ceba3c633cc6b111c7abd5067226b4ed75142ad4df58fdc81c94);
+    
+    proof[2] = bytes32(0xce76e30bbd0bc685a5aef45c2c381baaa6bbd02b0a71ec7515f66a590eb6cb3e);
+    
+    data["pre-mint-defient"].entries.push(MerkleEntry({
+      user: 0x22e82D83A37CfD6aF2aCa7Db666799Bf14613D85,
       maxMint: 8,
       mintPrice: 150000000000000000,
       proof: proof 
