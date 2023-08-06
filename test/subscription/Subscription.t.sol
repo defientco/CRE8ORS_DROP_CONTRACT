@@ -30,6 +30,7 @@ import {Cre8ing} from "../../src/Cre8ing.sol";
 import {PublicMinter} from "../../src/minter/PublicMinter.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 import {TransferHook} from "../../src/Transfers.sol";
+import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 
 contract SubscriptionTest is DSTest, StdUtils {
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -63,6 +64,8 @@ contract SubscriptionTest is DSTest, StdUtils {
     TransferHook public transferHookForBase;
     TransferHook public transferHookForPassport;
 
+    OwnerOfHook public ownerOfHook;
+
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
     function setUp() public {
@@ -77,6 +80,8 @@ contract SubscriptionTest is DSTest, StdUtils {
 
         transferHookForBase = _setupTransferHookContract(cre8orsNFTBase);
         transferHookForPassport = _setupTransferHookContract(cre8orsPassport);
+
+        ownerOfHook = _setupOwnerOfHook();
 
         cre8ingForBase = _setupCre8ing(cre8orsNFTBase);
         cre8ingForPassport = _setupCre8ing(cre8orsPassport);
@@ -291,5 +296,25 @@ contract SubscriptionTest is DSTest, StdUtils {
             address(_assignee)
         );
         vm.stopPrank();
+    }
+
+    function _setupOwnerOfHook() internal returns (OwnerOfHook) {
+        ownerOfHook = new OwnerOfHook();
+        _setupMinterRole(address(ownerOfHook));
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        // set hook
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.OwnerOf,
+            address(ownerOfHook)
+        );
+        // enable hook
+        ownerOfHook.setOwnerOfHookEnabled(
+            address(cre8orsNFTBase),
+            true
+        );
+        vm.stopPrank();
+
+        return ownerOfHook;
     }
 }
