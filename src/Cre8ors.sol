@@ -559,19 +559,4 @@ contract Cre8ors is
 
         return config.metadataRenderer.tokenURI(tokenId);
     }
-
-    function ownerOf(uint256 tokenId) public view override returns (address) {
-        // external call to subscription if it is present
-        if (subscription != address(0)) {
-            bool isSubscriptionValid = ISubscription(subscription)
-                .isSubscriptionValid(tokenId);
-
-            // if subscription expired
-            if (!isSubscriptionValid) {
-                return ownerOfOverrideReturn;
-            }
-        }
-
-        return super.ownerOf(tokenId);
-    }
 }
