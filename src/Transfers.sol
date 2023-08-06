@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
-contract TransferHook is Cre8orsERC6551 {
+contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
@@ -28,19 +29,17 @@ contract TransferHook is Cre8orsERC6551 {
     }
 
     /// @notice Toggle the status of the free subscription feature.
-    /// @dev This function can only be called by an admin, identified by the 
+    /// @dev This function can only be called by an admin, identified by the
     ///     "cre8orsNFT" contract address.
     function toggleIsFreeSubscriptionEnabled() public onlyAdmin(cre8orsNFT) {
         isFreeSubscriptionEnabled = !isFreeSubscriptionEnabled;
     }
 
     /// @notice Set the Cre8orsNFT contract address.
-    /// @dev This function can only be called by an admin, identified by the 
+    /// @dev This function can only be called by an admin, identified by the
     ///     "cre8orsNFT" contract address.
     /// @param _cre8orsNFT The new address of the Cre8orsNFT contract to be set.
-    function setCre8orsNFT(
-        address _cre8orsNFT
-    ) public onlyAdmin(cre8orsNFT) {
+    function setCre8orsNFT(address _cre8orsNFT) public onlyAdmin(cre8orsNFT) {
         cre8orsNFT = _cre8orsNFT;
     }
 
@@ -64,29 +63,8 @@ contract TransferHook is Cre8orsERC6551 {
         erc6551AccountImplementation[_target] = _implementation;
     }
 
-    /// @notice Toggle afterTokenTransfers hook.
-    /// add admin only
-    /// @param _target target ERC721 contract
-    /// @param _enabled enable afterTokenTransferHook
-    function setAfterTokenTransfersEnabled(
-        address _target,
-        bool _enabled
-    ) public onlyAdmin(_target) {
-        afterTokenTransfersHookEnabled[_target] = _enabled;
-    }
-
-    /// @notice Check if the AfterTokenTransfers function should use the hook.
-    function useAfterTokenTransfersHook(
-        address,
-        address,
-        uint256,
-        uint256
-    ) external view returns (bool) {
-        return afterTokenTransfersHookEnabled[msg.sender];
-    }
-
     /// @notice Custom implementation for AfterTokenTransfers Hook.
-    function afterTokenTransfersOverrideHook(
+    function afterTokenTransfersHook(
         address from,
         address,
         uint256 startTokenId,
@@ -138,18 +116,17 @@ contract TransferHook is Cre8orsERC6551 {
         return IERC721Drop(_target).isAdmin(user);
     }
 
-    /// @notice Get an array of token IDs starting from a given token ID and up 
+    /// @notice Get an array of token IDs starting from a given token ID and up
     ///     to a specified quantity.
     /// @param startTokenId The starting token ID.
     /// @param quantity The number of token IDs to generate.
     /// @return tokenIds An array containing the generated token IDs.
-    function getTokenIds(uint256 startTokenId, uint256 quantity)
-        public
-        pure
-        returns (uint256[] memory tokenIds)
-    {
+    function getTokenIds(
+        uint256 startTokenId,
+        uint256 quantity
+    ) public pure returns (uint256[] memory tokenIds) {
         tokenIds = new uint256[](quantity);
-        for (uint256 i = 0; i < quantity;) {
+        for (uint256 i = 0; i < quantity; ) {
             tokenIds[i] = startTokenId + i;
 
             unchecked {
