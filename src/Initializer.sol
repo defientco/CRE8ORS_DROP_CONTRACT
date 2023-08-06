@@ -18,7 +18,6 @@ import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol"
 ╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
-/// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Initializer {
     function setup(
         address _target,
