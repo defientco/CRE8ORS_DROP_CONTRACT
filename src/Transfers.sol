@@ -66,10 +66,11 @@ contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
     /// @notice Custom implementation for AfterTokenTransfers Hook.
     function afterTokenTransfersHook(
         address from,
-        address,
+        address to,
         uint256 startTokenId,
         uint256 quantity
     ) external {
+        emit AfterTokenTransfersHookUsed(from, to, startTokenId, quantity);
         if (from != address(0)) {
             return;
         }
