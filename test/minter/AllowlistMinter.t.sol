@@ -30,16 +30,9 @@ import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
 
-contract AllowlistMinterTest is DSTest, StdUtils {
-    DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
-    address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
-        payable(address(0x21303));
-    uint64 DEFAULT_EDITION_SIZE = 10_000;
-    uint16 DEFAULT_ROYALTY_BPS = 888;
-    Cre8ors public cre8orsNFTBase;
+contract AllowlistMinterTest is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     Cre8ors public cre8orsPassport;
     MinterUtilities public minterUtility;
@@ -48,11 +41,9 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     AllowlistMinter public minter;
     MerkleData public merkleData;
     TransferHook public transferHookCre8orsPassport;
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     OwnerOfHook public ownerOfHook;
-    TransferHook public transferHook;
     Subscription public subscription;
 
     uint64 public constant ONE_YEAR_DURATION = 365 days;
@@ -95,6 +86,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         vm.stopPrank();
 
         merkleData = new MerkleData();
+
+        _setupErc6551();
     }
 
     function testLockup() public {
