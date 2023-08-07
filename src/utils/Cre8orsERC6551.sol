@@ -14,10 +14,10 @@ import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol"
 /// @dev inspiration: https://github.com/ourzora/zora-drops-contracts
 contract Cre8orsERC6551 {
     /// @dev The address of ERC6551 Registry
-    mapping(address => address) public erc6551Registry;
+    address public erc6551Registry;
 
     /// @dev The address of ERC6551 Account Implementation
-    mapping(address => address) public erc6551AccountImplementation;
+    address public erc6551AccountImplementation;
 
     /// @dev Initial data for ERC6551 createAccount
     bytes public constant INIT_DATA = "0x8129fc1c";
@@ -26,17 +26,16 @@ contract Cre8orsERC6551 {
     /// @param _target target ERC721 contract
     /// @param startTokenId tokenID to start from
     /// @param quantity number of tokens to createAccount for
-    function createTokenBoundAccountsAndAirdropDNA(
+    function createTokenBoundAccounts(
         address _target,
         uint256 startTokenId,
         uint256 quantity
     ) internal returns (address[] memory airdropList) {
-        IERC6551Registry registry = IERC6551Registry(erc6551Registry[_target]);
-        address implementation = erc6551AccountImplementation[_target];
+        IERC6551Registry registry = IERC6551Registry(erc6551Registry);
         airdropList = new address[](quantity);
         for (uint256 i = 0; i < quantity; i++) {
             address smartWallet = registry.createAccount(
-                implementation,
+                erc6551AccountImplementation,
                 block.chainid,
                 _target,
                 startTokenId + i,

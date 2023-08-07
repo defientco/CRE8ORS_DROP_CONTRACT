@@ -53,23 +53,19 @@ contract TransferHook is
     }
 
     /// @notice Set ERC6551 registry
-    /// @param _target target ERC721 contract
     /// @param _registry ERC6551 registry
     function setErc6551Registry(
-        address _target,
         address _registry
-    ) public onlyAdmin(_target) {
-        erc6551Registry[_target] = _registry;
+    ) public onlyAdmin(cre8orsNFT) {
+        erc6551Registry = _registry;
     }
 
     /// @notice Set ERC6551 account implementation
-    /// @param _target target ERC721 contract
     /// @param _implementation ERC6551 account implementation
     function setErc6551Implementation(
-        address _target,
         address _implementation
-    ) public onlyAdmin(_target) {
-        erc6551AccountImplementation[_target] = _implementation;
+    ) public onlyAdmin(cre8orsNFT) {
+        erc6551AccountImplementation = _implementation;
     }
 
     /// @notice Custom implementation for AfterTokenTransfers Hook.
@@ -85,13 +81,12 @@ contract TransferHook is
 
         address _cre8orsNFT = cre8orsNFT;
 
-        if (erc6551Registry[_cre8orsNFT] != address(0)) {
-            address[]
-                memory airdropList = createTokenBoundAccountsAndAirdropDNA(
-                    _cre8orsNFT,
-                    startTokenId,
-                    quantity
-                );
+        if (erc6551Registry != address(0)) {
+            address[] memory airdropList = createTokenBoundAccounts(
+                _cre8orsNFT,
+                startTokenId,
+                quantity
+            );
             if (dnaNft != address(0)) {
                 IERC721Drop(dnaNft).adminMintAirdrop(airdropList);
             }

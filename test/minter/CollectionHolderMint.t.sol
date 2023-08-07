@@ -499,14 +499,8 @@ contract CollectionHolderMintTest is Test {
         );
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setErc6551Registry(
-            address(cre8orsNFTBase),
-            address(erc6551Registry)
-        );
-        transferHook.setErc6551Implementation(
-            address(cre8orsNFTBase),
-            address(erc6551Implementation)
-        );
+        transferHook.setErc6551Registry(address(erc6551Registry));
+        transferHook.setErc6551Implementation(address(erc6551Implementation));
         vm.stopPrank();
     }
 
@@ -527,11 +521,9 @@ contract CollectionHolderMintTest is Test {
 
         for (uint256 i = 1; i <= _mintQuantity; i++) {
             address smartWallet = IERC6551Registry(
-                transferHook.erc6551Registry(address(cre8orsNFTBase))
+                transferHook.erc6551Registry()
             ).account(
-                    transferHook.erc6551AccountImplementation(
-                        address(cre8orsNFTBase)
-                    ),
+                    transferHook.erc6551AccountImplementation(),
                     block.chainid,
                     address(cre8orsNFTBase),
                     i,
