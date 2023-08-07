@@ -35,8 +35,8 @@ contract Initializer {
             IERC721ACH.HookType.AfterTokenTransfers,
             _hookAddress
         );
-        ICre8ors(_target).setCre8ing(ICre8ing(_cre8ing));
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
+        ITransfer(_hookAddress).setCre8ing(_target, _cre8ing);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
         IAccessControl(_target).grantRole(
             ICre8ors(_target).MINTER_ROLE(),
@@ -82,4 +82,8 @@ contract Initializer {
     function isAdmin(address _target, address user) public view returns (bool) {
         return IERC721Drop(_target).isAdmin(user);
     }
+}
+
+interface ITransfer {
+    function setCre8ing(address _target, address _cre8ing) external;
 }
