@@ -47,7 +47,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
     AllowlistMinter public minter;
     MerkleData public merkleData;
-    TransferHook public transferHookCre8orsNFTBase;
     TransferHook public transferHookCre8orsPassport;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
@@ -93,16 +92,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         ownerOfHook = _setupOwnerOfHook();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHookCre8orsNFTBase.setCre8ing(address(cre8ingBase));
-        transferHookCre8orsPassport.setCre8ing(address(cre8ingBase));
-        cre8orsNFTBase.setHook(
-            IERC721ACH.HookType.BeforeTokenTransfers,
-            address(transferHookCre8orsNFTBase)
-        );
-        cre8orsPassport.setHook(
-            IERC721ACH.HookType.BeforeTokenTransfers,
-            address(transferHookCre8orsPassport)
-        );
         vm.stopPrank();
 
         merkleData = new MerkleData();
@@ -474,6 +463,10 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         // set hook
         cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
+        cre8orsNFTBase.setHook(
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
@@ -482,6 +475,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(cre8orsNFTBase),
             address(subscription)
         );
+        transferHook.setCre8ing(address(cre8ingBase));
         vm.stopPrank();
 
         return transferHook;
