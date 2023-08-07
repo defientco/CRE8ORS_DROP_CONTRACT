@@ -15,10 +15,8 @@ import {Cre8ing} from "../src/Cre8ing.sol";
 import {TransferHook} from "../src/hooks/Transfers.sol";
 
 contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     CreatorTokenTransferValidator public transferValidator;
     Cre8ing public cre8ingBase;
-    TransferHook public transferHook;
     address whitelistedOperator;
 
     function setUp() public {

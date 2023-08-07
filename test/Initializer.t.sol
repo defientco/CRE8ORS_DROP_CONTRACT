@@ -26,7 +26,6 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 contract InitializerTest is Test, Cre8orTestBase {
     Initializer public initializer;
     Subscription public subscription;
-    TransferHook public transferHook;
     OwnerOfHook public ownerOfHook;
     Cre8ing public cre8ingBase;
     Lockup public lockup;

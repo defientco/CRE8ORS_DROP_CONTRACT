@@ -28,12 +28,6 @@ error NotAuthorized();
 
 contract ERC6551Test is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
-    Vm public constant vm = Vm(HEVM_ADDRESS);
-    ERC6551Registry erc6551Registry;
-    AccountGuardian guardian;
-    EntryPoint entryPoint;
-    Account erc6551Implementation;
-    TransferHook public transferHook;
     address constant DEAD_ADDRESS =
         address(0x000000000000000000000000000000000000dEaD);
     Subscription public subscription;
@@ -41,13 +35,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         subscription = _setupSubscriptionContract(cre8orsNFTBase);
-        erc6551Registry = new ERC6551Registry();
-        guardian = new AccountGuardian();
-        entryPoint = new EntryPoint();
-        erc6551Implementation = new Account(
-            address(guardian),
-            address(entryPoint)
-        );
+
         cre8ingBase = new Cre8ing();
         transferHook = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -59,7 +47,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
     }
 
-    function test_Erc6551Registry() public {
+    function test_Erc6551Registry() public setupErc6551 {
         address tokenBoundAccount = getTBA(1);
         assertTrue(!isContract(tokenBoundAccount));
     }
@@ -199,14 +187,6 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         for (uint256 i = 1; i <= _quantity; i++) {
             cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
         }
-    }
-
-    modifier setupErc6551() {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setErc6551Registry(address(erc6551Registry));
-        transferHook.setErc6551Implementation(address(erc6551Implementation));
-        vm.stopPrank();
-        _;
     }
 
     function isContract(address _addr) private view returns (bool) {

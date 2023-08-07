@@ -13,14 +13,12 @@ import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
 import {MinterAdminCheck} from "../../src/minter/MinterAdminCheck.sol";
 
 contract LockupTest is DSTest, Cre8orTestBase {
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     Cre8ing public cre8ingBase;
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
-  
     }
 
     function test_lockup() public {

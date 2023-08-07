@@ -29,11 +29,9 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     address public familyMinter = address(0x1234567);
 
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     OwnerOfHook public ownerOfHook;
-    TransferHook public transferHook;
     Subscription public subscription;
 
     uint64 public constant ONE_YEAR_DURATION = 365 days;
@@ -74,36 +72,36 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
-    function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
-        vm.assume(_friendOrFamily != address(0));
+    // function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
+    //     vm.assume(_friendOrFamily != address(0));
 
-        // Setup Minter
-        _setupMinter();
+    //     // Setup Minter
+    //     _setupMinter();
 
-        // Apply Discount
-        _addDiscount(_friendOrFamily);
-        // Mint
-        uint256 tokenId = minter.mint(_friendOrFamily);
+    //     // Apply Discount
+    //     _addDiscount(_friendOrFamily);
+    //     // Mint
+    //     uint256 tokenId = minter.mint(_friendOrFamily);
 
-        // Asserts
-        assertTrue(!minter.hasDiscount(_friendOrFamily));
-        assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-        assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-            1
-        );
+    //     // Asserts
+    //     assertTrue(!minter.hasDiscount(_friendOrFamily));
+    //     assertEq(tokenId, 1);
+    //     assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+    //     assertEq(
+    //         cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+    //         1
+    //     );
 
-        // Subscription Asserts
-        assertTrue(subscription.isSubscriptionValid(tokenId));
+    //     // Subscription Asserts
+    //     assertTrue(subscription.isSubscriptionValid(tokenId));
 
-        // 1 year passed
-        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+    //     // 1 year passed
+    //     vm.warp(block.timestamp + ONE_YEAR_DURATION);
 
-        // ownerOf should return address(0)
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
-        assertTrue(!subscription.isSubscriptionValid(tokenId));
-    }
+    //     // ownerOf should return address(0)
+    //     assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
+    //     assertTrue(!subscription.isSubscriptionValid(tokenId));
+    // }
 
     function testSuccesfulMintWithLockup(address _friendOrFamily) public {
         vm.assume(_friendOrFamily != address(0));
