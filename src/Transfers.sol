@@ -2,12 +2,14 @@
 pragma solidity ^0.8.15;
 
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
+import {IBeforeTokenTransfersHook} from "ERC721H/interfaces/IBeforeTokenTransfersHook.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
+import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
-contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
+contract TransferHook is IAfterTokenTransfersHook, IBeforeTokenTransfersHook, Cre8orsERC6551 {
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
@@ -17,10 +19,16 @@ contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
 
+    address public cre8ing;
+
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
+
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 1 then
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
+    mapping(address => uint256) internal cre8ingTransfer;
 
     /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
     /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
@@ -97,6 +105,32 @@ contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
                 tokenIds: tokenIds
             });
         }
+    }
+
+    // /// @notice Custom implementation for BeforeTokenTransfers Hook.
+    function beforeTokenTransfersHook(
+        address from,
+        address to,
+        uint256 startTokenId,
+        uint256 quantity
+    ) external  {
+        emit BeforeTokenTransfersHookUsed(from, to, startTokenId, quantity);
+        uint256 tokenId = startTokenId;
+        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
+            if (
+                ICre8ing(cre8ing).getCre8ingStarted(msg.sender, tokenId) != 0 &&
+                cre8ingTransfer[msg.sender] != 1 
+            ) {
+                revert ICre8ing.Cre8ing_Cre8ing();
+            }
+        }
+    }
+
+    function setCre8ing(
+        address _target,
+        address _cre8ing
+    ) external virtual onlyAdmin(_target) {
+        cre8ing = _cre8ing;
     }
 
     /// @notice Only allow for users with admin access
