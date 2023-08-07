@@ -52,13 +52,10 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
         );
 
         subscription = _setupSubscription();
+        cre8ingBase = new Cre8ing();
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
-
-        cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing(address(cre8ingBase));
     }
 
     function testSuccessfulOwnerOfWithoutLockup(
@@ -192,11 +189,18 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
         // set subscription
         transferHook.setSubscription(
             address(cre8orsNFTBase),
             address(subscription)
         );
+        // set cre8ing
+        transferHook.setCre8ing(address(cre8ingBase));
+
         vm.stopPrank();
 
         return transferHook;
