@@ -5,8 +5,15 @@ import {IOwnerOfHook} from "ERC721H/interfaces/IOwnerOfHook.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
+import {HookBase} from "./HookBase.sol";
 
-contract OwnerOfHook is IOwnerOfHook {
+contract OwnerOfHook is IOwnerOfHook, HookBase {
+    /// @notice A boolean flag indicating whether the default owner of return is enabled.
+    bool public isDefaultOwnerOfReturnEnabled = true;
+
+    /// @dev The address that gets returns if the subscription of a tokenId is expired.
+    ///     By default: address(0)
+    address public defaultOwnerOfReturn;
 
     /// @notice mapping of ERC721 to bool whether to use ownerOfHook
     mapping(address => bool) public ownerOfHookEnabled;
@@ -20,9 +27,6 @@ contract OwnerOfHook is IOwnerOfHook {
     function ownerOfHook(
         uint256 tokenId
     ) external view returns (address, bool) {
-        // msg.sender is the ERC721 contract e.g. Cre8ors
-        address subscription = ICre8ors(msg.sender).subscription();
-
         if (subscription == address(0)) {
             return (address(0), true);
         }
@@ -37,6 +41,13 @@ contract OwnerOfHook is IOwnerOfHook {
 
         // subscription expired
         // do not run `super.ownerOf(tokenId)`
+
+        // if default enabled then return default
+        if (isDefaultOwnerOfReturnEnabled) {
+            return (defaultOwnerOfReturn, false);
+        }
+
+        // otherwise return according to tokenId
         return (ownerOfReturns[tokenId], false);
     }
 
@@ -62,21 +73,17 @@ contract OwnerOfHook is IOwnerOfHook {
         ownerOfReturns[_tokenId] = _ownerOfReturn;
     }
 
-    /// @notice Only allow for users with admin access
-    /// @param _target target ERC721 contract
-    modifier onlyAdmin(address _target) {
-        if (!isAdmin(_target, msg.sender)) {
-            revert IERC721Drop.Access_OnlyAdmin();
-        }
-
-        _;
+    function setOwnerOfOverrideReturn(
+        address _target,
+        address _defaultOwnerOfReturn
+    ) external onlyAdmin(_target) {
+        defaultOwnerOfReturn = _defaultOwnerOfReturn;
     }
 
-    /// @notice Getter for admin role associated with the contract to handle minting
-    /// @param _target target ERC721 contract
-    /// @param user user address
-    /// @return boolean if address is admin
-    function isAdmin(address _target, address user) public view returns (bool) {
-        return IERC721Drop(_target).isAdmin(user);
+    function setIsDefaultOwnerOfReturnEnabled(
+        address _target,
+        bool _enabled
+    ) external onlyAdmin(_target) {
+        isDefaultOwnerOfReturnEnabled = _enabled;
     }
 }
