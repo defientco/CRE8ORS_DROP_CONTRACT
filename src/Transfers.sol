@@ -29,7 +29,7 @@ contract TransferHook is
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
     /// the _beforeTokenTransfer() block while cre8ing is disabled.
-    mapping(address => uint256) internal cre8ingTransfer;
+    uint256 cre8ingTransfer;
 
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
@@ -126,7 +126,7 @@ contract TransferHook is
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (
                 ICre8ing(cre8ing).getCre8ingStarted(msg.sender, tokenId) != 0 &&
-                cre8ingTransfer[msg.sender] != 1
+                cre8ingTransfer != 1
             ) {
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
@@ -146,9 +146,9 @@ contract TransferHook is
         if (ICre8ors(_cre8orsNFT).ownerOf(tokenId) != msg.sender) {
             revert IERC721Drop.Access_OnlyOwner();
         }
-        cre8ingTransfer[_cre8orsNFT] = 1;
+        cre8ingTransfer = 1;
         ICre8ors(_cre8orsNFT).safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer[_cre8orsNFT] = 0;
+        cre8ingTransfer = 0;
     }
 
 
