@@ -9,7 +9,11 @@ import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
-contract TransferHook is IAfterTokenTransfersHook, IBeforeTokenTransfersHook, Cre8orsERC6551 {
+contract TransferHook is
+    IAfterTokenTransfersHook,
+    IBeforeTokenTransfersHook,
+    Cre8orsERC6551
+{
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
@@ -113,19 +117,21 @@ contract TransferHook is IAfterTokenTransfersHook, IBeforeTokenTransfersHook, Cr
         address to,
         uint256 startTokenId,
         uint256 quantity
-    ) external  {
+    ) external {
         emit BeforeTokenTransfersHookUsed(from, to, startTokenId, quantity);
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (
                 ICre8ing(cre8ing).getCre8ingStarted(msg.sender, tokenId) != 0 &&
-                cre8ingTransfer[msg.sender] != 1 
+                cre8ingTransfer[msg.sender] != 1
             ) {
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
     }
 
+    // TODO: REMOVE _target from setCre8ing
+    // this isn't a mapping. Change to prevent ANYONE from setting our staking contract
     function setCre8ing(
         address _target,
         address _cre8ing
