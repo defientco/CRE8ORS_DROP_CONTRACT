@@ -209,7 +209,6 @@ contract SubscriptionTest is DSTest, StdUtils {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(_transferHook)
         );
-        _transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFT_), true);
         vm.stopPrank();
     }
 
