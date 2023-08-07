@@ -54,10 +54,10 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             address(minterUtility)
         );
 
+        subscription = _setupSubscription();
+
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
-
-        subscription = _setupSubscription();
 
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
@@ -284,11 +284,8 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             IERC721ACH.HookType.OwnerOf,
             address(ownerOfHook)
         );
-        // enable hook
-        ownerOfHook.setOwnerOfHookEnabled(
-            address(cre8orsNFTBase),
-            true
-        );
+        // set subscription
+        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
         vm.stopPrank();
 
         return ownerOfHook;
@@ -304,8 +301,8 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
-        // enable hook
-        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), true);
+        // set subscription
+        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
         vm.stopPrank();
 
         return transferHook;
@@ -317,10 +314,6 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             minRenewalDuration_: 1 days,
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
-
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setSubscription(address(subscription));
-        vm.stopPrank();
 
         return subscription;
     }

@@ -84,10 +84,10 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(friendsAndFamilyMinter)
         );
 
+        subscription = _setupSubscription();
+
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
-
-        subscription = _setupSubscription();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
@@ -446,11 +446,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             IERC721ACH.HookType.OwnerOf,
             address(ownerOfHook)
         );
-        // enable hook
-        ownerOfHook.setOwnerOfHookEnabled(
-            address(cre8orsNFTBase),
-            true
-        );
+        // set subscription
+        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
         vm.stopPrank();
 
         return ownerOfHook;
@@ -466,8 +463,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
-        // enable hook
-        transferHook.setAfterTokenTransfersEnabled(address(cre8orsNFTBase), true);
+        // set subscription
+        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
         vm.stopPrank();
 
         return transferHook;
@@ -479,10 +476,6 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             minRenewalDuration_: 1 days,
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
-
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setSubscription(address(subscription));
-        vm.stopPrank();
 
         return subscription;
     }

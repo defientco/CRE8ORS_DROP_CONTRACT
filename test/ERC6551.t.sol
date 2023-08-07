@@ -49,14 +49,9 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook();
-        _setupMinterRole(address(transferHook));
+        transferHook = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsNFTBase.setHook(
-            IERC721ACH.HookType.AfterTokenTransfers,
-            address(transferHook)
-        );
         vm.stopPrank();
     }
 
@@ -243,7 +238,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         return tokenBoundAccount;
     }
 
-    function _setupMinterRole(address _assignee) internal {
+    function _setMinterRole(address _assignee) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
             cre8orsNFTBase.MINTER_ROLE(),
@@ -260,9 +255,22 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             minRenewalDuration_: 1 days,
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
+    }
+
+    function _setupTransferHook() internal returns (TransferHook) {
+        transferHook = new TransferHook();
+        _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFT_.setSubscription(address(_subscription));
+        // set hook
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(transferHook)
+        );
+        // set subscription
+        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
         vm.stopPrank();
+
+        return transferHook;
     }
 }
