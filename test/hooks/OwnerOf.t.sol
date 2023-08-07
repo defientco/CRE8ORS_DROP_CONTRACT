@@ -54,6 +54,8 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
+
+        _setupErc6551();
     }
 
     function testSuccessfulOwnerOfWithoutLockup(
