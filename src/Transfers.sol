@@ -8,12 +8,13 @@ import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
-import {ICre8iveAdmin} from "./interfaces/ICre8iveAdmin.sol";
+
 
 contract TransferHook is
     IAfterTokenTransfersHook,
     IBeforeTokenTransfersHook,
     Cre8orsERC6551
+
 {
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
@@ -150,12 +151,10 @@ contract TransferHook is
         cre8ingTransfer[_cre8orsNFT] = 0;
     }
 
-    // TODO: REMOVE _target from setCre8ing
-    // this isn't a mapping. Change to prevent ANYONE from setting our staking contract
+
     function setCre8ing(
-        address _target,
         address _cre8ing
-    ) external virtual onlyAdmin(_target) {
+    ) external virtual onlyAdmin(cre8orsNFT) {
         cre8ing = _cre8ing;
     }
 
@@ -169,19 +168,7 @@ contract TransferHook is
         _;
     }
 
-    /// @notice Only a given role has access or admin
-    /// @param role role to check for alongside the admin role
-    modifier onlyRoleOrAdmin(bytes32 role) {
-        if (
-            !hasRole(DEFAULT_ADMIN_ROLE, msg.sender) &&
-            !hasRole(role, msg.sender)
-        ) {
-            revert AdminAccess_MissingRoleOrAdmin(role);
-        }
-
-        _;
-    }
-
+ 
     /// @notice Getter for admin role associated with the contract to handle minting
     /// @param _target target ERC721 contract
     /// @param user user address

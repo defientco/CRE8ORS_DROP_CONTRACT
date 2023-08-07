@@ -27,7 +27,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         cre8ingBase = new Cre8ing();
         transferHook = new TransferHook(address(cre8orsNFTBase));
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
+        transferHook.setCre8ing( address(cre8ingBase));
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
@@ -150,11 +150,12 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
-        cre8orsNFTBase.safeTransferWhileCre8ing(
+        transferHook.safeTransferWhileCre8ing(
             DEFAULT_CRE8OR_ADDRESS,
             DEFAULT_TRANSFER_ADDRESS,
             _tokenId
         );
+        
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_TRANSFER_ADDRESS);
         (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
             address(cre8orsNFTBase),
@@ -178,7 +179,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
         vm.startPrank(DEFAULT_TRANSFER_ADDRESS);
         vm.expectRevert(abi.encodeWithSignature("Access_OnlyOwner()"));
-        cre8orsNFTBase.safeTransferWhileCre8ing(
+        transferHook.safeTransferWhileCre8ing(
             DEFAULT_CRE8OR_ADDRESS,
             DEFAULT_TRANSFER_ADDRESS,
             _tokenId

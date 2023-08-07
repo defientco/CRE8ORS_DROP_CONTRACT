@@ -79,8 +79,8 @@ contract PublicMinterTest is DSTest, StdUtils {
         transferHookCre8orsPassport = new TransferHook(address(cre8orsPassport));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHookCre8orsNFTBase.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
-        transferHookCre8orsPassport.setCre8ing(address(cre8orsPassport), address(cre8ingBase));
+        transferHookCre8orsNFTBase.setCre8ing(address(cre8ingBase));
+        transferHookCre8orsPassport.setCre8ing(address(cre8ingBase));
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHookCre8orsNFTBase)

@@ -48,7 +48,7 @@ contract Cre8orTest is DSTest {
         transferHook = new TransferHook(address(cre8orsNFTBase));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
+        transferHook.setCre8ing( address(cre8ingBase));
         vm.stopPrank();
 
         _;

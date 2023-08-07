@@ -174,7 +174,7 @@ contract SubscriptionTest is DSTest, StdUtils {
     ) internal returns (Cre8ing _cre8ing) {
         _cre8ing = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing(cre8orsNFT_, address(_cre8ing));
+        transferHook.setCre8ing(address(_cre8ing));
         vm.prank(DEFAULT_OWNER_ADDRESS);
         _cre8ing.setCre8ingOpen(address(transferHook), true);
         _setupMinterRole(address(_cre8ing));

@@ -45,7 +45,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
+        transferHook.setCre8ing(address(cre8ingBase));
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
