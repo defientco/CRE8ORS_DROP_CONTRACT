@@ -61,6 +61,8 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));
+
+        _setupErc6551();
     }
 
     function testCheckSubscription() external {
