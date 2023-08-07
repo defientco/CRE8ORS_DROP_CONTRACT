@@ -106,6 +106,11 @@ contract TransferHook is
             createTokenBoundAccounts(_cre8orsNFT, startTokenId, quantity);
         }
 
+        // return if subscription off
+        if (subscription == address(0)) {
+            return;
+        }
+
         // Subscription logic
         uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);
 
