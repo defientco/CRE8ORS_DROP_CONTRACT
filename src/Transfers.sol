@@ -8,6 +8,7 @@ import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "./interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
+import {ICre8iveAdmin} from "./interfaces/ICre8iveAdmin.sol";
 
 contract TransferHook is
     IAfterTokenTransfersHook,
@@ -135,17 +136,18 @@ contract TransferHook is
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
     ///  thus not resetting the cre8ing period.
     function safeTransferWhileCre8ing(
-        address target,
         address from,
         address to,
         uint256 tokenId
     ) external {
-        if (ICre8ors(target).ownerOf(tokenId) != msg.sender) {
+
+        address _cre8orsNFT = cre8orsNFT;
+        if (ICre8ors(_cre8orsNFT).ownerOf(tokenId) != msg.sender) {
             revert IERC721Drop.Access_OnlyOwner();
         }
-        cre8ingTransfer[target] = 1;
-        ICre8ors(target).safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer[target] = 0;
+        cre8ingTransfer[_cre8orsNFT] = 1;
+        ICre8ors(_cre8orsNFT).safeTransferFrom(from, to, tokenId);
+        cre8ingTransfer[_cre8orsNFT] = 0;
     }
 
     // TODO: REMOVE _target from setCre8ing
@@ -162,6 +164,19 @@ contract TransferHook is
     modifier onlyAdmin(address _target) {
         if (!isAdmin(_target, msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
+        }
+
+        _;
+    }
+
+    /// @notice Only a given role has access or admin
+    /// @param role role to check for alongside the admin role
+    modifier onlyRoleOrAdmin(bytes32 role) {
+        if (
+            !hasRole(DEFAULT_ADMIN_ROLE, msg.sender) &&
+            !hasRole(role, msg.sender)
+        ) {
+            revert AdminAccess_MissingRoleOrAdmin(role);
         }
 
         _;
