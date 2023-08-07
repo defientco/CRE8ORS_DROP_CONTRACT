@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {HookBase} from "./hooks/HookBase.sol";
+import {HookBase} from "../hooks/HookBase.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IBeforeTokenTransfersHook} from "ERC721H/interfaces/IBeforeTokenTransfersHook.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";

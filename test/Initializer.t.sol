@@ -14,7 +14,7 @@ import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {PublicMinter} from "../src/minter/PublicMinter.sol";
 import {Subscription} from "../src/subscription/Subscription.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
 import {OwnerOfHook} from "../src/hooks/OwnerOf.sol";
 import {MinterUtilities} from "../src/utils/MinterUtilities.sol";
 import {Lockup} from "../src/utils/Lockup.sol";

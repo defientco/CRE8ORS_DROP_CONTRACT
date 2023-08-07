@@ -19,7 +19,7 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
-import {TransferHook} from "../../src/Transfers.sol";
+import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
