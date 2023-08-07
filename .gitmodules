@@ -22,4 +22,3 @@
 [submodule "lib/ERC721H"]
 	path = lib/ERC721H
 	url = https://github.com/defientco/ERC721H
-	branch = ahmedali8/ownerof-hook-changes
