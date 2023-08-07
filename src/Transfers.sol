@@ -76,18 +76,17 @@ contract TransferHook is IAfterTokenTransfersHook, HookBase, Cre8orsERC6551 {
         });
     }
 
-    /// @notice Get an array of token IDs starting from a given token ID and up 
+    /// @notice Get an array of token IDs starting from a given token ID and up
     ///     to a specified quantity.
     /// @param startTokenId The starting token ID.
     /// @param quantity The number of token IDs to generate.
     /// @return tokenIds An array containing the generated token IDs.
-    function getTokenIds(uint256 startTokenId, uint256 quantity)
-        public
-        pure
-        returns (uint256[] memory tokenIds)
-    {
+    function getTokenIds(
+        uint256 startTokenId,
+        uint256 quantity
+    ) public pure returns (uint256[] memory tokenIds) {
         tokenIds = new uint256[](quantity);
-        for (uint256 i = 0; i < quantity;) {
+        for (uint256 i = 0; i < quantity; ) {
             tokenIds[i] = startTokenId + i;
 
             unchecked {
