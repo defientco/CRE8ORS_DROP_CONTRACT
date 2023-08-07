@@ -12,10 +12,13 @@ import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {ERC721AC} from "lib/creator-token-contracts/contracts/erc721c/ERC721AC.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
 
+import {TransferHook} from "../src/Transfers.sol";
+
 contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     CreatorTokenTransferValidator public transferValidator;
     Cre8ing public cre8ingBase;
+    TransferHook public transferHook;
     address whitelistedOperator;
 
     function setUp() public {
@@ -27,7 +30,8 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
         whitelistedOperator = vm.addr(2);
         transferValidator.addOperatorToWhitelist(1, whitelistedOperator);
         cre8ingBase = new Cre8ing();
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
         vm.stopPrank();
     }
 

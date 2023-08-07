@@ -14,8 +14,6 @@ import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
-import {Cre8ing} from "./Cre8ing.sol";
-import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
 /**
@@ -43,10 +41,10 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
-    ICre8ing public cre8ing;
+
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled. 👹
     uint256 internal cre8ingTransfer = 1;
 
     /// @dev Subscription contract address

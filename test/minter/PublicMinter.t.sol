@@ -22,6 +22,8 @@ import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {PublicMinter} from "../../src/minter/PublicMinter.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {TransferHook} from "../../src/Transfers.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract PublicMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -38,6 +40,8 @@ contract PublicMinterTest is DSTest, StdUtils {
     CollectionHolderMint public collectionMinter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
     PublicMinter public minter;
+    TransferHook public transferHookCre8orsNFTBase;
+    TransferHook public transferHookCre8orsPassport;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
@@ -70,9 +74,21 @@ contract PublicMinterTest is DSTest, StdUtils {
             address(friendsAndFamilyMinter)
         );
         cre8ingBase = new Cre8ing();
+
+        transferHookCre8orsNFTBase = new TransferHook(address(cre8orsNFTBase));
+        transferHookCre8orsPassport = new TransferHook(address(cre8orsPassport));
+
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
+        transferHookCre8orsNFTBase.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
+        transferHookCre8orsPassport.setCre8ing(address(cre8orsPassport), address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsNFTBase)
+        );
+        cre8orsPassport.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsPassport)
+        );
         vm.stopPrank();
     }
 

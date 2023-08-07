@@ -17,11 +17,14 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {TransferHook} from "../../src/Transfers.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
+    TransferHook public transferHook;
     address public familyMinter = address(0x1234567);
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -29,6 +32,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
             50000000000000000,
@@ -41,7 +45,11 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        transferHook.setCre8ing(address(cre8orsNFTBase), address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
     }
 
     function testLockup() public {
