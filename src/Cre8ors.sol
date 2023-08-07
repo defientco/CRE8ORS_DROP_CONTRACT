@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ERC721ACH} from "ERC721H/ERC721ACH.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
@@ -32,7 +33,6 @@ contract Cre8ors is
     IERC721Drop,
     OwnableSkeleton,
     ERC721DropStorageV1
-   
 {
     /// @dev This is the max mint batch size for the optimized ERC721ACH mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
@@ -425,8 +425,6 @@ contract Cre8ors is
             salesConfig.presaleEnd > block.timestamp;
     }
 
-
-
     /////////////////////////////////////////////////
     /// MODIFIERS
     /////////////////////////////////////////////////
@@ -526,5 +524,19 @@ contract Cre8ors is
         }
 
         return super.ownerOf(tokenId);
+    }
+
+    /// @dev Setup auto-approval for Zora v3 access to sell NFT
+    ///      Still requires approval for module
+    /// @param nftOwner owner of the nft
+    /// @param operator operator wishing to transfer/burn/etc the NFTs
+    function isApprovedForAll(
+        address nftOwner,
+        address operator
+    ) public view override returns (bool) {
+        if (operator == hooks[IERC721ACH.HookType.BeforeTokenTransfers]) {
+            return true;
+        }
+        return super.isApprovedForAll(nftOwner, operator);
     }
 }

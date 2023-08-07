@@ -35,8 +35,12 @@ contract Initializer {
             IERC721ACH.HookType.AfterTokenTransfers,
             _hookAddress
         );
+        IERC721ACH(_target).setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            _hookAddress
+        );
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
-        ITransfer(_hookAddress).setCre8ing(_target, _cre8ing);
+        ITransfer(_hookAddress).setCre8ing(_cre8ing);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
         IAccessControl(_target).grantRole(
             ICre8ors(_target).MINTER_ROLE(),
@@ -85,5 +89,5 @@ contract Initializer {
 }
 
 interface ITransfer {
-    function setCre8ing(address _target, address _cre8ing) external;
+    function setCre8ing(address _cre8ing) external;
 }
