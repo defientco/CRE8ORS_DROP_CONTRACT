@@ -12,6 +12,7 @@ import { deployPublicMinter } from "./deploy/deployPublicMinter.mjs";
 import { deployAllowlistMinter } from "./deploy/deployAllowlistMinter.mjs";
 import { deploySubscription } from "./deploy/deploySubscription.mjs";
 import { deployInitializer } from "./deploy/deployInitializer.mjs";
+import { deployOwnerOf } from "./deploy/deployOwnerOf.mjs";
 
 dotenv.config({
   path: `.env.${process.env.CHAIN}`,
@@ -24,7 +25,8 @@ export async function setupContracts() {
   const initialize = await deployInitializer();
   const cre8ors = await deployCre8ors(presaleMerkleRoot);
   const subscription = await deploySubscription(cre8ors.deploy.deployedTo);
-  const hooks = await deployTransfers(cre8ors.deploy.deployedTo);
+  const ownerOfHook = await deployOwnerOf();
+  const transferHook = await deployTransfers(cre8ors.deploy.deployedTo);
   const staking = await deployStaking();
   const lockup = await deployLockup();
   const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
@@ -58,10 +60,11 @@ export async function setupContracts() {
     allowlistMinter,
     cre8ors,
     familyFriendsMinter,
-    hooks,
+    transferHook,
     initialize,
     lockup,
     minterUtilities,
+    ownerOfHook,
     passportMinter,
     publicMinter,
     staking,
