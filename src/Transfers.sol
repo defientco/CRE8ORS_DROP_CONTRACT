@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {HookBase} from "./hooks/HookBase.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
-contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
+contract TransferHook is IAfterTokenTransfersHook, HookBase, Cre8orsERC6551 {
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
@@ -67,31 +68,12 @@ contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
 
         // Subscription logic
         uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);
-        address subscription = ICre8ors(_cre8orsNFT).subscription();
 
         ISubscription(subscription).updateSubscriptionForFree({
             target: _cre8orsNFT,
             duration: ONE_YEAR_DURATION,
             tokenIds: tokenIds
         });
-    }
-
-    /// @notice Only allow for users with admin access
-    /// @param _target target ERC721 contract
-    modifier onlyAdmin(address _target) {
-        if (!isAdmin(_target, msg.sender)) {
-            revert IERC721Drop.Access_OnlyAdmin();
-        }
-
-        _;
-    }
-
-    /// @notice Getter for admin role associated with the contract to handle minting
-    /// @param _target target ERC721 contract
-    /// @param user user address
-    /// @return boolean if address is admin
-    function isAdmin(address _target, address user) public view returns (bool) {
-        return IERC721Drop(_target).isAdmin(user);
     }
 
     /// @notice Get an array of token IDs starting from a given token ID and up 
