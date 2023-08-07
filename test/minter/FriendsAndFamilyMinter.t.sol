@@ -44,12 +44,13 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
             address(minterUtility)
         );
         cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
         );
+        vm.stopPrank();
     }
 
     function testLockup() public {
