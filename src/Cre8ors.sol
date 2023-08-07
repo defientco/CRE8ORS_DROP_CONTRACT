@@ -41,7 +41,6 @@ contract Cre8ors is
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
-
     /// @dev Subscription contract address
     ///     address(0) means subscription is turned off
     address public subscription;
@@ -396,8 +395,6 @@ contract Cre8ors is
             revert Withdraw_FundsSendFailure();
         }
     }
-
-
 
     /////////////////////////////////////////////////
     /// ERC721C - cre8or royalties

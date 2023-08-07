@@ -26,17 +26,14 @@ contract TransferHook is
     address public cre8ing;
 
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled. 
-    uint256 internal cre8ingTransfer = 0;
+    /// the _beforeTokenTransfer() block while cre8ing is disabled.
+    mapping(address => uint256) internal cre8ingTransfer;
 
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
     mapping(address => bool) public beforeTokenTransfersHookEnabled;
 
-    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 1 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
-    mapping(address => uint256) internal cre8ingTransfer;
 
     /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
     /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
@@ -137,18 +134,19 @@ contract TransferHook is
 
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
     ///  thus not resetting the cre8ing period.
-    // function safeTransferWhileCre8ing(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) external {
-    //     if (ownerOf(tokenId) != _msgSender()) {
-    //         revert Access_OnlyOwner();
-    //     }
-    //     cre8ingTransfer = 2;
-    //     safeTransferFrom(from, to, tokenId);
-    //     cre8ingTransfer = 1;
-    // }
+    function safeTransferWhileCre8ing(
+        address target,
+        address from,
+        address to,
+        uint256 tokenId
+    ) external {
+        if (ICre8ors(target).ownerOf(tokenId) != msg.sender) {
+            revert IERC721Drop.Access_OnlyOwner();
+        }
+        cre8ingTransfer[target] = 1;
+        ICre8ors(target).safeTransferFrom(from, to, tokenId);
+        cre8ingTransfer[target] = 0;
+    }
 
     // TODO: REMOVE _target from setCre8ing
     // this isn't a mapping. Change to prevent ANYONE from setting our staking contract
