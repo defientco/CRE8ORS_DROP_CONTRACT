@@ -17,15 +17,7 @@ contract OwnerOfHook is IOwnerOfHook {
     mapping(uint256 => address) public ownerOfReturns;
 
     /// @inheritdoc IOwnerOfHook
-    function useOwnerOfHook(
-        uint256
-    ) external view returns (bool) {
-        // msg.sender is the ERC721 contract e.g. Cre8ors
-        return ownerOfHookEnabled[msg.sender];
-    }
-
-    /// @inheritdoc IOwnerOfHook
-    function ownerOfOverrideHook(
+    function ownerOfHook(
         uint256 tokenId
     ) external view returns (address, bool) {
         // msg.sender is the ERC721 contract e.g. Cre8ors
