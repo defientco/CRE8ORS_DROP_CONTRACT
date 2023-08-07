@@ -470,9 +470,6 @@ contract CollectionHolderMintTest is Test {
 
         // set cre8ing
         transferHook.setCre8ing(address(cre8ingBase));
-
-        // set ERC6551 registry
-
         vm.stopPrank();
 
         return transferHook;
