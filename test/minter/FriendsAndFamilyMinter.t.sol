@@ -72,36 +72,40 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
     }
 
-    // function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
-    //     vm.assume(_friendOrFamily != address(0));
+    function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
+        vm.assume(_friendOrFamily != address(0));
 
-    //     // Setup Minter
-    //     _setupMinter();
+        // Setup Minter
+        _setupMinter();
 
-    //     // Apply Discount
-    //     _addDiscount(_friendOrFamily);
-    //     // Mint
-    //     uint256 tokenId = minter.mint(_friendOrFamily);
+        // Apply Discount
+        _addDiscount(_friendOrFamily);
 
-    //     // Asserts
-    //     assertTrue(!minter.hasDiscount(_friendOrFamily));
-    //     assertEq(tokenId, 1);
-    //     assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-    //     assertEq(
-    //         cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-    //         1
-    //     );
+        // ERC6551 setup
+        _setupErc6551();
 
-    //     // Subscription Asserts
-    //     assertTrue(subscription.isSubscriptionValid(tokenId));
+        // Mint
+        uint256 tokenId = minter.mint(_friendOrFamily);
 
-    //     // 1 year passed
-    //     vm.warp(block.timestamp + ONE_YEAR_DURATION);
+        // Asserts
+        assertTrue(!minter.hasDiscount(_friendOrFamily));
+        assertEq(tokenId, 1);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+        assertEq(
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+            1
+        );
 
-    //     // ownerOf should return address(0)
-    //     assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
-    //     assertTrue(!subscription.isSubscriptionValid(tokenId));
-    // }
+        // Subscription Asserts
+        assertTrue(subscription.isSubscriptionValid(tokenId));
+
+        // 1 year passed
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+        // ownerOf should return address(0)
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
+        assertTrue(!subscription.isSubscriptionValid(tokenId));
+    }
 
     function testSuccesfulMintWithLockup(address _friendOrFamily) public {
         vm.assume(_friendOrFamily != address(0));
@@ -111,6 +115,9 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
         // Apply Discount
         _addDiscount(_friendOrFamily);
+
+        // ERC6551 setup
+        _setupErc6551();
 
         // Mint
         uint256 tokenId = minter.mint(_friendOrFamily);

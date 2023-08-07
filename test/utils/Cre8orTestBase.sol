@@ -78,7 +78,7 @@ contract Cre8orTestBase is Test {
         });
     }
 
-    modifier setupErc6551() {
+    function _setupErc6551() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         erc6551Registry = new ERC6551Registry();
         guardian = new AccountGuardian();
@@ -90,6 +90,5 @@ contract Cre8orTestBase is Test {
         transferHook.setErc6551Registry(address(erc6551Registry));
         transferHook.setErc6551Implementation(address(erc6551Implementation));
         vm.stopPrank();
-        _;
     }
 }

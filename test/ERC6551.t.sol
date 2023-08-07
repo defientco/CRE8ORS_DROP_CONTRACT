@@ -47,7 +47,8 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
     }
 
-    function test_Erc6551Registry() public setupErc6551 {
+    function test_Erc6551Registry() public {
+        _setupErc6551();
         address tokenBoundAccount = getTBA(1);
         assertTrue(!isContract(tokenBoundAccount));
     }
@@ -62,9 +63,13 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         transferHook.setErc6551Implementation(address(erc6551Implementation));
     }
 
-    function test_createAccount(uint256 _quantity) public setupErc6551 {
+    function test_createAccount(uint256 _quantity) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 18);
+
+        // ERC6551 setup
+        _setupErc6551();
+
         address tokenBoundAccount = getTBA(_quantity);
         assertTrue(!isContract(tokenBoundAccount));
 
@@ -73,11 +78,12 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         assertTrue(isContract(tokenBoundAccount));
     }
 
-    function test_createMultipleAccounts(
-        uint256 _quantity
-    ) public setupErc6551 {
+    function test_createMultipleAccounts(uint256 _quantity) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 100);
+
+        // ERC6551 setup
+        _setupErc6551();
 
         // No ERC6551 before purchase
         for (uint256 i = 1; i <= _quantity; i++) {
@@ -98,11 +104,15 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     function test_sendWithTBA(
         uint256 _initialQuantity,
         uint256 _smartWalletQuantity
-    ) public setupErc6551 {
+    ) public {
         vm.assume(_initialQuantity > 0);
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
         vm.assume(_smartWalletQuantity < 19);
+
+        // ERC6551 setup
+        _setupErc6551();
+
         address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
         // MINT REGISTERS WITH ERC6511
@@ -149,11 +159,15 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     function test_sendWithTBA_revert_NotAuthorized(
         uint256 _initialQuantity,
         uint256 _smartWalletQuantity
-    ) public setupErc6551 {
+    ) public {
         vm.assume(_initialQuantity > 0);
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
         vm.assume(_smartWalletQuantity < 19);
+
+        // ERC6551 setup
+        _setupErc6551();
+
         address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
         // MINT REGISTERS WITH ERC6511
@@ -178,9 +192,13 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
     }
 
-    function test_transfer_only(uint256 _quantity) public setupErc6551 {
+    function test_transfer_only(uint256 _quantity) public {
         vm.assume(_quantity < 100);
         vm.assume(_quantity > 0);
+
+        // ERC6551 setup
+        _setupErc6551();
+
         address BUYER = address(0x123);
         vm.startPrank(BUYER);
         cre8orsNFTBase.purchase(_quantity);
