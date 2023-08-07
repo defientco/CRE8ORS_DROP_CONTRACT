@@ -21,6 +21,10 @@ contract TransferHook is IAfterTokenTransfersHook, IBeforeTokenTransfersHook, Cr
 
     address public cre8ing;
 
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
+    ///     the _beforeTokenTransfer() block while cre8ing is disabled. 
+    uint256 internal cre8ingTransfer = 0;
+
     /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
     mapping(address => bool) public afterTokenTransfersHookEnabled;
     /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
@@ -129,18 +133,18 @@ contract TransferHook is IAfterTokenTransfersHook, IBeforeTokenTransfersHook, Cr
 
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
     ///  thus not resetting the cre8ing period.
-    function safeTransferWhileCre8ing(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external {
-        if (ownerOf(tokenId) != _msgSender()) {
-            revert Access_OnlyOwner();
-        }
-        cre8ingTransfer = 2;
-        safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer = 1;
-    }
+    // function safeTransferWhileCre8ing(
+    //     address from,
+    //     address to,
+    //     uint256 tokenId
+    // ) external {
+    //     if (ownerOf(tokenId) != _msgSender()) {
+    //         revert Access_OnlyOwner();
+    //     }
+    //     cre8ingTransfer = 2;
+    //     safeTransferFrom(from, to, tokenId);
+    //     cre8ingTransfer = 1;
+    // }
 
     function setCre8ing(
         address _target,

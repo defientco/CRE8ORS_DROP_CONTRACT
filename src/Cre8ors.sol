@@ -42,11 +42,6 @@ contract Cre8ors is
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
 
 
-
-    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled. 👹
-    uint256 internal cre8ingTransfer = 1;
-
     /// @dev Subscription contract address
     ///     address(0) means subscription is turned off
     address public subscription;
