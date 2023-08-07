@@ -468,7 +468,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

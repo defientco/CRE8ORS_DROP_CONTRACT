@@ -21,7 +21,7 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 import {Subscription} from "../src/subscription/Subscription.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
 import "forge-std/console.sol";
 
 error NotAuthorized();
@@ -262,7 +262,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

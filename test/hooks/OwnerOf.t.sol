@@ -58,10 +58,12 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
 
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        transferHook.setCre8ing(address(cre8ingBase));
     }
 
-    function testSuccessfulOwnerOfWithoutLockup(address _friendOrFamily) public {
+    function testSuccessfulOwnerOfWithoutLockup(
+        address _friendOrFamily
+    ) public {
         vm.assume(_friendOrFamily != address(0));
 
         // Setup Minter
@@ -171,14 +173,17 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -188,7 +193,10 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;

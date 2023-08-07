@@ -50,11 +50,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             150000000000000000
         );
 
-        transferHook = _setupTransferHookContract(cre8orsNFTBase);
-
-        cre8ingForBase = _setupCre8ing(transferHook, address(cre8orsNFTBase));
-
-        friendsAndFamilyMinter = new FriendsAndFamilyMinter(
+        minter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
         );
@@ -66,7 +62,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
 
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        transferHook.setCre8ing(address(cre8ingBase));
     }
 
     function testCheckSubscription() external {
@@ -308,7 +304,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

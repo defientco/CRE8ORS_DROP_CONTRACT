@@ -34,7 +34,7 @@ contract Initializer {
     ) external onlyAdmin(_target) {
         IERC721ACH(_target).setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
-            _hookAddress
+            _transfersHookAddress
         );
         IERC721ACH(_target).setHook(
             IERC721ACH.HookType.AfterTokenTransfers,
@@ -52,7 +52,7 @@ contract Initializer {
         ICre8ors(_target).setCre8ing(ICre8ing(_cre8ing));
 
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
-        ITransfer(_hookAddress).setCre8ing(_cre8ing);
+        ITransfer(_transfersHookAddress).setCre8ing(_cre8ing);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
         IAccessControl(_target).grantRole(
             ICre8ors(_target).MINTER_ROLE(),

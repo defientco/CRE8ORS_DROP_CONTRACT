@@ -47,7 +47,7 @@ contract InitializerTest is Test, Cre8orTestBase {
             minRenewalDuration_: 1 days,
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         ownerOfHook = new OwnerOfHook();
         lockup = new Lockup();
         minterUtility = new MinterUtilities(

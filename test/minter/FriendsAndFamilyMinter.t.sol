@@ -27,7 +27,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
-    TransferHook public transferHook;
     address public familyMinter = address(0x1234567);
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -214,7 +213,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
