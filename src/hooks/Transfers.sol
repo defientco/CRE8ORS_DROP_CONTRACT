@@ -19,9 +19,6 @@ contract TransferHook is
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
-    /// @notice To toggle free subscription in future
-    bool public isFreeSubscriptionEnabled = true;
-
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
 
@@ -31,22 +28,10 @@ contract TransferHook is
     /// the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 cre8ingTransfer;
 
-    /// @notice mapping of ERC721 to bool whether to use afterTokenTransferHook
-    mapping(address => bool) public afterTokenTransfersHookEnabled;
-    /// @notice mapping of ERC721 to bool whether to use beforeTokenTransferHook
-    mapping(address => bool) public beforeTokenTransfersHookEnabled;
-
     /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
     /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
     constructor(address _cre8orsNFT) {
         cre8orsNFT = _cre8orsNFT;
-    }
-
-    /// @notice Toggle the status of the free subscription feature.
-    /// @dev This function can only be called by an admin, identified by the
-    ///     "cre8orsNFT" contract address.
-    function toggleIsFreeSubscriptionEnabled() public onlyAdmin(cre8orsNFT) {
-        isFreeSubscriptionEnabled = !isFreeSubscriptionEnabled;
     }
 
     /// @notice Set the Cre8orsNFT contract address.
@@ -77,21 +62,10 @@ contract TransferHook is
         erc6551AccountImplementation[_target] = _implementation;
     }
 
-    /// @notice Toggle afterTokenTransfers hook.
-    /// add admin only
-    /// @param _target target ERC721 contract
-    /// @param _enabled enable afterTokenTransferHook
-    function setAfterTokenTransfersEnabled(
-        address _target,
-        bool _enabled
-    ) public onlyAdmin(_target) {
-        afterTokenTransfersHookEnabled[_target] = _enabled;
-    }
-
     /// @notice Custom implementation for AfterTokenTransfers Hook.
     function afterTokenTransfersHook(
         address from,
-        address,
+        address to,
         uint256 startTokenId,
         uint256 quantity
     ) external {
@@ -99,8 +73,7 @@ contract TransferHook is
             return;
         }
 
-        // msg.sender is the ERC721 contract e.g. Cre8ors
-        address _cre8orsNFT = msg.sender;
+        address _cre8orsNFT = cre8orsNFT;
 
         if (erc6551Registry[_cre8orsNFT] != address(0)) {
             createTokenBoundAccounts(_cre8orsNFT, startTokenId, quantity);
@@ -119,6 +92,8 @@ contract TransferHook is
             duration: ONE_YEAR_DURATION,
             tokenIds: tokenIds
         });
+
+        emit AfterTokenTransfersHookUsed(from, to, startTokenId, quantity);
     }
 
     // /// @notice Custom implementation for BeforeTokenTransfers Hook.

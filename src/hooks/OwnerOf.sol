@@ -15,9 +15,6 @@ contract OwnerOfHook is IOwnerOfHook, HookBase {
     ///     By default: address(0)
     address public defaultOwnerOfReturn;
 
-    /// @notice mapping of ERC721 to bool whether to use ownerOfHook
-    mapping(address => bool) public ownerOfHookEnabled;
-
     /// @notice mapping of ownerOf return values according to tokenId 
     ///     if subscription expired.
     /// by default address(0)
@@ -49,16 +46,6 @@ contract OwnerOfHook is IOwnerOfHook, HookBase {
 
         // otherwise return according to tokenId
         return (ownerOfReturns[tokenId], false);
-    }
-
-    /// @notice Toggle ownerOf hook.
-    /// @param _target target ERC721 contract
-    /// @param _enabled enable ownerOfHook
-    function setOwnerOfHookEnabled(
-        address _target,
-        bool _enabled
-    ) public onlyAdmin(_target) {
-        ownerOfHookEnabled[_target] = _enabled;
     }
 
     /// @notice Set ownerOf return values according to tokenId if subscription expired.
