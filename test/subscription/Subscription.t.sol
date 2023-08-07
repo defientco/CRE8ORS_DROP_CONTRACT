@@ -112,6 +112,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         vm.warp(1000);
 
         vm.assume(user != address(0));
+        vm.assume(user.code.length == 0);
         vm.deal(user, 10 ether);
 
         uint256 tokenId = 1;
