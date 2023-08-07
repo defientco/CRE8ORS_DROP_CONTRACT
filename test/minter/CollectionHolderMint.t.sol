@@ -3,8 +3,8 @@ pragma solidity ^0.8.15;
 // Forge Imports
 import {DSTest} from "ds-test/test.sol";
 import {StdUtils} from "forge-std/StdUtils.sol";
-import {Vm} from "forge-std/Vm.sol";
 // interface imports
+import "forge-std/Test.sol";
 import {ICollectionHolderMint} from "../../src/interfaces/ICollectionHolderMint.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
 import {IERC721A} from "../../lib/ERC721A/contracts/interfaces/IERC721A.sol";
@@ -26,12 +26,21 @@ import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
+import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
+import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
+import {Account} from "lib/tokenbound/src/Account.sol";
+import {ERC6551Registry} from "lib/ERC6551/src/ERC6551Registry.sol";
 
-contract CollectionHolderMintTest is DSTest, StdUtils {
+contract CollectionHolderMintTest is Test {
     struct TierInfo {
         uint256 price;
         uint256 lockup;
     }
+    ERC6551Registry erc6551Registry;
+    AccountGuardian guardian;
+    EntryPoint entryPoint;
+    Account erc6551Implementation;
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
     address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
     address public constant DEFAULT_BUYER_ADDRESS = address(0x111);
@@ -45,7 +54,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     MinterUtilities public minterUtility;
     CollectionHolderMint public minter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
 
@@ -81,6 +89,8 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
+
+        _setupErc6551();
     }
 
     function testLockup() public {
@@ -107,7 +117,7 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     function testSuccessfulMint(address _buyer, uint256 _mintQuantity) public {
         vm.assume(_buyer != address(0));
         vm.assume(_mintQuantity > 0);
-        vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
+        vm.assume(_mintQuantity < 100);
         _setUpMinter();
         uint256[] memory tokens = generateTokens(_mintQuantity);
         vm.startPrank(_buyer);
@@ -158,6 +168,17 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
                 i++;
             }
         }
+    }
+
+    function testSuccessfulMintWithDNAAirdrop(
+        address _buyer,
+        uint256 _mintQuantity
+    ) public {
+        testSuccessfulMint(_buyer, _mintQuantity);
+        //  VERIFY SMART WALLET HERE
+        _assumeSmartWalletsExist(_mintQuantity, true);
+
+        //  VERIFY AIRDROP HERE
     }
 
     function testSuccessfulMintWithDiscount(
@@ -439,6 +460,8 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         // set cre8ing
         transferHook.setCre8ing(address(cre8ingBase));
 
+        // set ERC6551 registry
+
         vm.stopPrank();
 
         return transferHook;
@@ -452,5 +475,54 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         });
 
         return subscription;
+    }
+
+    function _setupErc6551() internal {
+        erc6551Registry = new ERC6551Registry();
+        guardian = new AccountGuardian();
+        entryPoint = new EntryPoint();
+        erc6551Implementation = new Account(
+            address(guardian),
+            address(entryPoint)
+        );
+
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        transferHook.setErc6551Registry(
+            address(cre8orsNFTBase),
+            address(erc6551Registry)
+        );
+        transferHook.setErc6551Implementation(
+            address(cre8orsNFTBase),
+            address(erc6551Implementation)
+        );
+        vm.stopPrank();
+    }
+
+    function _assumeSmartWalletsExist(
+        uint256 _mintQuantity,
+        bool _isContract
+    ) internal {
+        for (uint256 i = 1; i <= _mintQuantity; i++) {
+            address smartWallet = IERC6551Registry(
+                transferHook.erc6551Registry(address(cre8orsNFTBase))
+            ).account(
+                    transferHook.erc6551AccountImplementation(
+                        address(cre8orsNFTBase)
+                    ),
+                    block.chainid,
+                    address(cre8orsNFTBase),
+                    i,
+                    0
+                );
+            assertEq(isContract(smartWallet), _isContract);
+        }
+    }
+
+    function isContract(address _addr) private view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
     }
 }

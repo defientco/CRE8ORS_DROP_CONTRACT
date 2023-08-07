@@ -21,6 +21,8 @@ contract TransferHook is
 
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
+    ///@notice The address of the collection contract for DNA airdrops.
+    address public dnaNft;
 
     address public cre8ing;
 
@@ -40,6 +42,14 @@ contract TransferHook is
     /// @param _cre8orsNFT The new address of the Cre8orsNFT contract to be set.
     function setCre8orsNFT(address _cre8orsNFT) public onlyAdmin(cre8orsNFT) {
         cre8orsNFT = _cre8orsNFT;
+    }
+
+    /// @notice Set the Cre8orsNFT contract address.
+    /// @dev This function can only be called by an admin, identified by the
+    ///     "cre8orsNFT" contract address.
+    /// @param _dnaNft The new address of the DNA contract to be set.
+    function setDnaNFT(address _dnaNft) public onlyAdmin(cre8orsNFT) {
+        dnaNft = _dnaNft;
     }
 
     /// @notice Set ERC6551 registry
@@ -76,7 +86,15 @@ contract TransferHook is
         address _cre8orsNFT = cre8orsNFT;
 
         if (erc6551Registry[_cre8orsNFT] != address(0)) {
-            createTokenBoundAccounts(_cre8orsNFT, startTokenId, quantity);
+            address[]
+                memory airdropList = createTokenBoundAccountsAndAirdropDNA(
+                    _cre8orsNFT,
+                    startTokenId,
+                    quantity
+                );
+            if (dnaNft != address(0)) {
+                IERC721Drop(dnaNft).adminMintAirdrop(airdropList);
+            }
         }
 
         // return if subscription off
