@@ -49,8 +49,6 @@ contract Initializer {
             _subscription
         );
         IHookBase(_ownerOfHookAddress).setSubscription(_target, _subscription);
-        ICre8ors(_target).setCre8ing(ICre8ing(_cre8ing));
-
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
         ITransfer(_transfersHookAddress).setCre8ing(_cre8ing);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
