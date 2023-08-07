@@ -27,7 +27,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
-    TransferHook public transferHook;
     address public familyMinter = address(0x1234567);
 
     Vm public constant vm = Vm(HEVM_ADDRESS);

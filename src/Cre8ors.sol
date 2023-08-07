@@ -504,18 +504,4 @@ contract Cre8ors is
         }
         return super.isApprovedForAll(nftOwner, operator);
     }
-
-    /// @dev Setup auto-approval for Zora v3 access to sell NFT
-    ///      Still requires approval for module
-    /// @param nftOwner owner of the nft
-    /// @param operator operator wishing to transfer/burn/etc the NFTs
-    function isApprovedForAll(
-        address nftOwner,
-        address operator
-    ) public view override returns (bool) {
-        if (operator == hooks[IERC721ACH.HookType.BeforeTokenTransfers]) {
-            return true;
-        }
-        return super.isApprovedForAll(nftOwner, operator);
-    }
 }
