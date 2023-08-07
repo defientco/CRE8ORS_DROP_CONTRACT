@@ -20,7 +20,7 @@ import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
-import {TransferHook} from "../../src/Transfers.sol";
+import {TransferHook} from "../../src/hooks/Transfers.sol";
 
 contract OwnerOfHookTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;

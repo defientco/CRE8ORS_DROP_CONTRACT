@@ -24,7 +24,7 @@ import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {PublicMinter} from "../../src/minter/PublicMinter.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
-import {TransferHook} from "../../src/Transfers.sol";
+import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 
 contract PublicMinterTest is DSTest, StdUtils {

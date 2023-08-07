@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {HookBase} from "./hooks/HookBase.sol";
+import {HookBase} from "../hooks/HookBase.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
-import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
-import {ICre8ors} from "./interfaces/ICre8ors.sol";
-import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
-import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
+import {Cre8orsERC6551} from "../utils/Cre8orsERC6551.sol";
+import {ICre8ors} from "../interfaces/ICre8ors.sol";
+import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
+import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 
 contract TransferHook is IAfterTokenTransfersHook, HookBase, Cre8orsERC6551 {
     /// @notice Represents the duration of one year in seconds.
