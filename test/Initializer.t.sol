@@ -14,7 +14,8 @@ import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {PublicMinter} from "../src/minter/PublicMinter.sol";
 import {Subscription} from "../src/subscription/Subscription.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
+import {OwnerOfHook} from "../src/hooks/OwnerOf.sol";
 import {MinterUtilities} from "../src/utils/MinterUtilities.sol";
 import {Lockup} from "../src/utils/Lockup.sol";
 import {CollectionHolderMint} from "../src/minter/CollectionHolderMint.sol";
@@ -26,6 +27,7 @@ contract InitializerTest is Test, Cre8orTestBase {
     Initializer public initializer;
     Subscription public subscription;
     TransferHook public transferHook;
+    OwnerOfHook public ownerOfHook;
     Cre8ing public cre8ingBase;
     Lockup public lockup;
     MinterUtilities public minterUtility;
@@ -46,6 +48,7 @@ contract InitializerTest is Test, Cre8orTestBase {
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
         transferHook = new TransferHook(address(cre8orsNFTBase));
+        ownerOfHook = new OwnerOfHook();
         lockup = new Lockup();
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
@@ -154,6 +157,7 @@ contract InitializerTest is Test, Cre8orTestBase {
             address(cre8orsNFTBase),
             address(subscription),
             address(transferHook),
+            address(ownerOfHook),
             address(cre8ingBase),
             address(lockup),
             address(friendsAndFamilyMinter),

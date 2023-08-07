@@ -123,7 +123,6 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
         payable
         virtual
         override
-        onlyApprovedOrOwner(msg.sender, tokenId)
         isDurationBetweenMinAndMax(duration)
         isRenewalPriceValid(msg.value, duration)
     {
@@ -203,6 +202,8 @@ abstract contract ERC5643 is IERC5643, PaymentSystem {
         }
 
         _expirations[tokenId] = newExpiration;
+
+        _sendValue(payable(cre8orsNFT), msg.value);
 
         emit SubscriptionUpdate(tokenId, newExpiration);
     }

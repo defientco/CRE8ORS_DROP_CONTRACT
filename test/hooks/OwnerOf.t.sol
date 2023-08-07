@@ -18,12 +18,11 @@ import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.so
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
+import {Subscription} from "../../src/subscription/Subscription.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/hooks/Transfers.sol";
-import {Subscription} from "../../src/subscription/Subscription.sol";
-import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
-contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
+contract OwnerOfHookTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
@@ -32,15 +31,15 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
+    uint64 public constant ONE_YEAR_DURATION = 365 days;
+
     OwnerOfHook public ownerOfHook;
     TransferHook public transferHook;
-    Subscription public subscription;
 
-    uint64 public constant ONE_YEAR_DURATION = 365 days;
+    Subscription public subscription;
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
             50000000000000000,
@@ -53,108 +52,92 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         );
 
         subscription = _setupSubscription();
+        cre8ingBase = new Cre8ing();
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
+    }
 
-        cre8ingBase = new Cre8ing();
+    function testSuccessfulOwnerOfWithoutLockup(
+        address _friendOrFamily
+    ) public {
+        vm.assume(_friendOrFamily != address(0));
+
+        // Setup Minter
+        _setupMinter();
+
+        // Apply Discount
+        _addDiscount(_friendOrFamily);
+        // Mint
+        uint256 tokenId = minter.mint(_friendOrFamily);
+
+        // Asserts
+        assertTrue(!minter.hasDiscount(_friendOrFamily));
+        assertEq(tokenId, 1);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+        assertEq(
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+            1
+        );
+        assertTrue(subscription.isSubscriptionValid(tokenId));
+
+        // 1 year passed
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+        // ownerOf should return address(0)
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
+        assertTrue(!subscription.isSubscriptionValid(tokenId));
+    }
+
+    function testSuccessfulOwnerOfWithLockup(address _friendOrFamily) public {
+        vm.assume(_friendOrFamily != address(0));
+
+        // Setup Minter
+        _setupMinter();
+
+        // Apply Discount
+        _addDiscount(_friendOrFamily);
+
+        // Mint
+        uint256 tokenId = minter.mint(_friendOrFamily);
+
+        // Asserts
+        assertTrue(!minter.hasDiscount(_friendOrFamily));
+        assertEq(tokenId, 1);
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
+        assertEq(
+            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
+            1
+        );
+        assertTrue(subscription.isSubscriptionValid(tokenId));
+
+        // 1 year passed
+        vm.warp(block.timestamp + ONE_YEAR_DURATION);
+
+        // ownerOf should return address(0)
+        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
+        assertTrue(!subscription.isSubscriptionValid(tokenId));
+    }
+
+    /// HELPER FUNCTIONS ///
+
+    function _addDiscount(address _buyer) internal {
+        assertTrue(!minter.hasDiscount(_buyer));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        minter.addDiscount(_buyer);
+        assertTrue(minter.hasDiscount(_buyer));
+    }
+
+    function _setMinterRole(address _assignee) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing(address(cre8ingBase));
-        cre8orsNFTBase.setHook(
-            IERC721ACH.HookType.BeforeTokenTransfers,
-            address(transferHook)
+        cre8orsNFTBase.grantRole(
+            cre8orsNFTBase.MINTER_ROLE(),
+            address(_assignee)
         );
         vm.stopPrank();
     }
 
-    function testLockup() public {
-        assertEq(
-            address(cre8ingBase.lockup(address(cre8orsNFTBase))),
-            address(0)
-        );
-    }
-
-    function testSuccesfulMintWithoutLockup(address _friendOrFamily) public {
-        vm.assume(_friendOrFamily != address(0));
-
-        // Setup Minter
-        _setupMinter();
-
-        // Apply Discount
-        _addDiscount(_friendOrFamily);
-        // Mint
-        uint256 tokenId = minter.mint(_friendOrFamily);
-
-        // Asserts
-        assertTrue(!minter.hasDiscount(_friendOrFamily));
-        assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-        assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-            1
-        );
-
-        // Subscription Asserts
-        assertTrue(subscription.isSubscriptionValid(tokenId));
-
-        // 1 year passed
-        vm.warp(block.timestamp + ONE_YEAR_DURATION);
-
-        // ownerOf should return address(0)
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
-        assertTrue(!subscription.isSubscriptionValid(tokenId));
-    }
-
-    function testSuccesfulMintWithLockup(address _friendOrFamily) public {
-        vm.assume(_friendOrFamily != address(0));
-
-        // Setup Minter
-        _setupMinter();
-
-        // Apply Discount
-        _addDiscount(_friendOrFamily);
-
-        // Mint
-        uint256 tokenId = minter.mint(_friendOrFamily);
-
-        // Asserts
-        assertTrue(!minter.hasDiscount(_friendOrFamily));
-        assertEq(tokenId, 1);
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), _friendOrFamily);
-        assertEq(
-            cre8orsNFTBase.mintedPerAddress(_friendOrFamily).totalMints,
-            1
-        );
-
-        // Subscription Asserts
-        assertTrue(subscription.isSubscriptionValid(tokenId));
-
-        // 1 year passed
-        vm.warp(block.timestamp + ONE_YEAR_DURATION);
-
-        // ownerOf should return address(0)
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
-        assertTrue(!subscription.isSubscriptionValid(tokenId));
-    }
-
-    function testRevertNoDiscount(address _buyer) public {
-        // Setup Minter
-        _setupMinter();
-
-        assertTrue(!minter.hasDiscount(_buyer));
-        vm.prank(_buyer);
-        vm.expectRevert(IFriendsAndFamilyMinter.MissingDiscount.selector);
-        uint256 tokenId = minter.mint(_buyer);
-
-        // Subscription Asserts
-
-        // 1 year passed
-        vm.warp(block.timestamp + ONE_YEAR_DURATION);
-
-        // ownerOf should return address(0)
-        assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
-        assertTrue(!subscription.isSubscriptionValid(tokenId));
-    }
+    /// SETUP CONTRACT FUNCTIONS ///
 
     function _setupMinter() internal {
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
@@ -172,22 +155,6 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
                 cre8orsNFTBase.MINTER_ROLE(),
                 address(minter)
             )
-        );
-        vm.stopPrank();
-    }
-
-    function _addDiscount(address _buyer) internal {
-        assertTrue(!minter.hasDiscount(_buyer));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        minter.addDiscount(_buyer);
-        assertTrue(minter.hasDiscount(_buyer));
-    }
-
-    function _setMinterRole(address _assignee) internal {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.MINTER_ROLE(),
-            address(_assignee)
         );
         vm.stopPrank();
     }
@@ -222,11 +189,18 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
         // set subscription
         transferHook.setSubscription(
             address(cre8orsNFTBase),
             address(subscription)
         );
+        // set cre8ing
+        transferHook.setCre8ing(address(cre8ingBase));
+
         vm.stopPrank();
 
         return transferHook;

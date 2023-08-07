@@ -11,7 +11,7 @@ import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces
 import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
 import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
 
 contract Cre8orTest is DSTest {
     Cre8ors public cre8orsNFTBase;
@@ -48,7 +48,7 @@ contract Cre8orTest is DSTest {
         transferHook = new TransferHook(address(cre8orsNFTBase));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing( address(cre8ingBase));
+        transferHook.setCre8ing(address(cre8ingBase));
         vm.stopPrank();
 
         _;

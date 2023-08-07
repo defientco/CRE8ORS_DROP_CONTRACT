@@ -14,14 +14,14 @@ import {Account} from "lib/tokenbound/src/Account.sol";
 import {AccountGuardian} from "lib/tokenbound/src/AccountGuardian.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
 import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 import {Subscription} from "../src/subscription/Subscription.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
 import "forge-std/console.sol";
 
 error NotAuthorized();
@@ -49,8 +49,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             address(entryPoint)
         );
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
-        _setupMinterRole(address(transferHook));
+        transferHook = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));
         cre8orsNFTBase.setHook(
@@ -243,7 +242,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         return tokenBoundAccount;
     }
 
-    function _setupMinterRole(address _assignee) internal {
+    function _setMinterRole(address _assignee) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
             cre8orsNFTBase.MINTER_ROLE(),
@@ -260,9 +259,25 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             minRenewalDuration_: 1 days,
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
+    }
+
+    function _setupTransferHook() internal returns (TransferHook) {
+        transferHook = new TransferHook(address(cre8orsNFTBase));
+        _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFT_.setSubscription(address(_subscription));
+        // set hook
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(transferHook)
+        );
+        // set subscription
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
+
+        return transferHook;
     }
 }

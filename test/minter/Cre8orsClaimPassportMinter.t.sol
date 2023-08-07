@@ -13,9 +13,8 @@ import {IERC2981, IERC165} from "lib/openzeppelin-contracts/contracts/interfaces
 import {IOwnable} from "../../src/interfaces/IOwnable.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
-import {TransferHook} from "../../src/Transfers.sol";
+import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
-
 
 contract Cre8orsClaimPassportMinterTest is DSTest {
     Cre8ing public cre8ingBase;
@@ -80,7 +79,9 @@ contract Cre8orsClaimPassportMinterTest is DSTest {
         );
         cre8ingBase = new Cre8ing();
         transferHookCre8orsNFTBase = new TransferHook(address(cre8orsNFTBase));
-        transferHookCre8orsPassport = new TransferHook(address(cre8orsPassport));
+        transferHookCre8orsPassport = new TransferHook(
+            address(cre8orsPassport)
+        );
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHookCre8orsNFTBase.setCre8ing(address(cre8ingBase));
         transferHookCre8orsPassport.setCre8ing(address(cre8ingBase));

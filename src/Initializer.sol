@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
+import {IHookBase} from "./interfaces/IHookBase.sol";
 import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 
 /**
@@ -22,7 +23,8 @@ contract Initializer {
     function setup(
         address _target,
         address _subscription,
-        address _hookAddress,
+        address _transfersHookAddress,
+        address _ownerOfHookAddress,
         address _cre8ing,
         address _lockup,
         address _familyAndFriendsMinter,
@@ -30,17 +32,25 @@ contract Initializer {
         address _allowlistMinter,
         address _publicMinter
     ) external onlyAdmin(_target) {
-        ICre8ors(_target).setSubscription(_subscription);
-        IERC721ACH(_target).setHook(
-            IERC721ACH.HookType.AfterTokenTransfers,
-            _hookAddress
-        );
         IERC721ACH(_target).setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
-            _hookAddress
+            _transfersHookAddress
         );
+        IERC721ACH(_target).setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            _transfersHookAddress
+        );
+        IERC721ACH(_target).setHook(
+            IERC721ACH.HookType.OwnerOf,
+            _ownerOfHookAddress
+        );
+        IHookBase(_transfersHookAddress).setSubscription(
+            _target,
+            _subscription
+        );
+        IHookBase(_ownerOfHookAddress).setSubscription(_target, _subscription);
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
-        ITransfer(_hookAddress).setCre8ing(_cre8ing);
+        ITransfer(_transfersHookAddress).setCre8ing(_cre8ing);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
         IAccessControl(_target).grantRole(
             ICre8ors(_target).MINTER_ROLE(),
@@ -64,7 +74,7 @@ contract Initializer {
         );
         IAccessControl(_target).grantRole(
             ICre8ors(_target).MINTER_ROLE(),
-            _hookAddress
+            _transfersHookAddress
         );
         IAccessControl(_target).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
     }

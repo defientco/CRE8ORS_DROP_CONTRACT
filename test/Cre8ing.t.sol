@@ -11,7 +11,7 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
-import {TransferHook} from "../src/Transfers.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract Cre8ingTest is Test, Cre8orTestBase {
