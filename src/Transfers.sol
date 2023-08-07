@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
-contract TransferHook is Cre8orsERC6551 {
+contract TransferHook is IAfterTokenTransfersHook, Cre8orsERC6551 {
     /// @notice Represents the duration of one year in seconds.
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
@@ -46,18 +47,8 @@ contract TransferHook is Cre8orsERC6551 {
         afterTokenTransfersHookEnabled[_target] = _enabled;
     }
 
-    /// @notice Check if the AfterTokenTransfers function should use the hook.
-    function useAfterTokenTransfersHook(
-        address,
-        address,
-        uint256,
-        uint256
-    ) external view returns (bool) {
-        return afterTokenTransfersHookEnabled[msg.sender];
-    }
-
     /// @notice Custom implementation for AfterTokenTransfers Hook.
-    function afterTokenTransfersOverrideHook(
+    function afterTokenTransfersHook(
         address from,
         address,
         uint256 startTokenId,
