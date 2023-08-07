@@ -23,13 +23,14 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         transferHook.setCre8ing(address(cre8ingBase));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
         );
+        vm.stopPrank();
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {
