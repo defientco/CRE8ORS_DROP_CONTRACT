@@ -185,11 +185,10 @@ contract CollectionHolderMintTest is Test {
             true
         );
 
+        //  VERIFY DNA AIRDROP
         for (uint256 i = 0; i < smartWalletList.length; i++) {
             assertEq(dna.ownerOf(i + 1), smartWalletList[i]);
         }
-
-        //  VERIFY AIRDROP HERE
         assertEq(dna.totalSupply(), _mintQuantity);
     }
 
