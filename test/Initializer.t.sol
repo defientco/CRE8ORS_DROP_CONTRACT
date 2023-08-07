@@ -20,6 +20,7 @@ import {Lockup} from "../src/utils/Lockup.sol";
 import {CollectionHolderMint} from "../src/minter/CollectionHolderMint.sol";
 import {FriendsAndFamilyMinter} from "../src/minter/FriendsAndFamilyMinter.sol";
 import {AllowlistMinter} from "../src/minter/AllowlistMinter.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract InitializerTest is Test, Cre8orTestBase {
     Initializer public initializer;
@@ -96,6 +97,10 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function _assertProperSetup() internal {
         assertTrue(cre8ingBase.cre8ingOpen(address(cre8orsNFTBase)));
+        assertEq(
+            cre8orsNFTBase.getHook(IERC721ACH.HookType.BeforeTokenTransfers),
+            address(transferHook)
+        );
         _assertCorrectAccessManagerSetup();
     }
 
