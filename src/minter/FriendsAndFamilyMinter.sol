@@ -7,6 +7,7 @@ import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {IFriendsAndFamilyMinter} from "../interfaces/IFriendsAndFamilyMinter.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     ///@notice Mapping to track whether an address has discount for free mint.
@@ -47,11 +48,11 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
         bytes memory data = abi.encode(lockupDate, unlockPrice);
         uint256[] memory tokenIDs = new uint256[](1);
         tokenIDs[0] = pfpTokenId;
-        ICre8ors(cre8orsNFT).cre8ing().inializeStakingAndLockup(
-            cre8orsNFT,
-            tokenIDs,
-            data
-        );
+        ICre8ors(
+            IERC721ACH(cre8orsNFT).getHook(
+                IERC721ACH.HookType.BeforeTokenTransfers
+            )
+        ).cre8ing().inializeStakingAndLockup(cre8orsNFT, tokenIDs, data);
 
         // Return the token ID of the minted token
         return pfpTokenId;

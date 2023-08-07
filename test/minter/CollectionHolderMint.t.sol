@@ -25,6 +25,7 @@ import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -80,11 +81,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
-
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
-        vm.stopPrank();
     }
 
     function testLockup() public {
@@ -411,14 +407,17 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -427,8 +426,19 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
+
+        // set cre8ing
+        transferHook.setCre8ing(address(cre8ingBase));
+
         vm.stopPrank();
 
         return transferHook;

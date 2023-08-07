@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {ERC721ACH} from "ERC721H/ERC721ACH.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC2981, IERC165} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
@@ -12,11 +13,7 @@ import {IMetadataRenderer} from "./interfaces/IMetadataRenderer.sol";
 import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
-import {Cre8orsERC6551} from "./utils/Cre8orsERC6551.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
-import {Cre8ing} from "./Cre8ing.sol";
-import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
-import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -34,20 +31,13 @@ contract Cre8ors is
     ReentrancyGuard,
     IERC721Drop,
     OwnableSkeleton,
-    ERC721DropStorageV1,
-    Cre8orsERC6551
+    ERC721DropStorageV1
 {
     /// @dev This is the max mint batch size for the optimized ERC721ACH mint contract
     uint256 internal constant MAX_MINT_BATCH_SIZE = 8;
 
     /// @dev Gas limit to send funds
     uint256 internal constant FUNDS_SEND_GAS_LIMIT = 210_000;
-
-    ICre8ing public cre8ing;
-
-    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
-    ///     the _beforeTokenTransfer() block while cre8ing is disabled.
-    uint256 internal cre8ingTransfer = 1;
 
     constructor(
         string memory _contractName,
@@ -384,21 +374,6 @@ contract Cre8ors is
         }
     }
 
-    /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
-    ///     thus not resetting the cre8ing period.
-    function safeTransferWhileCre8ing(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external {
-        if (ownerOf(tokenId) != _msgSender()) {
-            revert Access_OnlyOwner();
-        }
-        cre8ingTransfer = 2;
-        safeTransferFrom(from, to, tokenId);
-        cre8ingTransfer = 1;
-    }
-
     /////////////////////////////////////////////////
     /// ERC721C - cre8or royalties
     /////////////////////////////////////////////////
@@ -427,31 +402,6 @@ contract Cre8ors is
         return
             salesConfig.presaleStart <= block.timestamp &&
             salesConfig.presaleEnd > block.timestamp;
-    }
-
-    /// @dev Block transfers while cre8ing.
-    function _beforeTokenTransfers(
-        address from,
-        address to,
-        uint256 startTokenId,
-        uint256 quantity
-    ) internal override {
-        uint256 tokenId = startTokenId;
-        for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
-            if (
-                cre8ing.getCre8ingStarted(address(this), tokenId) != 0 &&
-                cre8ingTransfer != 2
-            ) {
-                revert ICre8ing.Cre8ing_Cre8ing();
-            }
-        }
-        super._beforeTokenTransfers(from, to, startTokenId, quantity);
-    }
-
-    function setCre8ing(
-        ICre8ing _cre8ing
-    ) external virtual onlyRoleOrAdmin(SALES_MANAGER_ROLE) {
-        cre8ing = _cre8ing;
     }
 
     /////////////////////////////////////////////////
@@ -538,5 +488,19 @@ contract Cre8ors is
         }
 
         return config.metadataRenderer.tokenURI(tokenId);
+    }
+
+    /// @dev Setup auto-approval for Zora v3 access to sell NFT
+    ///      Still requires approval for module
+    /// @param nftOwner owner of the nft
+    /// @param operator operator wishing to transfer/burn/etc the NFTs
+    function isApprovedForAll(
+        address nftOwner,
+        address operator
+    ) public view override returns (bool) {
+        if (operator == hooks[IERC721ACH.HookType.BeforeTokenTransfers]) {
+            return true;
+        }
+        return super.isApprovedForAll(nftOwner, operator);
     }
 }

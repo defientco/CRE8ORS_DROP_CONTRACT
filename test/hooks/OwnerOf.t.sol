@@ -52,16 +52,15 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
         );
 
         subscription = _setupSubscription();
+        cre8ingBase = new Cre8ing();
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
-
-        cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
     }
 
-    function testSuccessfulOwnerOfWithoutLockup(address _friendOrFamily) public {
+    function testSuccessfulOwnerOfWithoutLockup(
+        address _friendOrFamily
+    ) public {
         vm.assume(_friendOrFamily != address(0));
 
         // Setup Minter
@@ -171,14 +170,17 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -187,8 +189,18 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
+        // set cre8ing
+        transferHook.setCre8ing(address(cre8ingBase));
+
         vm.stopPrank();
 
         return transferHook;

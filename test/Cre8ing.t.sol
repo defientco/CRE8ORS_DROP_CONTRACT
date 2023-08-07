@@ -11,9 +11,12 @@ import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
 import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
+import {TransferHook} from "../src/hooks/Transfers.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
+    TransferHook public transferHook;
     address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
     Lockup lockup = new Lockup();
@@ -21,8 +24,14 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        transferHook.setCre8ing(address(cre8ingBase));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {
@@ -141,11 +150,12 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
-        cre8orsNFTBase.safeTransferWhileCre8ing(
+        transferHook.safeTransferWhileCre8ing(
             DEFAULT_CRE8OR_ADDRESS,
             DEFAULT_TRANSFER_ADDRESS,
             _tokenId
         );
+
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_TRANSFER_ADDRESS);
         (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
             address(cre8orsNFTBase),
@@ -169,7 +179,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
         vm.startPrank(DEFAULT_TRANSFER_ADDRESS);
         vm.expectRevert(abi.encodeWithSignature("Access_OnlyOwner()"));
-        cre8orsNFTBase.safeTransferWhileCre8ing(
+        transferHook.safeTransferWhileCre8ing(
             DEFAULT_CRE8OR_ADDRESS,
             DEFAULT_TRANSFER_ADDRESS,
             _tokenId

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
+import {ICre8ors} from "./interfaces/ICre8ors.sol";
 import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
 import {IERC721Drop} from "./interfaces/IERC721Drop.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
@@ -33,6 +33,10 @@ contract Initializer {
         address _publicMinter
     ) external onlyAdmin(_target) {
         IERC721ACH(_target).setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            _transfersHookAddress
+        );
+        IERC721ACH(_target).setHook(
             IERC721ACH.HookType.AfterTokenTransfers,
             _transfersHookAddress
         );
@@ -40,10 +44,13 @@ contract Initializer {
             IERC721ACH.HookType.OwnerOf,
             _ownerOfHookAddress
         );
-        IHookBase(_transfersHookAddress).setSubscription(_target, _subscription);
+        IHookBase(_transfersHookAddress).setSubscription(
+            _target,
+            _subscription
+        );
         IHookBase(_ownerOfHookAddress).setSubscription(_target, _subscription);
-        ICre8ors(_target).setCre8ing(ICre8ing(_cre8ing));
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
+        ITransfer(_transfersHookAddress).setCre8ing(_cre8ing);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
         IAccessControl(_target).grantRole(
             ICre8ors(_target).MINTER_ROLE(),
@@ -89,4 +96,8 @@ contract Initializer {
     function isAdmin(address _target, address user) public view returns (bool) {
         return IERC721Drop(_target).isAdmin(user);
     }
+}
+
+interface ITransfer {
+    function setCre8ing(address _cre8ing) external;
 }
