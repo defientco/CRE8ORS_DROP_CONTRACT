@@ -51,6 +51,7 @@ contract CollectionHolderMintTest is Test {
     Cre8ors public cre8orsNFTBase;
     Cre8ing public cre8ingBase;
     Cre8ors public cre8orsPassport;
+    Cre8ors public dna;
     MinterUtilities public minterUtility;
     CollectionHolderMint public minter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
@@ -91,6 +92,7 @@ contract CollectionHolderMintTest is Test {
         ownerOfHook = _setupOwnerOfHook();
 
         _setupErc6551();
+        _setupDnaAirdrop();
     }
 
     function testLockup() public {
@@ -117,7 +119,7 @@ contract CollectionHolderMintTest is Test {
     function testSuccessfulMint(address _buyer, uint256 _mintQuantity) public {
         vm.assume(_buyer != address(0));
         vm.assume(_mintQuantity > 0);
-        vm.assume(_mintQuantity < 100);
+        vm.assume(_mintQuantity < DEFAULT_EDITION_SIZE);
         _setUpMinter();
         uint256[] memory tokens = generateTokens(_mintQuantity);
         vm.startPrank(_buyer);
@@ -174,11 +176,21 @@ contract CollectionHolderMintTest is Test {
         address _buyer,
         uint256 _mintQuantity
     ) public {
+        vm.assume(_mintQuantity < 100);
+        _assumeSmartWalletsExist(_mintQuantity, false);
         testSuccessfulMint(_buyer, _mintQuantity);
         //  VERIFY SMART WALLET HERE
-        _assumeSmartWalletsExist(_mintQuantity, true);
+        address[] memory smartWalletList = _assumeSmartWalletsExist(
+            _mintQuantity,
+            true
+        );
+
+        for (uint256 i = 0; i < smartWalletList.length; i++) {
+            assertEq(dna.ownerOf(i + 1), smartWalletList[i]);
+        }
 
         //  VERIFY AIRDROP HERE
+        assertEq(dna.totalSupply(), _mintQuantity);
     }
 
     function testSuccessfulMintWithDiscount(
@@ -498,10 +510,21 @@ contract CollectionHolderMintTest is Test {
         vm.stopPrank();
     }
 
+    function _setupDnaAirdrop() internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+
+        dna = _setUpContracts();
+        dna.grantRole(dna.DEFAULT_ADMIN_ROLE(), address(transferHook));
+        transferHook.setDnaNFT(address(dna));
+        vm.stopPrank();
+    }
+
     function _assumeSmartWalletsExist(
         uint256 _mintQuantity,
         bool _isContract
-    ) internal {
+    ) internal returns (address[] memory airdropList) {
+        airdropList = new address[](_mintQuantity);
+
         for (uint256 i = 1; i <= _mintQuantity; i++) {
             address smartWallet = IERC6551Registry(
                 transferHook.erc6551Registry(address(cre8orsNFTBase))
@@ -515,6 +538,7 @@ contract CollectionHolderMintTest is Test {
                     0
                 );
             assertEq(isContract(smartWallet), _isContract);
+            airdropList[i - 1] = smartWallet;
         }
     }
 
