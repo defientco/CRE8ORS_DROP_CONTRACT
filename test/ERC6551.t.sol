@@ -57,10 +57,6 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             IERC721ACH.HookType.AfterTokenTransfers,
             address(transferHook)
         );
-        transferHook.setAfterTokenTransfersEnabled(
-            address(cre8orsNFTBase),
-            true
-        );
         vm.stopPrank();
     }
 
@@ -256,10 +252,9 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
     }
 
-    function _setupSubscriptionContract(Cre8ors cre8orsNFT_)
-        internal
-        returns (Subscription _subscription)
-    {
+    function _setupSubscriptionContract(
+        Cre8ors cre8orsNFT_
+    ) internal returns (Subscription _subscription) {
         _subscription = new Subscription({
             cre8orsNFT_: address(cre8orsNFT_),
             minRenewalDuration_: 1 days,
