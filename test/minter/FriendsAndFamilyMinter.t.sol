@@ -21,11 +21,13 @@ import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     FriendsAndFamilyMinter public minter;
     MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
+    TransferHook public transferHook;
     address public familyMinter = address(0x1234567);
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
@@ -39,6 +41,7 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
+        transferHook = new TransferHook(address(cre8orsNFTBase));
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
             50000000000000000,
@@ -56,8 +59,13 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         ownerOfHook = _setupOwnerOfHook();
 
         cre8ingBase = new Cre8ing();
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        transferHook.setCre8ing(address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHook)
+        );
+        vm.stopPrank();
     }
 
     function testLockup() public {
@@ -196,7 +204,10 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
@@ -213,7 +224,10 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;

@@ -26,6 +26,7 @@ import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract PublicMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -42,6 +43,8 @@ contract PublicMinterTest is DSTest, StdUtils {
     CollectionHolderMint public collectionMinter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
     PublicMinter public minter;
+    TransferHook public transferHookCre8orsNFTBase;
+    TransferHook public transferHookCre8orsPassport;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
@@ -86,9 +89,23 @@ contract PublicMinterTest is DSTest, StdUtils {
         ownerOfHook = _setupOwnerOfHook();
 
         cre8ingBase = new Cre8ing();
+
+        transferHookCre8orsNFTBase = new TransferHook(address(cre8orsNFTBase));
+        transferHookCre8orsPassport = new TransferHook(
+            address(cre8orsPassport)
+        );
+
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
+        transferHookCre8orsNFTBase.setCre8ing(address(cre8ingBase));
+        transferHookCre8orsPassport.setCre8ing(address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsNFTBase)
+        );
+        cre8orsPassport.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsPassport)
+        );
         vm.stopPrank();
     }
 
@@ -305,7 +322,10 @@ contract PublicMinterTest is DSTest, StdUtils {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
@@ -322,7 +342,10 @@ contract PublicMinterTest is DSTest, StdUtils {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;

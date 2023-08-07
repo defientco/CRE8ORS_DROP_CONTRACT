@@ -29,6 +29,7 @@ import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract AllowlistMinterTest is DSTest, StdUtils {
     DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
@@ -46,6 +47,8 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
     AllowlistMinter public minter;
     MerkleData public merkleData;
+    TransferHook public transferHookCre8orsNFTBase;
+    TransferHook public transferHookCre8orsPassport;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
@@ -90,8 +93,16 @@ contract AllowlistMinterTest is DSTest, StdUtils {
         ownerOfHook = _setupOwnerOfHook();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
+        transferHookCre8orsNFTBase.setCre8ing(address(cre8ingBase));
+        transferHookCre8orsPassport.setCre8ing(address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsNFTBase)
+        );
+        cre8orsPassport.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsPassport)
+        );
         vm.stopPrank();
 
         merkleData = new MerkleData();
@@ -312,7 +323,7 @@ contract AllowlistMinterTest is DSTest, StdUtils {
     }
 
     /// HELPERS ///
-    
+
     function _revertCaseAssertionsForSubscriptions() internal {
         // Due to Revert there will be no tokenId.
         // Using 1 as token, considering it is a FIRST MINT to VERIFY Subscription
@@ -447,7 +458,10 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
@@ -464,7 +478,10 @@ contract AllowlistMinterTest is DSTest, StdUtils {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;

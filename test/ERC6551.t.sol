@@ -21,7 +21,7 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 import {Subscription} from "../src/subscription/Subscription.sol";
-
+import {TransferHook} from "../src/Transfers.sol";
 import "forge-std/console.sol";
 
 error NotAuthorized();
@@ -51,7 +51,11 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         cre8ingBase = new Cre8ing();
         transferHook = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
+        transferHook.setCre8ing(address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.AfterTokenTransfers,
+            address(transferHook)
+        );
         vm.stopPrank();
     }
 
@@ -268,7 +272,10 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;

@@ -49,7 +49,12 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             100000000000000000,
             150000000000000000
         );
-        minter = new FriendsAndFamilyMinter(
+
+        transferHook = _setupTransferHookContract(cre8orsNFTBase);
+
+        cre8ingForBase = _setupCre8ing(transferHook, address(cre8orsNFTBase));
+
+        friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
             address(minterUtility)
         );
@@ -107,7 +112,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         assertTrue(subscription.isSubscriptionValid(tokenId));
     }
 
-    function testRenewalExistingSubscription(address user) external{
+    function testRenewalExistingSubscription(address user) external {
         vm.warp(1000);
 
         vm.assume(user != address(0));
@@ -128,7 +133,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         assertEq(address(cre8orsNFTBase).balance, 0.1 ether);
     }
 
-    function testRenewalExpiredSubscription(address user) external{
+    function testRenewalExpiredSubscription(address user) external {
         vm.assume(user != address(0));
         vm.deal(user, 10 ether);
 
@@ -176,7 +181,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         assertEq(cre8orsNFTBase.ownerOf(tokenId), address(0));
     }
 
-    function testSetRenewable() external{
+    function testSetRenewable() external {
         assertTrue(subscription.isRenewable(0));
 
         vm.prank(address(DEFAULT_OWNER_ADDRESS));
@@ -185,7 +190,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         assertTrue(!subscription.isRenewable(0));
     }
 
-    function testSetMinRenewalDuration() external{
+    function testSetMinRenewalDuration() external {
         assertEq(subscription.minRenewalDuration(), 1 days);
 
         vm.prank(address(DEFAULT_OWNER_ADDRESS));
@@ -194,7 +199,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         assertEq(subscription.minRenewalDuration(), 0);
     }
 
-    function testSetMaxRenewalDuration() external{
+    function testSetMaxRenewalDuration() external {
         assertEq(subscription.maxRenewalDuration(), 0);
 
         vm.prank(address(DEFAULT_OWNER_ADDRESS));
@@ -203,7 +208,7 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         assertEq(subscription.maxRenewalDuration(), 1000);
     }
 
-    function testRevertSetRenewable(address user) external{
+    function testRevertSetRenewable(address user) external {
         vm.assume(user != address(0));
 
         // EVM Error
@@ -212,7 +217,11 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         subscription.setRenewable(user, true);
     }
 
-    function testRevertSetMaxRenewalDuration(address user, address target, uint64 duration) external{
+    function testRevertSetMaxRenewalDuration(
+        address user,
+        address target,
+        uint64 duration
+    ) external {
         vm.assume(user != address(0));
         vm.assume(target != address(0));
         vm.assume(duration != 0);
@@ -223,7 +232,11 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         subscription.setMaxRenewalDuration(user, 3600);
     }
 
-    function testRevertSetMinRenewalDuration(address user, address target, uint64 duration) external{
+    function testRevertSetMinRenewalDuration(
+        address user,
+        address target,
+        uint64 duration
+    ) external {
         vm.assume(user != address(0));
         vm.assume(target != address(0));
         vm.assume(duration != 0);
@@ -285,7 +298,10 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
@@ -302,7 +318,10 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;

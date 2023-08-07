@@ -25,6 +25,7 @@ import {Cre8ing} from "../../src/Cre8ing.sol";
 import {OwnerOfHook} from "../../src/hooks/OwnerOf.sol";
 import {TransferHook} from "../../src/Transfers.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
+import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract CollectionHolderMintTest is DSTest, StdUtils {
     struct TierInfo {
@@ -44,6 +45,8 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     MinterUtilities public minterUtility;
     CollectionHolderMint public minter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
+    TransferHook public transferHookCre8orsNFTBase;
+    TransferHook public transferHookCre8orsPassport;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
@@ -82,8 +85,16 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
         ownerOfHook = _setupOwnerOfHook();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.setCre8ing(cre8ingBase);
-        cre8orsPassport.setCre8ing(cre8ingBase);
+        transferHookCre8orsNFTBase.setCre8ing(address(cre8ingBase));
+        transferHookCre8orsPassport.setCre8ing(address(cre8ingBase));
+        cre8orsNFTBase.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsNFTBase)
+        );
+        cre8orsPassport.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
+            address(transferHookCre8orsPassport)
+        );
         vm.stopPrank();
     }
 
@@ -411,7 +422,10 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             address(ownerOfHook)
         );
         // set subscription
-        ownerOfHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        ownerOfHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return ownerOfHook;
@@ -428,7 +442,10 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
             address(transferHook)
         );
         // set subscription
-        transferHook.setSubscription(address(cre8orsNFTBase), address(subscription));
+        transferHook.setSubscription(
+            address(cre8orsNFTBase),
+            address(subscription)
+        );
         vm.stopPrank();
 
         return transferHook;
