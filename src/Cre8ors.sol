@@ -14,7 +14,6 @@ import {ERC721DropStorageV1} from "./storage/ERC721DropStorageV1.sol";
 import {OwnableSkeleton} from "./utils/OwnableSkeleton.sol";
 import {IOwnable} from "./interfaces/IOwnable.sol";
 import {Cre8iveAdmin} from "./Cre8iveAdmin.sol";
-import {ISubscription} from "./subscription/interfaces/ISubscription.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗

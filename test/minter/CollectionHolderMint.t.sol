@@ -45,8 +45,6 @@ contract CollectionHolderMintTest is DSTest, StdUtils {
     MinterUtilities public minterUtility;
     CollectionHolderMint public minter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
-    TransferHook public transferHookCre8orsNFTBase;
-    TransferHook public transferHookCre8orsPassport;
     Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
     bool _withoutLockup = false;
