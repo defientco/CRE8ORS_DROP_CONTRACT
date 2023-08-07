@@ -78,8 +78,14 @@ contract SubscriptionTest is DSTest, StdUtils {
         transferHookForBase = _setupTransferHookContract(cre8orsNFTBase);
         transferHookForPassport = _setupTransferHookContract(cre8orsPassport);
 
-        cre8ingForBase = _setupCre8ing(cre8orsNFTBase);
-        cre8ingForPassport = _setupCre8ing(cre8orsPassport);
+        cre8ingForBase = _setupCre8ing(
+            transferHookForBase,
+            address(cre8orsNFTBase)
+        );
+        cre8ingForPassport = _setupCre8ing(
+            transferHookForPassport,
+            address(cre8orsPassport)
+        );
 
         friendsAndFamilyMinter = new FriendsAndFamilyMinter(
             address(cre8orsNFTBase),
@@ -169,11 +175,12 @@ contract SubscriptionTest is DSTest, StdUtils {
     }
 
     function _setupCre8ing(
-        Cre8ors cre8orsNFT_
+        TransferHook transferHook,
+        address cre8orsNFT_
     ) internal returns (Cre8ing _cre8ing) {
         _cre8ing = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFT_.setCre8ing(_cre8ing);
+        transferHook.setCre8ing(address(_cre8ing));
         vm.prank(DEFAULT_OWNER_ADDRESS);
         _cre8ing.setCre8ingOpen(address(cre8orsNFT_), true);
         _setupMinterRole(address(_cre8ing));
@@ -207,6 +214,10 @@ contract SubscriptionTest is DSTest, StdUtils {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFT_.setHook(
             IERC721ACH.HookType.AfterTokenTransfers,
+            address(_transferHook)
+        );
+        cre8orsNFT_.setHook(
+            IERC721ACH.HookType.BeforeTokenTransfers,
             address(_transferHook)
         );
         vm.stopPrank();
