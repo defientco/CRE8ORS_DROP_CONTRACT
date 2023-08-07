@@ -14,7 +14,6 @@ import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
 import {TransferHook} from "../src/Transfers.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
-
 contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     TransferHook public transferHook;
@@ -27,7 +26,8 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         cre8ingBase = new Cre8ing();
         transferHook = new TransferHook(address(cre8orsNFTBase));
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setCre8ing( address(cre8ingBase));
+        transferHook.setCre8ing(address(cre8ingBase));
+        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
@@ -155,7 +155,7 @@ contract Cre8ingTest is Test, Cre8orTestBase {
             DEFAULT_TRANSFER_ADDRESS,
             _tokenId
         );
-        
+
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_TRANSFER_ADDRESS);
         (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
             address(cre8orsNFTBase),
