@@ -38,7 +38,11 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
             50000000000000000,
@@ -241,7 +245,11 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

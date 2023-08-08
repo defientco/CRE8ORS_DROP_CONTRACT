@@ -24,7 +24,11 @@ contract Cre8ingTest is Test, Cre8orTestBase {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         transferHook.setCre8ing(address(cre8ingBase));
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,

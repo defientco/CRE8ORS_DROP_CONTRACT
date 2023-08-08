@@ -28,7 +28,11 @@ contract Cre8ors721ACTest is DSTest, Cre8orTestBase {
         whitelistedOperator = vm.addr(2);
         transferValidator.addOperatorToWhitelist(1, whitelistedOperator);
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         transferHook.setCre8ing(address(cre8ingBase));
         vm.stopPrank();
     }

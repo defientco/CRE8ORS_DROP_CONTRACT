@@ -37,6 +37,7 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         subscription = _setupSubscriptionContract(cre8orsNFTBase);
 
         cre8ingBase = new Cre8ing();
+        _setupErc6551();
         transferHook = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));
@@ -67,23 +68,18 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 18);
 
-        // ERC6551 setup
-        _setupErc6551();
-
         address tokenBoundAccount = getTBA(_quantity);
         assertTrue(!isContract(tokenBoundAccount));
 
         // MINT REGISTERS WITH ERC6511
         cre8orsNFTBase.purchase(_quantity);
+        emit log_address(address(tokenBoundAccount));
         assertTrue(isContract(tokenBoundAccount));
     }
 
     function test_createMultipleAccounts(uint256 _quantity) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 100);
-
-        // ERC6551 setup
-        _setupErc6551();
 
         // No ERC6551 before purchase
         for (uint256 i = 1; i <= _quantity; i++) {
@@ -109,9 +105,6 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
         vm.assume(_smartWalletQuantity < 19);
-
-        // ERC6551 setup
-        _setupErc6551();
 
         address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
@@ -164,9 +157,6 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
         vm.assume(_smartWalletQuantity < 19);
-
-        // ERC6551 setup
-        _setupErc6551();
 
         address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
@@ -227,7 +217,11 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

@@ -32,7 +32,13 @@ contract TransferHook is
 
     /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
     /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
-    constructor(address _cre8orsNFT) {
+    /// @param _registry The address of the ERC6551 registry contract to be used.
+    /// @param _implementation The address of the ERC6551 implementation contract to be used.
+    constructor(
+        address _cre8orsNFT,
+        address _registry,
+        address _implementation
+    ) Cre8orsERC6551(_registry, _implementation) {
         cre8orsNFT = _cre8orsNFT;
     }
 

@@ -70,8 +70,11 @@ contract Cre8orTestBase is Test {
             address(guardian),
             address(entryPoint)
         );
-        transferHook.setErc6551Registry(address(erc6551Registry));
-        transferHook.setErc6551Implementation(address(erc6551Implementation));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         vm.stopPrank();
     }
 

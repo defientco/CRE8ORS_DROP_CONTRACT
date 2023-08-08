@@ -20,6 +20,11 @@ contract Cre8orsERC6551 {
     address public erc6551AccountImplementation =
         0x2D25602551487C3f3354dD80D76D54383A243358;
 
+    constructor(address _registry, address _implementation) {
+        erc6551Registry = _registry;
+        erc6551AccountImplementation = _implementation;
+    }
+
     /// @dev Initial data for ERC6551 createAccount
     bytes public constant INIT_DATA = "0x8129fc1c";
 
