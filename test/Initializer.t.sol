@@ -26,12 +26,12 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 contract InitializerTest is Test, Cre8orTestBase {
     Initializer public initializer;
     Subscription public subscription;
-    TransferHook public transferHook;
     OwnerOfHook public ownerOfHook;
     Cre8ing public cre8ingBase;
     Lockup public lockup;
     MinterUtilities public minterUtility;
     Cre8ors public cre8orsPassport;
+    Cre8ors public dna;
     CollectionHolderMint public collectionMinter;
     FriendsAndFamilyMinter public friendsAndFamilyMinter;
     AllowlistMinter public allowlistMinter;
@@ -39,7 +39,8 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
-        _deployCre8or(cre8orsPassport);
+        dna = _deployCre8or();
+        cre8orsPassport = _deployCre8or();
         cre8ingBase = new Cre8ing();
         initializer = new Initializer();
         subscription = new Subscription({
@@ -47,7 +48,6 @@ contract InitializerTest is Test, Cre8orTestBase {
             minRenewalDuration_: 1 days,
             pricePerSecond_: 38580246913 // Roughly calculates to 0.1 ether per 30 days
         });
-        transferHook = new TransferHook(address(cre8orsNFTBase));
         ownerOfHook = new OwnerOfHook();
         lockup = new Lockup();
         minterUtility = new MinterUtilities(
@@ -78,24 +78,67 @@ contract InitializerTest is Test, Cre8orTestBase {
             address(collectionMinter),
             address(friendsAndFamilyMinter)
         );
+        _setupErc6551();
     }
 
     function test_Initialize(address _caller) public {
         vm.assume(_caller != address(0));
         _grantAdminRole(address(initializer));
         _grantAdminRole(_caller);
+        // GIVE INITIALIZER ADMIN ROLE ON DNA
+        _grantInitializerAdminRoleOnDna();
         _initialize(_caller);
         _assertProperSetup();
     }
 
     function test_Initialize_revert_Access_OnlyAdmin(address _caller) public {
-        vm.assume(_caller != address(0));
-        vm.assume(_caller != DEFAULT_OWNER_ADDRESS);
-        vm.assume(_caller != address(initializer));
-
+        _assumeAddress(_caller);
         _grantAdminRole(address(initializer));
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         _initialize(_caller);
+    }
+
+    function test_mintDnaAirdrop(address _friend) public {
+        _assumeAddress(_friend);
+        test_Initialize(DEFAULT_OWNER_ADDRESS);
+        _mintFriendsAndFamily(_friend);
+        _assumeDnaAirdrop(1);
+    }
+
+    function _grantInitializerAdminRoleOnDna() internal {
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        dna.grantRole(dna.DEFAULT_ADMIN_ROLE(), address(initializer));
+        vm.stopPrank();
+    }
+
+    function _assumeDnaAirdrop(uint256 _tokenId) internal {
+        address smartWallet = _assumeTBASetup(_tokenId);
+        // assert DNA airdropped
+        assertEq(dna.ownerOf(_tokenId), smartWallet);
+    }
+
+    function _assumeTBASetup(
+        uint256 _tokenId
+    ) internal returns (address _smartWallet) {
+        _smartWallet = getTBA(_tokenId);
+        assertTrue(isContract(_smartWallet));
+    }
+
+    function _assumeAddress(address _normal) internal {
+        vm.assume(_normal != address(0));
+        vm.assume(_normal != DEFAULT_OWNER_ADDRESS);
+        vm.assume(_normal != address(initializer));
+    }
+
+    function _mintFriendsAndFamily(address _friend) internal {
+        _addFriendsAndFamilyDiscount(_friend);
+        friendsAndFamilyMinter.mint(_friend);
+        assertEq(cre8orsNFTBase.balanceOf(_friend), 1);
+    }
+
+    function _addFriendsAndFamilyDiscount(address _friend) internal {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        friendsAndFamilyMinter.addDiscount(_friend);
     }
 
     function _assertProperSetup() internal {
@@ -111,7 +154,8 @@ contract InitializerTest is Test, Cre8orTestBase {
         _assertHasMinterRole(address(cre8ingBase));
         _assertHasMinterRole(address(transferHook));
         _assertMintersHaveMinterRole();
-        _assertAdmin(address(initializer), false);
+        _assertAdmin(address(cre8orsNFTBase), address(initializer), false);
+        _assertAdmin(address(dna), address(initializer), false);
     }
 
     function _assertMintersHaveMinterRole() internal {
@@ -129,20 +173,23 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function _grantAdminRole(address _admin) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        emit log_address(address(cre8orsNFTBase));
 
         cre8orsNFTBase.grantRole(
             cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
             address(_admin)
         );
 
-        _assertAdmin(_admin, true);
+        _assertAdmin(address(cre8orsNFTBase), _admin, true);
         vm.stopPrank();
     }
 
-    function _assertAdmin(address _admin, bool _isAdmin) internal {
+    function _assertAdmin(
+        address _target,
+        address _admin,
+        bool _isAdmin
+    ) internal {
         assertEq(
-            cre8orsNFTBase.hasRole(
+            ICre8ors(_target).hasRole(
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(_admin)
             ),
@@ -152,7 +199,6 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function _initialize(address _caller) internal {
         vm.prank(_caller);
-
         initializer.setup(
             address(cre8orsNFTBase),
             address(subscription),
@@ -163,7 +209,8 @@ contract InitializerTest is Test, Cre8orTestBase {
             address(friendsAndFamilyMinter),
             address(collectionMinter),
             address(allowlistMinter),
-            address(publicMinter)
+            address(publicMinter),
+            address(dna)
         );
     }
 }

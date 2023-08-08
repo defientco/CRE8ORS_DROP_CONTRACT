@@ -29,18 +29,20 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     address public familyMinter = address(0x1234567);
 
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     OwnerOfHook public ownerOfHook;
-    TransferHook public transferHook;
     Subscription public subscription;
 
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         minterUtility = new MinterUtilities(
             address(cre8orsNFTBase),
             50000000000000000,
@@ -82,6 +84,10 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
         // Apply Discount
         _addDiscount(_friendOrFamily);
+
+        // ERC6551 setup
+        _setupErc6551();
+
         // Mint
         uint256 tokenId = minter.mint(_friendOrFamily);
 
@@ -113,6 +119,9 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
 
         // Apply Discount
         _addDiscount(_friendOrFamily);
+
+        // ERC6551 setup
+        _setupErc6551();
 
         // Mint
         uint256 tokenId = minter.mint(_friendOrFamily);
@@ -236,7 +245,11 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

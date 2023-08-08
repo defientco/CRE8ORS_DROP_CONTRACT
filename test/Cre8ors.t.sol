@@ -12,16 +12,9 @@ import {IOwnable} from "../src/interfaces/IOwnable.sol";
 import {Cre8ing} from "../src/Cre8ing.sol";
 import {ICre8ors} from "../src/interfaces/ICre8ors.sol";
 import {TransferHook} from "../src/hooks/Transfers.sol";
+import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
 
-contract Cre8orTest is DSTest {
-    Cre8ors public cre8orsNFTBase;
-    TransferHook public transferHook;
-    Vm public constant vm = Vm(HEVM_ADDRESS);
-    DummyMetadataRenderer public dummyRenderer = new DummyMetadataRenderer();
-    address public constant DEFAULT_OWNER_ADDRESS = address(0x23499);
-    address payable public constant DEFAULT_FUNDS_RECIPIENT_ADDRESS =
-        payable(address(0x21303));
-    uint64 DEFAULT_EDITION_SIZE = 10_000;
+contract Cre8orTest is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
 
     modifier setupCre8orsNFTBase(uint64 editionSize) {
@@ -45,7 +38,7 @@ contract Cre8orTest is DSTest {
             })
         });
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        _setupErc6551();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));

@@ -30,7 +30,8 @@ contract Initializer {
         address _familyAndFriendsMinter,
         address _collectionHolderMinter,
         address _allowlistMinter,
-        address _publicMinter
+        address _publicMinter,
+        address _dna
     ) external onlyAdmin(_target) {
         IERC721ACH(_target).setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
@@ -76,7 +77,14 @@ contract Initializer {
             ICre8ors(_target).MINTER_ROLE(),
             _transfersHookAddress
         );
+        ITransfer(_transfersHookAddress).setDnaNFT(_dna);
+        IAccessControl(_dna).grantRole(
+            DEFAULT_ADMIN_ROLE,
+            _transfersHookAddress
+        );
+        // renounce DEFAULT_ADMIN_ROLE
         IAccessControl(_target).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
+        IAccessControl(_dna).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
     }
 
     /// @notice Modifier for admin access only.
@@ -100,4 +108,6 @@ contract Initializer {
 
 interface ITransfer {
     function setCre8ing(address _cre8ing) external;
+
+    function setDnaNFT(address _dnaNft) external;
 }

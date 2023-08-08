@@ -16,7 +16,6 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract Cre8ingTest is Test, Cre8orTestBase {
     Cre8ing public cre8ingBase;
-    TransferHook public transferHook;
     address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
     Lockup lockup = new Lockup();
@@ -24,14 +23,18 @@ contract Cre8ingTest is Test, Cre8orTestBase {
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         cre8ingBase = new Cre8ing();
-        transferHook = new TransferHook(address(cre8orsNFTBase));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
+        vm.startPrank(DEFAULT_OWNER_ADDRESS);
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         transferHook.setCre8ing(address(cre8ingBase));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.setHook(
             IERC721ACH.HookType.BeforeTokenTransfers,
             address(transferHook)
         );
+        vm.stopPrank();
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {

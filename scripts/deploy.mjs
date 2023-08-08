@@ -13,6 +13,7 @@ import { deployAllowlistMinter } from "./deploy/deployAllowlistMinter.mjs";
 import { deploySubscription } from "./deploy/deploySubscription.mjs";
 import { deployInitializer } from "./deploy/deployInitializer.mjs";
 import { deployOwnerOf } from "./deploy/deployOwnerOf.mjs";
+import { deployDna } from "./deploy/deployDna.mjs";
 
 dotenv.config({
   path: `.env.${process.env.CHAIN}`,
@@ -24,6 +25,7 @@ export async function setupContracts() {
     "0x36c161febf4b54734baf31a4d6b00da9f4a1cc6eeae64bb328e095b1ab00ec96";
   const initialize = await deployInitializer();
   const cre8ors = await deployCre8ors(presaleMerkleRoot);
+  const dna = await deployDna();
   const subscription = await deploySubscription(cre8ors.deploy.deployedTo);
   const ownerOfHook = await deployOwnerOf();
   const transferHook = await deployTransfers(cre8ors.deploy.deployedTo);

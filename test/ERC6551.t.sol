@@ -28,12 +28,6 @@ error NotAuthorized();
 
 contract ERC6551Test is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
-    Vm public constant vm = Vm(HEVM_ADDRESS);
-    ERC6551Registry erc6551Registry;
-    AccountGuardian guardian;
-    EntryPoint entryPoint;
-    Account erc6551Implementation;
-    TransferHook public transferHook;
     address constant DEAD_ADDRESS =
         address(0x000000000000000000000000000000000000dEaD);
     Subscription public subscription;
@@ -41,14 +35,9 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         subscription = _setupSubscriptionContract(cre8orsNFTBase);
-        erc6551Registry = new ERC6551Registry();
-        guardian = new AccountGuardian();
-        entryPoint = new EntryPoint();
-        erc6551Implementation = new Account(
-            address(guardian),
-            address(entryPoint)
-        );
+
         cre8ingBase = new Cre8ing();
+        _setupErc6551();
         transferHook = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));
@@ -60,40 +49,35 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     }
 
     function test_Erc6551Registry() public {
+        _setupErc6551();
         address tokenBoundAccount = getTBA(1);
         assertTrue(!isContract(tokenBoundAccount));
     }
 
     function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Registry(
-            address(cre8orsNFTBase),
-            address(erc6551Registry)
-        );
+        transferHook.setErc6551Registry(address(erc6551Registry));
     }
 
     function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Implementation(
-            address(cre8orsNFTBase),
-            address(erc6551Implementation)
-        );
+        transferHook.setErc6551Implementation(address(erc6551Implementation));
     }
 
-    function test_createAccount(uint256 _quantity) public setupErc6551 {
+    function test_createAccount(uint256 _quantity) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 18);
+
         address tokenBoundAccount = getTBA(_quantity);
         assertTrue(!isContract(tokenBoundAccount));
 
         // MINT REGISTERS WITH ERC6511
         cre8orsNFTBase.purchase(_quantity);
+        emit log_address(address(tokenBoundAccount));
         assertTrue(isContract(tokenBoundAccount));
     }
 
-    function test_createMultipleAccounts(
-        uint256 _quantity
-    ) public setupErc6551 {
+    function test_createMultipleAccounts(uint256 _quantity) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 100);
 
@@ -116,11 +100,12 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     function test_sendWithTBA(
         uint256 _initialQuantity,
         uint256 _smartWalletQuantity
-    ) public setupErc6551 {
+    ) public {
         vm.assume(_initialQuantity > 0);
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
         vm.assume(_smartWalletQuantity < 19);
+
         address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
         // MINT REGISTERS WITH ERC6511
@@ -167,11 +152,12 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     function test_sendWithTBA_revert_NotAuthorized(
         uint256 _initialQuantity,
         uint256 _smartWalletQuantity
-    ) public setupErc6551 {
+    ) public {
         vm.assume(_initialQuantity > 0);
         vm.assume(_initialQuantity < 19);
         vm.assume(_smartWalletQuantity > 0);
         vm.assume(_smartWalletQuantity < 19);
+
         address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
 
         // MINT REGISTERS WITH ERC6511
@@ -196,50 +182,19 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
     }
 
-    function test_transfer_only(uint256 _quantity) public setupErc6551 {
+    function test_transfer_only(uint256 _quantity) public {
         vm.assume(_quantity < 100);
         vm.assume(_quantity > 0);
+
+        // ERC6551 setup
+        _setupErc6551();
+
         address BUYER = address(0x123);
         vm.startPrank(BUYER);
         cre8orsNFTBase.purchase(_quantity);
         for (uint256 i = 1; i <= _quantity; i++) {
             cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
         }
-    }
-
-    modifier setupErc6551() {
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHook.setErc6551Registry(
-            address(cre8orsNFTBase),
-            address(erc6551Registry)
-        );
-        transferHook.setErc6551Implementation(
-            address(cre8orsNFTBase),
-            address(erc6551Implementation)
-        );
-        vm.stopPrank();
-        _;
-    }
-
-    function isContract(address _addr) private view returns (bool) {
-        uint32 size;
-        assembly {
-            size := extcodesize(_addr)
-        }
-        return (size > 0);
-    }
-
-    function getTBA(uint256 tokenId) private view returns (address) {
-        address payable tokenBoundAccount = payable(
-            erc6551Registry.account(
-                address(erc6551Implementation),
-                block.chainid,
-                address(cre8orsNFTBase),
-                tokenId,
-                0
-            )
-        );
-        return tokenBoundAccount;
     }
 
     function _setMinterRole(address _assignee) internal {
@@ -262,7 +217,11 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

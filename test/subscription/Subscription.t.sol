@@ -30,11 +30,9 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     address public familyMinter = address(0x1234567);
 
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     OwnerOfHook public ownerOfHook;
-    TransferHook public transferHook;
     Subscription public subscription;
 
     uint64 public constant ONE_YEAR_DURATION = 365 days;
@@ -63,6 +61,8 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
         cre8ingBase = new Cre8ing();
         vm.prank(DEFAULT_OWNER_ADDRESS);
         transferHook.setCre8ing(address(cre8ingBase));
+
+        _setupErc6551();
     }
 
     function testCheckSubscription() external {
@@ -305,7 +305,11 @@ contract SubscriptionTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        transferHook = new TransferHook(
+            address(cre8orsNFTBase),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

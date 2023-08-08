@@ -28,13 +28,11 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
     address public familyMinter = address(0x1234567);
 
-    Vm public constant vm = Vm(HEVM_ADDRESS);
     Lockup lockup = new Lockup();
 
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
     OwnerOfHook public ownerOfHook;
-    TransferHook public transferHook;
 
     Subscription public subscription;
 
@@ -56,6 +54,8 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
+
+        _setupErc6551();
     }
 
     function testSuccessfulOwnerOfWithoutLockup(
@@ -180,7 +180,7 @@ contract OwnerOfHookTest is DSTest, Cre8orTestBase {
     }
 
     function _setupTransferHook() internal returns (TransferHook) {
-        transferHook = new TransferHook(address(cre8orsNFTBase));
+        _setupErc6551();
         _setMinterRole(address(transferHook));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
