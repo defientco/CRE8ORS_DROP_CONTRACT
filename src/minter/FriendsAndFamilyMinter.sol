@@ -71,7 +71,7 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     function addDiscount(address[] memory recipient) external onlyAdmin {
         for (uint256 i = 0; i < recipient.length; ) {
             if (hasDiscount[recipient[i]]) {
-                revert ExistingDiscount();
+                continue; // skip if already has discount
             }
             hasDiscount[recipient[i]] = true;
             unchecked {

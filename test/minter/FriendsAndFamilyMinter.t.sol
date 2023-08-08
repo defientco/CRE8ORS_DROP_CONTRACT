@@ -104,6 +104,29 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         minter.mint(_buyer);
     }
 
+    function testSetDiscountMultipleTimes(address[] memory _buyers) public {
+        vm.assume(_buyers.length < 10);
+        // Setup Minter
+        _setupMinter();
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        minter.addDiscount(_buyers);
+        for (uint256 i = 0; i < _buyers.length; i++) {
+            assertTrue(minter.hasDiscount(_buyers[i]));
+        }
+    }
+
+    function testRevertDiscountMultipleTimes(address[] memory _buyers) public {
+        vm.assume(_buyers.length < 10);
+        // Setup Minter
+        _setupMinter();
+
+        vm.prank(address(0x123432));
+        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        minter.addDiscount(_buyers);
+    }
+
+    // Apply Discount
     function _setupMinter() internal {
         bytes32 role = cre8orsNFTBase.MINTER_ROLE();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
