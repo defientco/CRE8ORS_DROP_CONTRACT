@@ -70,9 +70,6 @@ contract FriendsAndFamilyMinter is IFriendsAndFamilyMinter {
     /// @param recipient The address of the recipients who will receive the discount.
     function addDiscount(address[] memory recipient) external onlyAdmin {
         for (uint256 i = 0; i < recipient.length; ) {
-            if (hasDiscount[recipient[i]]) {
-                continue; // skip if already has discount
-            }
             hasDiscount[recipient[i]] = true;
             unchecked {
                 i += 1;
