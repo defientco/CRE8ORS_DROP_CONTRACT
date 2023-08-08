@@ -16,9 +16,9 @@ export async function deployCre8ors(merkleRoot) {
   const publicSalePrice = "150000000000000000";
   const erc20PaymentToken = "0x0000000000000000000000000000000000000000";
   const maxSalePurchasePerAddress = 18;
-  const presaleStart = "18446744073709551615"; // Saturday, August 5, 2023 12:55:00 PM PM ET
+  const presaleStart = "18446744073709551615"; // never
   const presaleEnd = "18446744073709551615"; // forever
-  const publicSaleStart = "18446744073709551615"; // Saturday, August 5, 2023 1:05:00 PM  ET
+  const publicSaleStart = "18446744073709551615"; // never
   const publicSaleEnd = "18446744073709551615"; // forever
   const presaleMerkleRoot = merkleRoot;
   const _salesConfig = `"(${publicSalePrice},${erc20PaymentToken},${maxSalePurchasePerAddress},${publicSaleStart},${publicSaleEnd},${presaleStart},${presaleEnd},${presaleMerkleRoot})"`;

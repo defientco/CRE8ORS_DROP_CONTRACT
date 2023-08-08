@@ -1,7 +1,7 @@
-import util from "util";
-import { exec } from "child_process";
-import dotenv from "dotenv";
-import { Interface } from "@ethersproject/abi";
+import util from 'util';
+import { exec } from 'child_process';
+import dotenv from 'dotenv';
+import { Interface } from '@ethersproject/abi';
 
 const execPromise = util.promisify(exec);
 
@@ -12,22 +12,20 @@ export function timeout(ms) {
 }
 
 export async function deploy(contract, args = undefined) {
-  const [contractPath, contractName] = contract.split(":");
-  const constructorArgs = args
-    ? ["--constructor-args", args.join(" ") || "0x"]
-    : [];
+  const [contractPath, contractName] = contract.split(':');
+  const constructorArgs = args ? ['--constructor-args', args.join(' ') || '0x'] : [];
   const { stdout, stderr } = await execPromise(
     [
-      "forge",
-      "create",
+      'forge',
+      'create',
       contract,
-      "--private-key",
+      '--private-key',
       process.env.PRIVATE_KEY,
-      "--rpc-url",
+      '--rpc-url',
       process.env.ETH_RPC_URL,
       ...constructorArgs,
-      "--json",
-    ].join(" ")
+      '--json'
+    ].join(' ')
   );
   if (stderr) {
     throw new Error(stderr);
@@ -36,32 +34,26 @@ export async function deploy(contract, args = undefined) {
     deploy: JSON.parse(stdout),
     contractName,
     contractPath,
-    args,
+    args
   };
 }
 
 export async function verify(address, contract, args = undefined) {
-  const [contractPath, contractName] = contract.split(":");
-  const inspectResult = await execPromise(
-    ["forge", "inspect", contractName, "abi"].join(" ")
-  );
+  const [contractPath, contractName] = contract.split(':');
+  const inspectResult = await execPromise(['forge', 'inspect', contractName, 'abi'].join(' '));
   const deployArgs = new Interface(inspectResult.stdout).encodeDeploy(args);
-  const constructorArgs = args
-    ? ["--constructor-args", deployArgs]
-    : ["--constructor-args", "0x"];
+  const constructorArgs = args ? ['--constructor-args', deployArgs] : ['--constructor-args', '0x'];
   const { stdout, stderr } = await execPromise(
     [
-      "forge",
-      "verify-contract",
+      'forge',
+      'verify-contract',
       address,
       contract,
       process.env.ETHERSCAN_API_KEY,
-      "--chain-id",
+      '--chain-id',
       process.env.CHAIN_ID,
-      ...constructorArgs,
-      "--compiler-version",
-      process.env.COMPILER_VERSION,
-    ].join(" ")
+      ...constructorArgs
+    ].join(' ')
   );
   if (stderr) {
     throw new Error(stderr);
@@ -69,13 +61,13 @@ export async function verify(address, contract, args = undefined) {
   return {
     verify: stdout,
     contractName,
-    contractPath,
+    contractPath
   };
 }
 
 export async function retryVerify(maxTries, ...args) {
   if (maxTries == 0) {
-    console.log("failed to verify");
+    console.log('failed to verify');
     return;
   }
   try {
@@ -84,21 +76,21 @@ export async function retryVerify(maxTries, ...args) {
     // 15 second delay
     await timeout(15000);
     console.error(e);
-    console.log("retrying");
+    console.log('retrying');
     return retryVerify(maxTries - 1, ...args);
   }
 }
 
 export async function retryDeploy(maxTries, ...args) {
   if (maxTries === 0) {
-    console.log("failed to deploy.");
+    console.log('failed to deploy.');
     process.exit(1);
   }
   try {
     return await deploy(...args);
   } catch (e) {
     console.error(e);
-    console.log("retrying");
+    console.log('retrying');
     await timeout(2000);
     return retryDeploy(maxTries - 1, ...args);
   }
@@ -107,18 +99,13 @@ export async function retryDeploy(maxTries, ...args) {
 export async function deployAndVerify(contract, args) {
   const deployed = await retryDeploy(2, contract, args);
   console.log(`[deployed] ${contract}`);
-  console.log("wait 10 sec for etherscan to catch up");
+  console.log('wait 10 sec for etherscan to catch up');
   await timeout(10000);
-  const verified = await retryVerify(
-    3,
-    deployed.deploy.deployedTo,
-    contract,
-    deployed.args
-  );
+  const verified = await retryVerify(3, deployed.deploy.deployedTo, contract, deployed.args);
   console.log(`[verified] ${contract}`);
   // console.log(verified)
   return {
     deployed,
-    verify: verified,
+    verify: verified
   };
 }

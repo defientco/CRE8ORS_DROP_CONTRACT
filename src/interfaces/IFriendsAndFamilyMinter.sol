@@ -37,6 +37,10 @@ interface IFriendsAndFamilyMinter {
     /// @param recipient The address of the recipient who will receive the discount.
     function addDiscount(address recipient) external;
 
+    /// @dev Grants a discount to the specified recipient, allowing them to mint tokens without paying the regular price.
+    /// @param recipient The address of the recipients who will receive the discount.
+    function addDiscount(address[] memory recipient) external;
+
     /// @dev Removes the discount from the specified recipient, preventing them from minting tokens with a discount.
     /// @param recipient The address of the recipient whose discount will be removed.
     function removeDiscount(address recipient) external;
