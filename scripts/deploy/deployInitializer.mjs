@@ -15,6 +15,9 @@ export async function deployInitializer() {
   console.log(
     "make sure to TEMPORARILY grant cre8ors.grantRole(DEFAULT_ADMINT_ROLE, initializer)"
   );
+  console.log(
+    "make sure to TEMPORARILY grant dna.grantRole(DEFAULT_ADMINT_ROLE, initializer)"
+  );
   console.log("make sure to call initializer.setup()");
   return contract.deployed;
 }

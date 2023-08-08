@@ -84,6 +84,7 @@ contract Initializer {
         );
         // renounce DEFAULT_ADMIN_ROLE
         IAccessControl(_target).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
+        IAccessControl(_dna).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
     }
 
     /// @notice Modifier for admin access only.

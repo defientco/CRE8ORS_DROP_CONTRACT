@@ -157,7 +157,8 @@ contract InitializerTest is Test, Cre8orTestBase {
         _assertHasMinterRole(address(cre8ingBase));
         _assertHasMinterRole(address(transferHook));
         _assertMintersHaveMinterRole();
-        _assertAdmin(address(initializer), false);
+        _assertAdmin(address(cre8orsNFTBase), address(initializer), false);
+        _assertAdmin(address(dna), address(initializer), false);
     }
 
     function _assertMintersHaveMinterRole() internal {
@@ -182,13 +183,17 @@ contract InitializerTest is Test, Cre8orTestBase {
             address(_admin)
         );
 
-        _assertAdmin(_admin, true);
+        _assertAdmin(address(cre8orsNFTBase), _admin, true);
         vm.stopPrank();
     }
 
-    function _assertAdmin(address _admin, bool _isAdmin) internal {
+    function _assertAdmin(
+        address _target,
+        address _admin,
+        bool _isAdmin
+    ) internal {
         assertEq(
-            cre8orsNFTBase.hasRole(
+            ICre8ors(_target).hasRole(
                 cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
                 address(_admin)
             ),
