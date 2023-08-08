@@ -73,10 +73,8 @@ contract Cre8orsClaimPassportMinterTest is DSTest, Cre8orTestBase {
         assertTrue(minterHasRole, "Minter does not have role");
         vm.stopPrank();
 
-        uint256 price = 0.8 ether;
-        vm.deal(DEFAULT_BUYER, 1 ether);
         vm.startPrank(DEFAULT_BUYER);
-        uint256 tokenId = cre8orsNFTBase.purchase{value: price}(1);
+        uint256 tokenId = cre8orsNFTBase.purchase(1);
         cre8orsNFTBase.approve(address(minter), tokenId + 1);
         uint256 passportId = minter.claimPassport(tokenId + 1);
         vm.stopPrank();
@@ -96,10 +94,8 @@ contract Cre8orsClaimPassportMinterTest is DSTest, Cre8orTestBase {
         assertTrue(minterHasRole, "Minter does not have role");
         vm.stopPrank();
 
-        uint256 price = 0.8 ether;
-        vm.deal(DEFAULT_BUYER, 1 ether);
         vm.startPrank(DEFAULT_BUYER);
-        uint256 tokenId = cre8orsNFTBase.purchase{value: price}(1);
+        uint256 tokenId = cre8orsNFTBase.purchase(1);
         cre8orsNFTBase.approve(address(minter), tokenId + 1);
         vm.stopPrank();
         vm.startPrank(address(0x123456));
