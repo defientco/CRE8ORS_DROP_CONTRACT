@@ -108,8 +108,6 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function _grantInitializerAdminRoleOnDna() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        emit log_address(address(dna));
-        emit log_address(address(initializer));
         dna.grantRole(dna.DEFAULT_ADMIN_ROLE(), address(initializer));
         vm.stopPrank();
     }
@@ -176,7 +174,6 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function _grantAdminRole(address _admin) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        emit log_address(address(cre8orsNFTBase));
 
         cre8orsNFTBase.grantRole(
             cre8orsNFTBase.DEFAULT_ADMIN_ROLE(),
@@ -203,10 +200,6 @@ contract InitializerTest is Test, Cre8orTestBase {
 
     function _initialize(address _caller) internal {
         vm.prank(_caller);
-        emit log_address(address(dna));
-        emit log_address(address(cre8orsPassport));
-        emit log_address(address(initializer));
-
         initializer.setup(
             address(cre8orsNFTBase),
             address(subscription),
