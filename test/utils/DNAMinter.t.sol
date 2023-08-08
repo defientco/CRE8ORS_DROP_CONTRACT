@@ -14,6 +14,7 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 import {Subscription} from "../../src/subscription/Subscription.sol";
 import {DNAMinter} from "../../src/minter/DNAMinter.sol";
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 import "forge-std/console.sol";
 
 error NotAuthorized();
@@ -25,140 +26,151 @@ contract DNATest is DSTest, Cre8orTestBase {
     Subscription public subscription;
     Cre8ors dna;
     DNAMinter dnaMinter;
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         dna = _deployCre8or();
+        _setupErc6551();
+        dnaMinter = new DNAMinter(
+            address(cre8orsNFTBase),
+            address(dna),
+            address(erc6551Registry),
+            address(erc6551Implementation)
+        );
     }
 
     function test_Erc6551Registry() public {
-        _setupErc6551();
         address tokenBoundAccount = getTBA(1);
         assertTrue(!isContract(tokenBoundAccount));
     }
 
     function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Registry(address(erc6551Registry));
+        dnaMinter.setErc6551Registry(address(erc6551Registry));
     }
 
     function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        transferHook.setErc6551Implementation(address(erc6551Implementation));
+        dnaMinter.setErc6551Implementation(address(erc6551Implementation));
     }
 
-    function test_createAccount(uint256 _quantity) public {
-        vm.assume(_quantity > 0);
-        vm.assume(_quantity < 18);
+    function test_createAccountAndMintDNA(uint256 _quantity) public {
+        _assumeReasonableNumber(_quantity);
 
-        address tokenBoundAccount = getTBA(_quantity);
+        // MINT NFTs on CRE8ORS
+        _cre8orsPurchase(_quantity);
+
+        // Registers with ERC6551 & mint DNA to TBA
+        _createTbaAndMint(_quantity);
+    }
+
+    function _grantDnaMinterAdminRole() internal {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        IAccessControl(address(dna)).grantRole(
+            DEFAULT_ADMIN_ROLE,
+            address(dnaMinter)
+        );
+    }
+
+    function _createTbaAndMint(
+        uint256 _tokenId
+    ) internal returns (address tokenBoundAccount) {
+        // Grant Role
+        _grantDnaMinterAdminRole();
+
+        // Setup TBA & mint DNA
+        tokenBoundAccount = getTBA(_tokenId);
         assertTrue(!isContract(tokenBoundAccount));
+        uint256 _dnaTokenId = dnaMinter.createTokenBoundAccountAndMintDNA(
+            _tokenId
+        );
 
-        // MINT REGISTERS WITH ERC6511
-        cre8orsNFTBase.purchase(_quantity);
-        emit log_address(address(tokenBoundAccount));
+        // Assertions
         assertTrue(isContract(tokenBoundAccount));
+        assertEq(dna.ownerOf(_dnaTokenId), tokenBoundAccount);
     }
 
     function test_sendWithTBA(
         uint256 _initialQuantity,
         uint256 _smartWalletQuantity
     ) public {
-        vm.assume(_initialQuantity > 0);
-        vm.assume(_initialQuantity < 19);
-        vm.assume(_smartWalletQuantity > 0);
-        vm.assume(_smartWalletQuantity < 19);
+        _assumeReasonableNumber(_initialQuantity);
+        _assumeReasonableNumber(_smartWalletQuantity);
 
-        address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
+        // Mint Cre8or
+        _cre8orsPurchase(_initialQuantity);
 
-        // MINT REGISTERS WITH ERC6511
-        assertTrue(!isContract(tokenBoundAccount));
-        cre8orsNFTBase.purchase(_initialQuantity);
-        assertTrue(isContract(tokenBoundAccount));
+        // Create TBA and mint DNA card
+        address payable tokenBoundAccount = payable(
+            _createTbaAndMint(_initialQuantity)
+        );
 
-        // TBA used to mint another CRE8OR
-        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        // Transfer DNA card out of TBA
+        _transferDnaCardFromTBA(tokenBoundAccount);
+    }
+
+    function _transferDnaCardFromTBA(
+        address payable tokenBoundAccount
+    ) internal {
+        assertEq(dna.balanceOf(tokenBoundAccount), 1);
         uint256 value;
         bytes memory data = abi.encodeWithSignature(
-            "purchase(uint256)",
-            _smartWalletQuantity
-        );
-        bytes memory response = Account(tokenBoundAccount).executeCall(
-            address(cre8orsNFTBase),
-            value,
-            data
-        );
-        uint256 tokenId = abi.decode(response, (uint256));
-        assertEq(
-            cre8orsNFTBase.balanceOf(tokenBoundAccount),
-            _smartWalletQuantity
-        );
-
-        // use TBA to burn CRE8OR
-        data = abi.encodeWithSignature(
             "safeTransferFrom(address,address,uint256)",
             tokenBoundAccount,
-            DEAD_ADDRESS,
-            tokenId + 1
+            msg.sender,
+            1
         );
-        Account(tokenBoundAccount).executeCall(
-            address(cre8orsNFTBase),
-            value,
-            data
-        );
-        assertEq(
-            cre8orsNFTBase.balanceOf(tokenBoundAccount),
-            _smartWalletQuantity - 1
-        );
+        Account(tokenBoundAccount).executeCall(address(dna), value, data);
+        assertEq(dna.balanceOf(tokenBoundAccount), 0);
+    }
+
+    function _assumeReasonableNumber(uint256 _num) internal pure {
+        vm.assume(_num > 0);
+        vm.assume(_num < 18);
+    }
+
+    function _cre8orsPurchase(uint256 _quantity) internal {
+        cre8orsNFTBase.purchase(_quantity);
     }
 
     function test_sendWithTBA_revert_NotAuthorized(
         uint256 _initialQuantity,
         uint256 _smartWalletQuantity
     ) public {
-        vm.assume(_initialQuantity > 0);
-        vm.assume(_initialQuantity < 19);
-        vm.assume(_smartWalletQuantity > 0);
-        vm.assume(_smartWalletQuantity < 19);
+        _assumeReasonableNumber(_initialQuantity);
+        _assumeReasonableNumber(_smartWalletQuantity);
 
-        address payable tokenBoundAccount = payable(getTBA(_initialQuantity));
+        // Mint Cre8or
+        _cre8orsPurchase(_initialQuantity);
 
-        // MINT REGISTERS WITH ERC6511
-        assertTrue(!isContract(tokenBoundAccount));
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.purchase(_initialQuantity);
-        assertTrue(isContract(tokenBoundAccount));
+        // Create TBA and mint DNA card
+        address payable tokenBoundAccount = payable(
+            _createTbaAndMint(_initialQuantity)
+        );
 
         // TBA used to mint another CRE8OR
-        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        _revertTbaTransferNotAuthorized(tokenBoundAccount);
+    }
+
+    function _revertTbaTransferNotAuthorized(
+        address payable tokenBoundAccount
+    ) internal {
+        assertEq(dna.balanceOf(tokenBoundAccount), 1);
         uint256 value;
         bytes memory data = abi.encodeWithSignature(
-            "purchase(uint256)",
-            _smartWalletQuantity
+            "safeTransferFrom(address,address,uint256)",
+            tokenBoundAccount,
+            msg.sender,
+            1
         );
         vm.expectRevert(NotAuthorized.selector);
-        Account(tokenBoundAccount).executeCall(
-            address(cre8orsNFTBase),
-            value,
-            data
-        );
-        assertEq(cre8orsNFTBase.balanceOf(tokenBoundAccount), 0);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        Account(tokenBoundAccount).executeCall(address(dna), value, data);
+        assertEq(dna.balanceOf(tokenBoundAccount), 1);
     }
 
-    function test_transfer_only(uint256 _quantity) public {
-        vm.assume(_quantity < 100);
-        vm.assume(_quantity > 0);
-
-        // ERC6551 setup
-        _setupErc6551();
-
-        address BUYER = address(0x123);
-        vm.startPrank(BUYER);
-        cre8orsNFTBase.purchase(_quantity);
-        for (uint256 i = 1; i <= _quantity; i++) {
-            cre8orsNFTBase.safeTransferFrom(BUYER, DEAD_ADDRESS, i);
-        }
-    }
+    // TODO - UNIT TEST TO VERIFY AIRDROP FAILURE IF TBA ALREADY HAS MINTED DNA CARD
 
     function _setMinterRole(address _assignee) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);

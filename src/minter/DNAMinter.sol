@@ -9,19 +9,35 @@ import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 import {Admin} from "../subscription/abstracts/Admin.sol";
 
 contract DNAMinter is Cre8orsERC6551, Admin {
+    ///@notice The address of the collection contract for Cre8ors.
+    address public cre8orsNft;
     ///@notice The address of the collection contract for DNA airdrops.
     address public dnaNft;
 
     /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
+    /// @param _cre8orsNft The address of the Cre8ors contract to be used.
     /// @param _dnaNft The address of the Cre8ors DNA contract to be used.
     /// @param _registry The address of the ERC6551 registry contract to be used.
     /// @param _implementation The address of the ERC6551 implementation contract to be used.
     constructor(
+        address _cre8orsNft,
         address _dnaNft,
         address _registry,
         address _implementation
     ) Cre8orsERC6551(_registry, _implementation) {
+        cre8orsNft = _cre8orsNft;
         dnaNft = _dnaNft;
+    }
+
+    function createTokenBoundAccountAndMintDNA(
+        uint256 _cre8orsTokenId
+    ) public returns (uint256 _mintedDnaTokenId) {
+        address[] memory airdropList = createTokenBoundAccounts(
+            cre8orsNft,
+            _cre8orsTokenId,
+            1
+        );
+        _mintedDnaTokenId = ICre8ors(dnaNft).adminMint(airdropList[0], 1);
     }
 
     /// @notice Set the Cre8orsNFT contract address.
