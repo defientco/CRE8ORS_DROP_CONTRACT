@@ -17,6 +17,8 @@ import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol"
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 contract Initializer {
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+
     function setup(
         address _target,
         address _subscription,
@@ -33,7 +35,6 @@ contract Initializer {
             IERC721ACH.HookType.AfterTokenTransfers,
             _hookAddress
         );
-        ITransfer(_hookAddress).setAfterTokenTransfersEnabled(_target, true);
         ICre8ors(_target).setCre8ing(ICre8ing(_cre8ing));
         ICre8ing(_cre8ing).setCre8ingOpen(_target, true);
         ICre8ing(_cre8ing).setLockup(_target, ILockup(_lockup));
@@ -61,6 +62,7 @@ contract Initializer {
             ICre8ors(_target).MINTER_ROLE(),
             _hookAddress
         );
+        IAccessControl(_target).renounceRole(DEFAULT_ADMIN_ROLE, address(this));
     }
 
     /// @notice Modifier for admin access only.
@@ -80,11 +82,4 @@ contract Initializer {
     function isAdmin(address _target, address user) public view returns (bool) {
         return IERC721Drop(_target).isAdmin(user);
     }
-}
-
-interface ITransfer {
-    function setAfterTokenTransfersEnabled(
-        address _target,
-        bool _enabled
-    ) external;
 }
