@@ -56,26 +56,27 @@ contract Cre8orTestBase is Test {
         });
     }
 
-    function _deployCre8or(Cre8ors _target) internal {
-        _target = new Cre8ors({
-            _contractName: "CRE8ORS",
-            _contractSymbol: "CRE8",
-            _initialOwner: DEFAULT_OWNER_ADDRESS,
-            _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
-            _editionSize: DEFAULT_EDITION_SIZE,
-            _royaltyBPS: DEFAULT_ROYALTY_BPS,
-            _metadataRenderer: dummyRenderer,
-            _salesConfig: IERC721Drop.SalesConfiguration({
-                publicSaleStart: 0,
-                erc20PaymentToken: address(0),
-                publicSaleEnd: type(uint64).max,
-                presaleStart: 0,
-                presaleEnd: 0,
-                publicSalePrice: 0,
-                maxSalePurchasePerAddress: 0,
-                presaleMerkleRoot: bytes32(0)
-            })
-        });
+    function _deployCre8or() internal returns (Cre8ors) {
+        return
+            new Cre8ors({
+                _contractName: "CRE8ORS",
+                _contractSymbol: "CRE8",
+                _initialOwner: DEFAULT_OWNER_ADDRESS,
+                _fundsRecipient: payable(DEFAULT_FUNDS_RECIPIENT_ADDRESS),
+                _editionSize: DEFAULT_EDITION_SIZE,
+                _royaltyBPS: DEFAULT_ROYALTY_BPS,
+                _metadataRenderer: dummyRenderer,
+                _salesConfig: IERC721Drop.SalesConfiguration({
+                    publicSaleStart: 0,
+                    erc20PaymentToken: address(0),
+                    publicSaleEnd: type(uint64).max,
+                    presaleStart: 0,
+                    presaleEnd: 0,
+                    publicSalePrice: 0,
+                    maxSalePurchasePerAddress: 0,
+                    presaleMerkleRoot: bytes32(0)
+                })
+            });
     }
 
     function _setupErc6551() internal {
@@ -90,5 +91,26 @@ contract Cre8orTestBase is Test {
         transferHook.setErc6551Registry(address(erc6551Registry));
         transferHook.setErc6551Implementation(address(erc6551Implementation));
         vm.stopPrank();
+    }
+
+    function isContract(address _addr) internal view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
+    }
+
+    function getTBA(uint256 tokenId) internal view returns (address) {
+        address payable tokenBoundAccount = payable(
+            erc6551Registry.account(
+                address(erc6551Implementation),
+                block.chainid,
+                address(cre8orsNFTBase),
+                tokenId,
+                0
+            )
+        );
+        return tokenBoundAccount;
     }
 }

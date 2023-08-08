@@ -207,27 +207,6 @@ contract ERC6551Test is DSTest, Cre8orTestBase {
         }
     }
 
-    function isContract(address _addr) private view returns (bool) {
-        uint32 size;
-        assembly {
-            size := extcodesize(_addr)
-        }
-        return (size > 0);
-    }
-
-    function getTBA(uint256 tokenId) private view returns (address) {
-        address payable tokenBoundAccount = payable(
-            erc6551Registry.account(
-                address(erc6551Implementation),
-                block.chainid,
-                address(cre8orsNFTBase),
-                tokenId,
-                0
-            )
-        );
-        return tokenBoundAccount;
-    }
-
     function _setMinterRole(address _assignee) internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
