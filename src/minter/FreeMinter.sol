@@ -35,21 +35,30 @@ contract FreeMinter is IFreeMinter {
         passportContractAddress = _passportContractAddress;
 
         // set passports to have claimed a free mint
-        for (uint256 i = 0; i < _usedPassportTokenIds.length; i++) {
+        for (uint256 i = 0; i < _usedPassportTokenIds.length; ) {
             freeMintClaimed[_usedPassportTokenIds[i]] = true;
+            unchecked {
+                ++i;
+            }
         }
 
         // set addresses to have claimed a free mint
-        for (uint256 i = 0; i < _usedPassportTokenIds.length; i++) {
+        for (uint256 i = 0; i < _usedPassportTokenIds.length; ) {
             address owner = IERC721A(_passportContractAddress).ownerOf(
                 _usedPassportTokenIds[i]
             );
             totalClaimed[owner]++;
+            unchecked {
+                ++i;
+            }
         }
 
         // set addresses to have used discount
-        for (uint256 i = 0; i < _discountClaimedAddresses.length; i++) {
+        for (uint256 i = 0; i < _discountClaimedAddresses.length; ) {
             totalClaimed[_discountClaimedAddresses[i]]++;
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -85,7 +94,7 @@ contract FreeMinter is IFreeMinter {
                 hasDiscount[recipient[i]] = true;
             }
             unchecked {
-                i += 1;
+                ++i;
             }
         }
     }
@@ -115,7 +124,7 @@ contract FreeMinter is IFreeMinter {
         for (uint256 i = 0; i < totalMintQuantity; ) {
             _pfpTokenIds[i] = startingTokenId + i;
             unchecked {
-                i++;
+                ++i;
             }
         }
         return _pfpTokenIds;
@@ -134,7 +143,7 @@ contract FreeMinter is IFreeMinter {
             for (uint256 i = 0; i < _pfpTokenIds.length; ) {
                 lockup.setUnlockInfo(cre8orsNFT, _pfpTokenIds[i], data);
                 unchecked {
-                    i++;
+                    ++i;
                 }
             }
         }
@@ -154,19 +163,28 @@ contract FreeMinter is IFreeMinter {
     function _setExistingTokenIdsClaimed(
         uint256[] memory _passportTokenIds
     ) internal {
-        for (uint256 i = 0; i < _passportTokenIds.length; i++) {
+        for (uint256 i = 0; i < _passportTokenIds.length; ) {
             freeMintClaimed[_passportTokenIds[i]] = true;
+            unchecked {
+                ++i;
+            }
         }
     }
 
     function _hasDuplicates(
         uint[] calldata values
     ) internal pure returns (bool) {
-        for (uint i = 0; i < values.length; i++) {
-            for (uint j = i + 1; j < values.length; j++) {
+        for (uint i = 0; i < values.length; ) {
+            for (uint j = i + 1; j < values.length; ) {
                 if (values[i] == values[j]) {
                     return true;
                 }
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
             }
         }
         return false;
@@ -175,8 +193,11 @@ contract FreeMinter is IFreeMinter {
     function _setpassportTokenIDsToClaimed(
         uint256[] calldata passportTokenIDs
     ) internal {
-        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+        for (uint256 i = 0; i < passportTokenIDs.length; ) {
             freeMintClaimed[passportTokenIDs[i]] = true;
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -193,13 +214,16 @@ contract FreeMinter is IFreeMinter {
         uint256[] calldata passportTokenIDs,
         address recipient
     ) {
-        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+        for (uint256 i = 0; i < passportTokenIDs.length; ) {
             if (
                 IERC721A(passportContractAddress).ownerOf(
                     passportTokenIDs[i]
                 ) != recipient
             ) {
                 revert IERC721A.ApprovalCallerNotOwnerNorApproved();
+            }
+            unchecked {
+                ++i;
             }
         }
         _;
