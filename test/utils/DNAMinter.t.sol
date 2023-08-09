@@ -27,6 +27,8 @@ contract DNATest is DSTest, Cre8orTestBase {
     Cre8ors dna;
     DNAMinter dnaMinter;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+    ///@notice error - already minted DNA Card for cre8or.
+    error DNAMinter_AlreadyMinted();
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -63,6 +65,16 @@ contract DNATest is DSTest, Cre8orTestBase {
 
         // Registers with ERC6551 & mint DNA to TBA
         _createTbaAndMint(_quantity);
+    }
+
+    function test_createAccountAndMintDNA_revert_AlreadyMinted(
+        uint256 _quantity
+    ) public {
+        address tokenBoundAccount = getTBA(_quantity);
+        test_createAccountAndMintDNA(_quantity);
+        vm.expectRevert(DNAMinter_AlreadyMinted.selector);
+        dnaMinter.createTokenBoundAccountAndMintDNA(_quantity);
+        assertEq(dna.balanceOf(tokenBoundAccount), 1);
     }
 
     function _grantDnaMinterAdminRole() internal {

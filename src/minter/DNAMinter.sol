@@ -7,8 +7,11 @@ import {ICre8ing} from "../interfaces/ICre8ing.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 import {Admin} from "../subscription/abstracts/Admin.sol";
+import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 
 contract DNAMinter is Cre8orsERC6551, Admin {
+    ///@notice error - already minted DNA Card for cre8or.
+    error DNAMinter_AlreadyMinted();
     ///@notice The address of the collection contract for Cre8ors.
     address public cre8orsNft;
     ///@notice The address of the collection contract for DNA airdrops.
@@ -31,13 +34,32 @@ contract DNAMinter is Cre8orsERC6551, Admin {
 
     function createTokenBoundAccountAndMintDNA(
         uint256 _cre8orsTokenId
-    ) public returns (uint256 _mintedDnaTokenId) {
+    )
+        public
+        onlyFirstMint(_cre8orsTokenId)
+        returns (uint256 _mintedDnaTokenId)
+    {
         address[] memory airdropList = createTokenBoundAccounts(
             cre8orsNft,
             _cre8orsTokenId,
             1
         );
         _mintedDnaTokenId = ICre8ors(dnaNft).adminMint(airdropList[0], 1);
+    }
+
+    modifier onlyFirstMint(uint256 _cre8orsTokenId) {
+        address tba = IERC6551Registry(erc6551Registry).account(
+            erc6551AccountImplementation,
+            block.chainid,
+            cre8orsNft,
+            _cre8orsTokenId,
+            0
+        );
+        if (ICre8ors(dnaNft).mintedPerAddress(tba).totalMints > 0) {
+            revert DNAMinter_AlreadyMinted();
+        }
+
+        _;
     }
 
     /// @notice Set the Cre8orsNFT contract address.
