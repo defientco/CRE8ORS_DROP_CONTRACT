@@ -6,6 +6,7 @@ import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ICollectionHolderMint} from "../interfaces/ICollectionHolderMint.sol";
 import {FriendsAndFamilyMinter} from "../minter/FriendsAndFamilyMinter.sol";
 import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
+import {IFreeMinter} from "../interfaces/IFreeMinter.sol";
 
 contract MinterUtilities is IMinterUtilities {
     /// @dev The maximum quantity allowed for each address in the whitelist.
@@ -71,6 +72,26 @@ contract MinterUtilities is IMinterUtilities {
         uint256 totalMints = cre8ors.mintedPerAddress(recipient).totalMints;
         uint256 totalClaimed = passportMinter.totalClaimed(recipient) +
             friendsAndFamily.totalClaimed(recipient);
+        uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
+
+        if (maxQuantity < totalMints) {
+            return 0;
+        }
+        return maxQuantity - totalMints;
+    }
+
+    /// @dev Retrieves the quantity of items remaining that can be minted by the specified recipient.
+    /// @param freeMinter The address of the free minter contract.
+    /// @param recipient The recipient address for which the quantity is to be calculated.
+    /// @return The quantity of items that can be minted by the specified recipient.
+    function quantityLeft(
+        address freeMinter,
+        address recipient
+    ) external view returns (uint256) {
+        uint256 totalMints = ICre8ors(cre8orsNFT)
+            .mintedPerAddress(recipient)
+            .totalMints;
+        uint256 totalClaimed = IFreeMinter(freeMinter).totalClaimed(recipient);
         uint256 maxQuantity = maxAllowedQuantity(totalClaimed);
 
         if (maxQuantity < totalMints) {

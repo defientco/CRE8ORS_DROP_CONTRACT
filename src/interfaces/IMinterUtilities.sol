@@ -63,6 +63,17 @@ interface IMinterUtilities {
     ) external view returns (uint256);
 
     /**
+     * @notice Returns the quantity of NFTs left that can be minted by the given recipient.
+     * @param freeMinter The address of the PassportHolderMinter contract.
+     * @param recipient The recipient's address.
+     * @return The quantity of NFTs that can still be minted by the recipient.
+     */
+    function quantityLeft(
+        address freeMinter,
+        address recipient
+    ) external view returns (uint256);
+
+    /**
      * @notice Calculates the total cost for a given list of NFTs in different tiers.
      * @param carts An array of Cart struct representing the tiers and quantities.
      * @return The total cost in wei for the given list of NFTs.
