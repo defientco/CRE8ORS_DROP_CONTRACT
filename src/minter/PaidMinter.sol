@@ -98,8 +98,11 @@ contract PaidMinter is IPaidMinter {
         uint256[] memory carts
     ) internal pure returns (uint256) {
         uint256 totalQuantity;
-        for (uint256 i = 0; i < carts.length; i++) {
+        for (uint256 i = 0; i < carts.length; ) {
             totalQuantity += carts[i];
+            unchecked {
+                ++i;
+            }
         }
         return totalQuantity;
     }
@@ -118,7 +121,7 @@ contract PaidMinter is IPaidMinter {
                 tiers,
                 i + 1
             );
-            for (uint256 j = 0; j < carts[i]; j++) {
+            for (uint256 j = 0; j < carts[i]; ) {
                 ICre8ors(
                     IERC721ACH(cre8orsNFT).getHook(
                         IERC721ACH.HookType.BeforeTokenTransfers
@@ -129,6 +132,9 @@ contract PaidMinter is IPaidMinter {
                         lockUpDateAndPrice
                     );
                 tokenId++;
+                unchecked {
+                    ++j;
+                }
             }
         }
     }
