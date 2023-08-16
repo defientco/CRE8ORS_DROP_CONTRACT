@@ -159,7 +159,7 @@ contract Cre8ingV2 is ICre8ingV2, Cre8orsAccessControl {
             revert Cre8ing_Cre8ingClosed();
         }
         cre8ingStarted[_target][tokenId] = block.timestamp;
-        emit Cre8ed(_target, tokenId);
+        emit Locked(tokenId);
     }
 
     /// @notice Exit a CRE8OR from the warehouse.

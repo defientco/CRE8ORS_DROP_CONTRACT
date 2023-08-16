@@ -5,6 +5,10 @@ interface ICre8ingV2 {
     /// @dev Emitted when a CRE8OR begins cre8ing.
     event Cre8ed(address, uint256 indexed tokenId);
 
+    // ERC-5192 (recommended for gas efficiency)
+    event Locked(uint256 tokenId);
+    event Unlocked(uint256 tokenId);
+
     /// @dev Emitted when a CRE8OR stops cre8ing; either through standard means or
     ///     by expulsion.
     event Uncre8ed(address, uint256 indexed tokenId);

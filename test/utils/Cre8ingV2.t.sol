@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import "forge-std/Test.sol";
 import {Cre8ingV2} from "../../src/utils/Cre8ingV2.sol";
-import {ICre8ing} from "../../src/interfaces/ICre8ing.sol";
+import {ICre8ingV2} from "../../src/interfaces/ICre8ingV2.sol";
 import {ILockup} from "../../src/interfaces/ILockup.sol";
 import {Lockup} from "../../src/utils/Lockup.sol";
 import {DummyMetadataRenderer} from "./DummyMetadataRenderer.sol";
@@ -19,6 +19,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     address public constant DEFAULT_CRE8OR_ADDRESS = address(456);
     address public constant DEFAULT_TRANSFER_ADDRESS = address(0x2);
     Lockup lockup = new Lockup();
+
+    event Locked(uint256 tokenId);
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -92,7 +94,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
 
-        vm.expectRevert(ICre8ing.Cre8ing_Cre8ingClosed.selector);
+        vm.expectRevert(ICre8ingV2.Cre8ing_Cre8ingClosed.selector);
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
     }
 
@@ -108,9 +110,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(_tokenId);
         (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(
             address(cre8orsNFTBase),
             _tokenId
@@ -128,10 +128,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(_tokenId);
         vm.expectRevert(abi.encodeWithSignature("Cre8ing_Cre8ing()"));
         cre8orsNFTBase.safeTransferFrom(
             DEFAULT_CRE8OR_ADDRESS,
@@ -148,10 +146,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(_tokenId);
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
         transferHook.safeTransferWhileCre8ing(
             DEFAULT_CRE8OR_ADDRESS,
@@ -175,10 +171,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(_tokenId);
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_CRE8OR_ADDRESS);
         vm.startPrank(DEFAULT_TRANSFER_ADDRESS);
         vm.expectRevert(abi.encodeWithSignature("Access_OnlyOwner()"));
@@ -210,10 +204,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(_tokenId);
         vm.prank(DEFAULT_OWNER_ADDRESS);
         (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
             address(cre8orsNFTBase),
@@ -238,10 +230,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = _tokenId;
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(_tokenId);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
             address(cre8orsNFTBase),
@@ -330,7 +320,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         // function under test - inializeStakingAndLockup
         grant_minter_role(_minter);
         vm.prank(_minter);
-        vm.expectRevert(ICre8ing.Cre8ing_Cre8ingClosed.selector);
+        vm.expectRevert(ICre8ingV2.Cre8ing_Cre8ingClosed.selector);
         cre8ingBase.inializeStaking(address(cre8orsNFTBase), tokenIds);
 
         // assertions
@@ -404,6 +394,13 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         _initializeStaking(tokenIds);
     }
 
+    function _toggleCre8ingTokens(uint256 _tokenId) internal {
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenId;
+        _expectLockedEmit(_tokenId);
+        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+    }
+
     function _initializeStaking(uint256[] memory _tokenIds) internal {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.inializeStaking(address(cre8orsNFTBase), _tokenIds);
@@ -432,6 +429,11 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
             );
             assertEq(cre8ing, _lockedAndStaked);
         }
+    }
+
+    function _expectLockedEmit(uint256 _tokenId) internal {
+        vm.expectEmit(true, true, true, true);
+        emit Locked(_tokenId);
     }
 
     function generateUnstakedTokenIds(
