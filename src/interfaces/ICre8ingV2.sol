@@ -3,30 +3,24 @@ pragma solidity ^0.8.15;
 
 interface ICre8ingV2 {
     /// @dev Emitted when a CRE8OR begins cre8ing.
-    event Cre8ed(address, uint256 indexed tokenId);
-
-    // ERC-5192 (recommended for gas efficiency)
+    ///     ERC-5192 (recommended for gas efficiency)
     event Locked(uint256 tokenId);
-    event Unlocked(uint256 tokenId);
-
     /// @dev Emitted when a CRE8OR stops cre8ing; either through standard means or
     ///     by expulsion.
-    event Uncre8ed(address, uint256 indexed tokenId);
+    ///     ERC-5192 (recommended for gas efficiency)
+    event Unlocked(uint256 tokenId);
 
     /// @dev Emitted when a CRE8OR is expelled from the Warehouse.
     event Expelled(address, uint256 indexed tokenId);
 
     /// @notice Missing cre8ing status
-    error CRE8ING_NotCre8ing(address, uint256 tokenId);
+    error Cre8ing_NotCre8ing(address, uint256 tokenId);
 
     /// @notice Cre8ing Closed
     error Cre8ing_Cre8ingClosed();
 
     /// @notice Cre8ing
     error Cre8ing_Cre8ing();
-
-    /// @notice Missing Lockup
-    error Cre8ing_MissingLockup();
 
     /// @notice Cre8ing period
     function cre8ingPeriod(

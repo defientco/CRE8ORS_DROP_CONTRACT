@@ -21,6 +21,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     Lockup lockup = new Lockup();
 
     event Locked(uint256 tokenId);
+    event Unlocked(uint256 tokenId);
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
@@ -40,11 +41,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     }
 
     function test_cre8ingPeriod(uint256 _tokenId) public {
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
-            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
-        assertEq(cre8ing, false);
-        assertEq(current, 0);
-        assertEq(total, 0);
+        _expectUnlocked(_tokenId);
     }
 
     function test_cre8ingOpen() public {
@@ -70,11 +67,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     function test_toggleCre8ingRevert_OwnerQueryForNonexistentToken(
         uint256 _tokenId
     ) public {
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
-            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
-        assertEq(cre8ing, false);
-        assertEq(current, 0);
-        assertEq(total, 0);
+        _expectUnlocked(_tokenId);
+
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
         vm.expectRevert(
@@ -85,11 +79,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
 
     function test_toggleCre8ingRevert_Cre8ing_Cre8ingClosed() public {
         uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
-            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
-        assertEq(cre8ing, false);
-        assertEq(current, 0);
-        assertEq(total, 0);
+        _expectUnlocked(_tokenId);
+
         cre8orsNFTBase.purchase(1);
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
@@ -98,26 +89,28 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
     }
 
-    function test_toggleCre8ing() public {
-        uint256 _tokenId = 1;
-        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
-            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
-        assertEq(cre8ing, false);
-        assertEq(current, 0);
-        assertEq(total, 0);
-        cre8orsNFTBase.purchase(1);
+    function test_toggleCre8ing_ONE(uint256 _tokenToStake) public {
+        _assumeUint256(_tokenToStake);
+        _expectUnlocked(_tokenToStake);
+
+        cre8orsNFTBase.purchase(_tokenToStake);
 
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
 
-        _toggleCre8ingTokens(_tokenId);
-        (cre8ing, current, total) = cre8ingBase.cre8ingPeriod(
-            address(cre8orsNFTBase),
-            _tokenId
-        );
-        assertEq(cre8ing, true);
-        assertEq(current, 0);
-        assertEq(total, 0);
+        _toggleCre8ingTokens(_tokenToStake);
+
+        _expectLocked(_tokenToStake);
+    }
+
+    function test_toggleCre8ing_Unstake_ONE(uint256 _tokenToStake) public {
+        test_toggleCre8ing_ONE(_tokenToStake);
+
+        uint256[] memory tokenIds = new uint256[](1);
+        tokenIds[0] = _tokenToStake;
+
+        // VERIFY UNSTAKED
+        _toggleCre8ingTokens(tokenIds, false);
     }
 
     function test_blockCre8ingTransfer() public {
@@ -156,11 +149,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         );
 
         assertEq(cre8orsNFTBase.ownerOf(_tokenId), DEFAULT_TRANSFER_ADDRESS);
-        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
-            address(cre8orsNFTBase),
-            _tokenId
-        );
-        assertEq(cre8ing, true);
+
+        _expectLocked(_tokenId);
     }
 
     function test_safeTransferWhileCre8ingRevert_Access_OnlyOwner() public {
@@ -207,19 +197,13 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
         _toggleCre8ingTokens(_tokenId);
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
-            address(cre8orsNFTBase),
-            _tokenId
-        );
-        assertEq(cre8ing, true);
+
+        _expectLocked(_tokenId);
+
         vm.startPrank(DEFAULT_CRE8OR_ADDRESS);
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
         cre8ingBase.expelFromWarehouse(address(cre8orsNFTBase), _tokenId);
-        (cre8ing, , ) = cre8ingBase.cre8ingPeriod(
-            address(cre8orsNFTBase),
-            _tokenId
-        );
-        assertEq(cre8ing, true);
+        _expectLocked(_tokenId);
     }
 
     function test_expelFromWarehouse() public {
@@ -233,17 +217,13 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(DEFAULT_CRE8OR_ADDRESS);
         _toggleCre8ingTokens(_tokenId);
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
-            address(cre8orsNFTBase),
-            _tokenId
-        );
-        assertEq(cre8ing, true);
+
+        _expectLocked(_tokenId);
+
+        _expectUnlockedEmit(_tokenId);
         cre8ingBase.expelFromWarehouse(address(cre8orsNFTBase), _tokenId);
-        (cre8ing, , ) = cre8ingBase.cre8ingPeriod(
-            address(cre8orsNFTBase),
-            _tokenId
-        );
-        assertEq(cre8ing, false);
+
+        _expectUnlocked(_tokenId);
     }
 
     function test_cre8ingTokens() public {
@@ -273,7 +253,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         }
         vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), unstaked);
+        _toggleCre8ingTokens(unstaked, true);
         staked = cre8ingBase.cre8ingTokens(address(cre8orsNFTBase));
         for (uint256 i = 0; i < staked.length; i++) {
             assertEq(staked[i], i + 1);
@@ -388,7 +368,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         // stake 1 token
         grant_minter_role(_minter);
         vm.prank(_minter);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(tokenIds, true);
 
         // function under test - inializeStakingAndLockup
         _initializeStaking(tokenIds);
@@ -397,8 +377,19 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     function _toggleCre8ingTokens(uint256 _tokenId) internal {
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = _tokenId;
-        _expectLockedEmit(_tokenId);
-        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), tokenIds);
+        _toggleCre8ingTokens(tokenIds, true);
+    }
+
+    function _toggleCre8ingTokens(
+        uint256[] memory _tokenIds,
+        bool _expectIsLocked
+    ) internal {
+        if (_expectIsLocked) {
+            _expectLockedEmit(_tokenIds[0]);
+        } else {
+            _expectUnlockedEmit(_tokenIds[0]);
+        }
+        cre8ingBase.toggleCre8ingTokens(address(cre8orsNFTBase), _tokenIds);
     }
 
     function _initializeStaking(uint256[] memory _tokenIds) internal {
@@ -431,9 +422,30 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         }
     }
 
+    function _expectUnlocked(uint256 _tokenId) internal {
+        (bool cre8ing, uint256 current, uint256 total) = cre8ingBase
+            .cre8ingPeriod(address(cre8orsNFTBase), _tokenId);
+        assertEq(cre8ing, false);
+        assertEq(current, 0);
+        assertEq(total, 0);
+    }
+
+    function _expectLocked(uint256 _tokenId) internal {
+        (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
+            address(cre8orsNFTBase),
+            _tokenId
+        );
+        assertEq(cre8ing, true);
+    }
+
     function _expectLockedEmit(uint256 _tokenId) internal {
         vm.expectEmit(true, true, true, true);
         emit Locked(_tokenId);
+    }
+
+    function _expectUnlockedEmit(uint256 _tokenId) internal {
+        vm.expectEmit(true, true, true, true);
+        emit Unlocked(_tokenId);
     }
 
     function generateUnstakedTokenIds(
@@ -442,12 +454,8 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         tokenIds = new uint256[](_quantity);
         for (uint256 i = 0; i < _quantity; i++) {
             tokenIds[i] = i + 1;
-            // Token is Staked
-            (bool cre8ing, , ) = cre8ingBase.cre8ingPeriod(
-                address(cre8orsNFTBase),
-                i + 1
-            );
-            assertEq(cre8ing, false);
+            // Token is Unstaked
+            _expectUnlocked(i + 1);
         }
     }
 }

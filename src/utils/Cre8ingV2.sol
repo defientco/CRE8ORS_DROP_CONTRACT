@@ -137,13 +137,13 @@ contract Cre8ingV2 is ICre8ingV2, Cre8orsAccessControl {
         uint256 tokenId
     ) external onlyAdmin(_target) {
         if (cre8ingStarted[_target][tokenId] == 0) {
-            revert CRE8ING_NotCre8ing(_target, tokenId);
+            revert Cre8ing_NotCre8ing(_target, tokenId);
         }
         cre8ingTotal[_target][tokenId] +=
             block.timestamp -
             cre8ingStarted[_target][tokenId];
         cre8ingStarted[_target][tokenId] = 0;
-        emit Uncre8ed(_target, tokenId);
+        emit Unlocked(tokenId);
         emit Expelled(_target, tokenId);
     }
 
@@ -169,7 +169,7 @@ contract Cre8ingV2 is ICre8ingV2, Cre8orsAccessControl {
         uint256 start = cre8ingStarted[_target][tokenId];
         cre8ingTotal[_target][tokenId] += block.timestamp - start;
         cre8ingStarted[_target][tokenId] = 0;
-        emit Uncre8ed(_target, tokenId);
+        emit Unlocked(tokenId);
     }
 
     /// @notice Toggle cre8ing status for a specific token.
