@@ -4,8 +4,7 @@ pragma solidity ^0.8.15;
 import {ICre8ingV2} from "../interfaces/ICre8ingV2.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
-import {IERC721A} from "erc721a/contracts/IERC721A.sol";
-import {MinterAdminCheck} from "../minter/MinterAdminCheck.sol";
+import {Cre8orsAccessControl} from "../utils/Cre8orsAccessControl.sol";
 
 /**
  ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
@@ -16,15 +15,31 @@ import {MinterAdminCheck} from "../minter/MinterAdminCheck.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
-contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
+contract Cre8ingV2 is ICre8ingV2, Cre8orsAccessControl {
+    /// @notice Whether cre8ing is currently allowed.
+    /// @dev If false then cre8ing is blocked, but uncre8ing is always allowed.
+    mapping(address => bool) public cre8ingOpen;
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(address => mapping(uint256 => uint256)) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(address => mapping(uint256 => uint256)) internal cre8ingTotal;
 
-    /// @notice Whether cre8ing is currently allowed.
-    /// @dev If false then cre8ing is blocked, but uncre8ing is always allowed.
-    mapping(address => bool) public cre8ingOpen;
+    /////////////////////////////////////////////////
+    /// CRE8ING
+    /////////////////////////////////////////////////
+
+    /// @notice Toggles cre8ing status for multiple tokens.
+    /// @param _target The target address.
+    /// @param tokenIds Array of token IDs to toggle.
+    function toggleCre8ingTokens(
+        address _target,
+        uint256[] calldata tokenIds
+    ) external {
+        uint256 n = tokenIds.length;
+        for (uint256 i = 0; i < n; ++i) {
+            _toggleCre8ingToken(_target, tokenIds[i]);
+        }
+    }
 
     /// @notice Returns the length of time, in seconds, that the CRE8OR has cre8ed.
     /// @dev Cre8ing is tied to a specific CRE8OR, not to the owner, so it doesn't
@@ -47,95 +62,6 @@ contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
             current = block.timestamp - start;
         }
         total = current + cre8ingTotal[_target][tokenId];
-    }
-
-    /// @notice Toggles the `cre8ingOpen` flag.
-    /// @param _target The target address.
-    /// @param open Boolean value to open or close cre8ing.
-    function setCre8ingOpen(
-        address _target,
-        bool open
-    ) external onlyAdmin(_target) {
-        cre8ingOpen[_target] = open;
-    }
-
-    /// @notice Admin-only ability to expel a CRE8OR from the Warehouse.
-    /// @dev As most sales listings use off-chain signatures it's impossible to
-    ///     detect someone who has cre8ed and then deliberately undercuts the floor
-    ///     price in the knowledge that the sale can't proceed. This function allows for
-    ///     monitoring of such practices and expulsion if abuse is detected, allowing
-    ///     the undercutting CRE8OR to be sold on the open market. Since OpenSea uses
-    ///     isApprovedForAll() in its pre-listing checks, we can't block by that means
-    ///     because cre8ing would then be all-or-nothing for all of a particular owner's
-    ///     CRE8OR.
-    /// @param _target The target address.
-    /// @param tokenId The token ID to expel.
-    function expelFromWarehouse(
-        address _target,
-        uint256 tokenId
-    ) external onlyAdmin(_target) {
-        if (cre8ingStarted[_target][tokenId] == 0) {
-            revert CRE8ING_NotCre8ing(_target, tokenId);
-        }
-        cre8ingTotal[_target][tokenId] +=
-            block.timestamp -
-            cre8ingStarted[_target][tokenId];
-        cre8ingStarted[_target][tokenId] = 0;
-        emit Uncre8ed(_target, tokenId);
-        emit Expelled(_target, tokenId);
-    }
-
-    /// @notice Enter a CRE8OR into the warehouse.
-    /// @param _target The target address.
-    /// @param tokenId The token ID to enter.
-    function enterWarehouse(address _target, uint256 tokenId) internal {
-        if (!cre8ingOpen[_target]) {
-            revert Cre8ing_Cre8ingClosed();
-        }
-        cre8ingStarted[_target][tokenId] = block.timestamp;
-        emit Cre8ed(_target, tokenId);
-    }
-
-    /// @notice Exit a CRE8OR from the warehouse.
-    /// @param _target The target address.
-    /// @param tokenId The token ID to exit.
-    function leaveWarehouse(address _target, uint256 tokenId) internal {
-        uint256 start = cre8ingStarted[_target][tokenId];
-        cre8ingTotal[_target][tokenId] += block.timestamp - start;
-        cre8ingStarted[_target][tokenId] = 0;
-        emit Uncre8ed(_target, tokenId);
-    }
-
-    /////////////////////////////////////////////////
-    /// CRE8ING
-    /////////////////////////////////////////////////
-
-    /// @notice Toggles cre8ing status for multiple tokens.
-    /// @param _target The target address.
-    /// @param tokenIds Array of token IDs to toggle.
-    function toggleCre8ingTokens(
-        address _target,
-        uint256[] calldata tokenIds
-    ) external {
-        uint256 n = tokenIds.length;
-        for (uint256 i = 0; i < n; ++i) {
-            _toggleCre8ingToken(_target, tokenIds[i]);
-        }
-    }
-
-    /// @notice Toggle cre8ing status for a specific token.
-    /// @param _target The target address.
-    /// @param tokenId The token ID to toggle.
-    function _toggleCre8ingToken(
-        address _target,
-        uint256 tokenId
-    ) internal onlyApprovedOrOwner(_target, tokenId) {
-        uint256 start = cre8ingStarted[_target][tokenId];
-        if (start == 0) {
-            enterWarehouse(_target, tokenId);
-        } else {
-            leaveWarehouse(_target, tokenId);
-        }
     }
 
     /// @notice Returns the array of staked token IDs.
@@ -165,6 +91,20 @@ contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
         return cre8ingStarted[_target][tokenId];
     }
 
+    /////////////////////////////////////////////////
+    /// Admin
+    /////////////////////////////////////////////////
+
+    /// @notice Toggles the `cre8ingOpen` flag.
+    /// @param _target The target address.
+    /// @param open Boolean value to open or close cre8ing.
+    function setCre8ingOpen(
+        address _target,
+        bool open
+    ) external onlyAdmin(_target) {
+        cre8ingOpen[_target] = open;
+    }
+
     /// @notice Initialize staking for a set of tokens.
     /// @param _target The target address.
     /// @param _tokenIds Array of token IDs.
@@ -174,23 +114,77 @@ contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
     ) external onlyMinterOrAdmin(_target) {
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
-            enterWarehouse(_target, _tokenIds[i]);
+            _enterWarehouse(_target, _tokenIds[i]);
             unchecked {
                 i++;
             }
         }
     }
 
+    /// @notice Admin-only ability to expel a CRE8OR from the Warehouse.
+    /// @dev As most sales listings use off-chain signatures it's impossible to
+    ///     detect someone who has cre8ed and then deliberately undercuts the floor
+    ///     price in the knowledge that the sale can't proceed. This function allows for
+    ///     monitoring of such practices and expulsion if abuse is detected, allowing
+    ///     the undercutting CRE8OR to be sold on the open market. Since OpenSea uses
+    ///     isApprovedForAll() in its pre-listing checks, we can't block by that means
+    ///     because cre8ing would then be all-or-nothing for all of a particular owner's
+    ///     CRE8OR.
+    /// @param _target The target address.
+    /// @param tokenId The token ID to expel.
+    function expelFromWarehouse(
+        address _target,
+        uint256 tokenId
+    ) external onlyAdmin(_target) {
+        if (cre8ingStarted[_target][tokenId] == 0) {
+            revert CRE8ING_NotCre8ing(_target, tokenId);
+        }
+        cre8ingTotal[_target][tokenId] +=
+            block.timestamp -
+            cre8ingStarted[_target][tokenId];
+        cre8ingStarted[_target][tokenId] = 0;
+        emit Uncre8ed(_target, tokenId);
+        emit Expelled(_target, tokenId);
+    }
+
     /////////////////////////////////////////////////
-    /// Admin
+    /// INTERNAL
     /////////////////////////////////////////////////
 
-    /// @notice Check if an address has admin access.
+    /// @notice Enter a CRE8OR into the warehouse.
     /// @param _target The target address.
-    /// @param user The user address to check.
-    /// @return true if the address has admin access, false otherwise.
-    function isAdmin(address _target, address user) public view returns (bool) {
-        return IERC721Drop(_target).isAdmin(user);
+    /// @param tokenId The token ID to enter.
+    function _enterWarehouse(address _target, uint256 tokenId) internal {
+        if (!cre8ingOpen[_target]) {
+            revert Cre8ing_Cre8ingClosed();
+        }
+        cre8ingStarted[_target][tokenId] = block.timestamp;
+        emit Cre8ed(_target, tokenId);
+    }
+
+    /// @notice Exit a CRE8OR from the warehouse.
+    /// @param _target The target address.
+    /// @param tokenId The token ID to exit.
+    function _leaveWarehouse(address _target, uint256 tokenId) internal {
+        uint256 start = cre8ingStarted[_target][tokenId];
+        cre8ingTotal[_target][tokenId] += block.timestamp - start;
+        cre8ingStarted[_target][tokenId] = 0;
+        emit Uncre8ed(_target, tokenId);
+    }
+
+    /// @notice Toggle cre8ing status for a specific token.
+    /// @param _target The target address.
+    /// @param tokenId The token ID to toggle.
+    function _toggleCre8ingToken(
+        address _target,
+        uint256 tokenId
+    ) internal onlyApprovedOrOwner(_target, tokenId) {
+        uint256 start = cre8ingStarted[_target][tokenId];
+        if (start == 0) {
+            _enterWarehouse(_target, tokenId);
+        } else {
+            _leaveWarehouse(_target, tokenId);
+        }
     }
 
     /////////////////////////////////////////////////
@@ -206,16 +200,6 @@ contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
             ICre8ors(_target).getApproved(tokenId) != msg.sender
         ) {
             revert IERC721Drop.Access_MissingOwnerOrApproved();
-        }
-
-        _;
-    }
-
-    /// @notice Modifier for admin access only.
-    /// @param _target The target address.
-    modifier onlyAdmin(address _target) {
-        if (!isAdmin(_target, msg.sender)) {
-            revert IERC721Drop.Access_OnlyAdmin();
         }
 
         _;
