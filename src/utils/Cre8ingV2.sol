@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {ICre8ing} from "../interfaces/ICre8ing.sol";
+import {ICre8ingV2} from "../interfaces/ICre8ingV2.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
@@ -17,7 +17,7 @@ import {MinterAdminCheck} from "../minter/MinterAdminCheck.sol";
  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
  */
 /// @dev inspiration: https://etherscan.io/address/0x23581767a106ae21c074b2276d25e5c3e136a68b#code
-contract Cre8ingV2 is ICre8ing, MinterAdminCheck {
+contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
     /// @dev tokenId to cre8ing start time (0 = not cre8ing).
     mapping(address => mapping(uint256 => uint256)) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
@@ -103,7 +103,6 @@ contract Cre8ingV2 is ICre8ing, MinterAdminCheck {
     /// @param _target The target address.
     /// @param tokenId The token ID to exit.
     function leaveWarehouse(address _target, uint256 tokenId) internal {
-        _requireUnlocked(_target, tokenId);
         uint256 start = cre8ingStarted[_target][tokenId];
         cre8ingTotal[_target][tokenId] += block.timestamp - start;
         cre8ingStarted[_target][tokenId] = 0;
@@ -173,13 +172,6 @@ contract Cre8ingV2 is ICre8ing, MinterAdminCheck {
     /// LOCK UP
     /////////////////////////////////////////////////
 
-    /// @notice Get the lockup for an address.
-    /// @param _target The target address.
-    /// @return The lockup contract for the address.
-    function lockUp(address _target) external view returns (ILockup) {
-        return lockup[_target];
-    }
-
     /// @notice Set a new lockup for the target.
     /// @param _target The target address.
     /// @param newLockup The new lockup contract address.
@@ -190,34 +182,16 @@ contract Cre8ingV2 is ICre8ing, MinterAdminCheck {
         lockup[_target] = newLockup;
     }
 
-    function _requireUnlocked(address _target, uint256 tokenId) internal view {
-        if (
-            address(lockup[_target]) != address(0) &&
-            lockup[_target].isLocked(_target, tokenId)
-        ) {
-            revert ILockup.Lockup_Locked();
-        }
-    }
-
-    /// @notice Initialize both staking and lockups for a set of tokens.
+    /// @notice Initialize staking for a set of tokens.
     /// @param _target The target address.
     /// @param _tokenIds Array of token IDs.
-    /// @param _data Additional data for lockup initialization.
-    function inializeStakingAndLockup(
+    function inializeStaking(
         address _target,
-        uint256[] memory _tokenIds,
-        bytes memory _data
-    )
-        external
-        onlyIfLockupSet(_target)
-        onlyMinterOrAdmin(_target)
-        onlyUnstakedTokens(_target, _tokenIds)
-    {
+        uint256[] memory _tokenIds
+    ) external onlyMinterOrAdmin(_target) {
         for (uint256 i = 0; i < _tokenIds.length; ) {
             // start staking
             enterWarehouse(_target, _tokenIds[i]);
-            // set lockup info
-            lockup[_target].setUnlockInfo(_target, _tokenIds[i], _data);
             unchecked {
                 i++;
             }
@@ -261,31 +235,6 @@ contract Cre8ingV2 is ICre8ing, MinterAdminCheck {
             revert IERC721Drop.Access_OnlyAdmin();
         }
 
-        _;
-    }
-
-    /// @notice Modifier for only lockup enabled staking.
-    /// @param _target The target address.
-    modifier onlyIfLockupSet(address _target) {
-        if (address(lockup[_target]) == address(0)) {
-            revert Cre8ing_MissingLockup();
-        }
-
-        _;
-    }
-
-    /**
-     * @dev Modifier to check that the tokens are not currently staked (i.e., cre8ing).
-     * Reverts with 'Cre8ing_Cre8ing' if any of the tokens are staked.
-     * @param _target The target address owning the tokens.
-     * @param _tokenIds Array of token IDs to be checked.
-     */
-    modifier onlyUnstakedTokens(address _target, uint256[] memory _tokenIds) {
-        for (uint256 i = 0; i < _tokenIds.length; i++) {
-            if (cre8ingStarted[_target][_tokenIds[i]] != 0) {
-                revert Cre8ing_Cre8ing();
-            }
-        }
         _;
     }
 }
