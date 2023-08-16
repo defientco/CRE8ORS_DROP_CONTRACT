@@ -3,7 +3,6 @@ pragma solidity ^0.8.15;
 
 import {ICre8ingV2} from "../interfaces/ICre8ingV2.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
-import {ILockup} from "../interfaces/ILockup.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IERC721A} from "erc721a/contracts/IERC721A.sol";
 import {MinterAdminCheck} from "../minter/MinterAdminCheck.sol";
@@ -22,8 +21,6 @@ contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
     mapping(address => mapping(uint256 => uint256)) internal cre8ingStarted;
     /// @dev Cumulative per-token cre8ing, excluding the current period.
     mapping(address => mapping(uint256 => uint256)) internal cre8ingTotal;
-    /// @dev Lockup for target.
-    mapping(address => ILockup) public lockup;
 
     /// @notice Whether cre8ing is currently allowed.
     /// @dev If false then cre8ing is blocked, but uncre8ing is always allowed.
@@ -166,20 +163,6 @@ contract Cre8ingV2 is ICre8ingV2, MinterAdminCheck {
         uint256 tokenId
     ) external view returns (uint256) {
         return cre8ingStarted[_target][tokenId];
-    }
-
-    /////////////////////////////////////////////////
-    /// LOCK UP
-    /////////////////////////////////////////////////
-
-    /// @notice Set a new lockup for the target.
-    /// @param _target The target address.
-    /// @param newLockup The new lockup contract address.
-    function setLockup(
-        address _target,
-        ILockup newLockup
-    ) external onlyAdmin(_target) {
-        lockup[_target] = newLockup;
     }
 
     /// @notice Initialize staking for a set of tokens.

@@ -298,8 +298,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
 
-        // init Lockup
-        setup_lockup();
+        // open Staking
         open_staking();
 
         // buy tokens
@@ -323,9 +322,6 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     ) public {
         vm.assume(_quantity > 0);
         vm.assume(_quantity < 10);
-
-        // init Lockup
-        setup_lockup();
 
         // buy tokens
         cre8orsNFTBase.purchase(_quantity);
@@ -351,8 +347,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.assume(_quantity < 10);
         cre8orsNFTBase.purchase(_quantity);
 
-        // init Lockup & Staking
-        setup_lockup();
+        // open Staking
         open_staking();
 
         // generate list of tokens
@@ -374,8 +369,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.assume(_quantity < 10);
         cre8orsNFTBase.purchase(_quantity);
 
-        // init Lockup & Staking
-        setup_lockup();
+        // open Staking
         open_staking();
 
         // generate list of tokens
@@ -397,8 +391,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         vm.prank(_minter);
         cre8orsNFTBase.purchase(_quantity);
 
-        // init Lockup & Staking
-        setup_lockup();
+        // open Staking
         open_staking();
 
         // generate list of tokens
@@ -419,14 +412,6 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
 
         // assertions
         verifyStaked(_tokenIds.length, true);
-    }
-
-    function setup_lockup() internal {
-        // give Staking contract Minter Role
-        grant_minter_role(address(cre8ingBase));
-        // Set Lockup on Staking Contract
-        vm.prank(DEFAULT_OWNER_ADDRESS);
-        cre8ingBase.setLockup(address(cre8orsNFTBase), lockup);
     }
 
     function grant_minter_role(address _minter) internal {
