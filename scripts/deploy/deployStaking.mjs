@@ -16,3 +16,5 @@ export async function deployStaking() {
   console.log("make sure to call setCre8ingOpen on core cre8ing");
   return contract.deployed;
 }
+
+await deployStaking();
