@@ -98,4 +98,9 @@ contract Cre8orTestBase is Test {
         );
         return tokenBoundAccount;
     }
+
+    function _assumeUint256(uint256 _num) internal pure {
+        vm.assume(_num > 0);
+        vm.assume(_num < 999);
+    }
 }

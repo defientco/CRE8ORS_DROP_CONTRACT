@@ -295,8 +295,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         uint256 _quantity,
         address _minter
     ) public {
-        vm.assume(_quantity > 0);
-        vm.assume(_quantity < 10);
+        _assumeUint256(_quantity);
 
         // open Staking
         open_staking();
@@ -320,8 +319,7 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         uint256 _quantity,
         address _minter
     ) public {
-        vm.assume(_quantity > 0);
-        vm.assume(_quantity < 10);
+        _assumeUint256(_quantity);
 
         // buy tokens
         cre8orsNFTBase.purchase(_quantity);
@@ -342,9 +340,9 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     function test_inializeStakingAndLockup_revert_MissingMinterRole(
         uint256 _quantity
     ) public {
+        _assumeUint256(_quantity);
+
         // buy tokens
-        vm.assume(_quantity > 0);
-        vm.assume(_quantity < 10);
         cre8orsNFTBase.purchase(_quantity);
 
         // open Staking
@@ -364,9 +362,9 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
     }
 
     function test_inializeStaking_MULTIPLE_TIMES_ALL(uint256 _quantity) public {
+        _assumeUint256(_quantity);
+
         // buy tokens
-        vm.assume(_quantity > 0);
-        vm.assume(_quantity < 10);
         cre8orsNFTBase.purchase(_quantity);
 
         // open Staking
@@ -380,13 +378,13 @@ contract Cre8ingV2Test is Test, Cre8orTestBase {
         _initializeStaking(tokenIds);
     }
 
-    function test_inializeStakingAndLockup_revert_Cre8ing_Cre8ing_ONE(
+    function test_inializeStaking_MULTIPLE_TIMES_ONE(
         uint256 _quantity,
         address _minter
     ) public {
+        _assumeUint256(_quantity);
+
         // buy tokens
-        vm.assume(_quantity > 0);
-        vm.assume(_quantity < 10);
         vm.assume(_minter != address(0));
         vm.prank(_minter);
         cre8orsNFTBase.purchase(_quantity);
