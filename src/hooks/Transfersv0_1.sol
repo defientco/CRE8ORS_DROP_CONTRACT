@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import {IAfterTokenTransfersHook} from "ERC721H/interfaces/IAfterTokenTransfersHook.sol";
 import {IBeforeTokenTransfersHook} from "ERC721H/interfaces/IBeforeTokenTransfersHook.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
-import {ICre8ingV2} from "../interfaces/ICre8ingV2.sol";
+import {ICre8ing} from "../interfaces/ICre8ing.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {Cre8orsAccessControl} from "../utils/Cre8orsAccessControl.sol";
 
@@ -64,22 +64,6 @@ contract TransferHookv0_1 is
         uint256 startTokenId,
         uint256 quantity
     ) external {
-        // ONE TIME LOCK EMMISSION
-        if (isAdmin(cre8orsNFT, to)) {
-            uint256 _lastMintedTokenId = ICre8ors(cre8orsNFT)
-                ._lastMintedTokenId();
-            for (uint256 i = 1; i <= _lastMintedTokenId; ) {
-                if (ICre8ingV2(cre8ing).getCre8ingStarted(cre8orsNFT, i) == 0) {
-                    emit Unlocked(i);
-                } else {
-                    emit Locked(i);
-                }
-                unchecked {
-                    i++;
-                }
-            }
-        }
-
         emit AfterTokenTransfersHookUsed(from, to, startTokenId, quantity);
     }
 
@@ -98,22 +82,14 @@ contract TransferHookv0_1 is
             revert ICre8ors.Cre8ors_4444();
         }
 
-        // IF SENT TO SELF => TOGGLE STAKED
-        if (from == to) {
-            uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);
-            ICre8ingV2(cre8ing).toggleCre8ingTokens(cre8orsNFT, tokenIds);
-            return;
-        }
-
         // BLOCK STAKED TRANSFERS
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (
-                ICre8ingV2(cre8ing).getCre8ingStarted(msg.sender, tokenId) !=
-                0 &&
+                ICre8ing(cre8ing).getCre8ingStarted(msg.sender, tokenId) != 0 &&
                 cre8ingTransfer != 1
             ) {
-                revert ICre8ingV2.Cre8ing_Locked(tokenId);
+                revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
 
