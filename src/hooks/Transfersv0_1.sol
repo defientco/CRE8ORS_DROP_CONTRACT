@@ -8,19 +8,32 @@ import {ICre8ingV2} from "../interfaces/ICre8ingV2.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {Cre8orsAccessControl} from "../utils/Cre8orsAccessControl.sol";
 
+/**
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
+ */
+/// @title Transfer Hook for Cre8ors
+/// @notice This contract defines the behavior of token transfers for the Cre8ors platform,
+///         both before and after the actual transfer.
+/// @dev Implements the IAfterTokenTransfersHook and IBeforeTokenTransfersHook interfaces.
 contract TransferHookv0_1 is
     IAfterTokenTransfersHook,
     IBeforeTokenTransfersHook,
     Cre8orsAccessControl
 {
+    /// @notice Event emitted when a token is locked.
     event Locked(uint256 tokenId);
 
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
-    ///@notice The address of the collection contract for Staking.
+    ///@notice The address of the contract for Staking.
     address public cre8ing;
 
-    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 2 then
+    /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 1 then
     /// the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 cre8ingTransfer;
 
@@ -39,6 +52,10 @@ contract TransferHookv0_1 is
     }
 
     /// @notice Custom implementation for AfterTokenTransfers Hook.
+    /// @param from Address from which tokens are transferred.
+    /// @param to Address to which tokens are transferred.
+    /// @param startTokenId The starting ID of the token being transferred.
+    /// @param quantity The number of tokens to transfer.
     function afterTokenTransfersHook(
         address from,
         address to,
@@ -53,7 +70,11 @@ contract TransferHookv0_1 is
         emit AfterTokenTransfersHookUsed(from, to, startTokenId, quantity);
     }
 
-    // /// @notice Custom implementation for BeforeTokenTransfers Hook.
+    /// @notice Custom implementation for BeforeTokenTransfers Hook.
+    /// @param from Address from which tokens are transferred.
+    /// @param to Address to which tokens are transferred.
+    /// @param startTokenId The starting ID of the token being transferred.
+    /// @param quantity The number of tokens to transfer.
     function beforeTokenTransfersHook(
         address from,
         address to,
@@ -83,7 +104,10 @@ contract TransferHookv0_1 is
     }
 
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
-    ///  thus not resetting the cre8ing period.
+    ///         thus not resetting the cre8ing period.
+    /// @param from The address sending the token.
+    /// @param to The address receiving the token.
+    /// @param tokenId The ID of the token to be transferred.
     function safeTransferWhileCre8ing(
         address from,
         address to,
@@ -98,6 +122,8 @@ contract TransferHookv0_1 is
         cre8ingTransfer = 0;
     }
 
+    /// @notice Set the address of the Cre8ing contract.
+    /// @param _cre8ing The address of the Cre8ing contract.
     function setCre8ing(
         address _cre8ing
     ) external virtual onlyAdmin(cre8orsNFT) {
