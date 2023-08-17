@@ -53,38 +53,37 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
         _setupErc6551();
     }
 
-    function test_transfer_LockedEmit(uint256 _tokenId) public {
+    function test_transferSelfAdmin_emits_allstaking(uint256 _tokenId) public {
         _assumeUint256(_tokenId);
 
-        for (uint256 i = 1; i <= _tokenId; i++) {
-            _expectLockedEmit(i);
-        }
-
-        vm.prank(DEFAULT_BUYER_ADDRESS);
+        _expectAllUnlocked(_tokenId);
+        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.purchase(_tokenId);
+
+        // test - transfer to self toggles (locks) token
+        _expectAllUnlockedExceptTokenId(_tokenId);
+        _transferToSelf(DEFAULT_OWNER_ADDRESS, _tokenId);
+        // test - transfer to self toggles (unlocks) token
+        _expectAllUnlocked(_tokenId);
+        _transferToSelf(DEFAULT_OWNER_ADDRESS, _tokenId);
     }
 
     function test_transferSelf_toggles_staking(uint256 _tokenId) public {
-        // chain previous test
-        test_transfer_LockedEmit(_tokenId);
+        _assumeUint256(_tokenId);
+
+        vm.prank(DEFAULT_BUYER_ADDRESS);
+        cre8orsNFTBase.purchase(_tokenId);
 
         // test - transfer to self toggles (locks) token
-        _transferToSelf(DEFAULT_BUYER_ADDRESS, _tokenId, true);
+        _expectLockedEmit(_tokenId);
+        _transferToSelf(DEFAULT_BUYER_ADDRESS, _tokenId);
         // test - transfer to self toggles (unlocks) token
-        _transferToSelf(DEFAULT_BUYER_ADDRESS, _tokenId, false);
+        _expectUnlockedEmit(_tokenId);
+        _transferToSelf(DEFAULT_BUYER_ADDRESS, _tokenId);
     }
 
     /// HELPER FUNCTIONS ///
-    function _transferToSelf(
-        address _self,
-        uint256 _tokenId,
-        bool _expectLocked
-    ) internal {
-        if (_expectLocked) {
-            _expectLockedEmit(_tokenId);
-        } else {
-            _expectUnlockedEmit(_tokenId);
-        }
+    function _transferToSelf(address _self, uint256 _tokenId) internal {
         vm.prank(_self);
         cre8orsNFTBase.transferFrom(_self, _self, _tokenId);
     }
@@ -96,6 +95,32 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
             address(_assignee)
         );
         vm.stopPrank();
+    }
+
+    function _expectAllUnlocked(uint256 _tokenId) internal {
+        for (uint256 i = 1; i <= _tokenId; i++) {
+            _expectUnlockedEmit(i);
+        }
+    }
+
+    function _expectAllUnlockedExceptTokenId(uint256 _tokenId) internal {
+        for (uint256 i = 1; i <= _tokenId; i++) {
+            if (i != _tokenId) {
+                _expectUnlockedEmit(i);
+            } else {
+                _expectLockedEmit(i);
+            }
+        }
+    }
+
+    function _expectLockedEmit(uint256 _tokenId) internal {
+        vm.expectEmit(true, true, true, true);
+        emit Locked(_tokenId);
+    }
+
+    function _expectUnlockedEmit(uint256 _tokenId) internal {
+        vm.expectEmit(true, true, true, true);
+        emit Unlocked(_tokenId);
     }
 
     /// SETUP CONTRACT FUNCTIONS ///
@@ -136,15 +161,5 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
 
         return transferHookv0_1;
-    }
-
-    function _expectLockedEmit(uint256 _tokenId) internal {
-        vm.expectEmit(true, true, true, true);
-        emit Locked(_tokenId);
-    }
-
-    function _expectUnlockedEmit(uint256 _tokenId) internal {
-        vm.expectEmit(true, true, true, true);
-        emit Unlocked(_tokenId);
     }
 }

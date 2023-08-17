@@ -27,6 +27,8 @@ contract TransferHookv0_1 is
 {
     /// @notice Event emitted when a token is locked.
     event Locked(uint256 tokenId);
+    /// @notice Event emitted when a token is unlocked.
+    event Unlocked(uint256 tokenId);
 
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
@@ -63,8 +65,19 @@ contract TransferHookv0_1 is
         uint256 quantity
     ) external {
         // ONE TIME LOCK EMMISSION
-        for (uint256 i = 0; i < startTokenId + quantity; i++) {
-            emit Locked(i + 1);
+        if (isAdmin(cre8orsNFT, to)) {
+            uint256 _lastMintedTokenId = ICre8ors(cre8orsNFT)
+                ._lastMintedTokenId();
+            for (uint256 i = 1; i <= _lastMintedTokenId; ) {
+                if (ICre8ingV2(cre8ing).getCre8ingStarted(cre8orsNFT, i) == 0) {
+                    emit Unlocked(i);
+                } else {
+                    emit Locked(i);
+                }
+                unchecked {
+                    i++;
+                }
+            }
         }
 
         emit AfterTokenTransfersHookUsed(from, to, startTokenId, quantity);
@@ -81,8 +94,6 @@ contract TransferHookv0_1 is
         uint256 startTokenId,
         uint256 quantity
     ) external {
-        emit BeforeTokenTransfersHookUsed(from, to, startTokenId, quantity);
-
         // IF SENT TO SELF => TOGGLE STAKED
         if (from == to) {
             uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);
@@ -101,6 +112,8 @@ contract TransferHookv0_1 is
                 revert ICre8ingV2.Cre8ing_Locked(tokenId);
             }
         }
+
+        emit BeforeTokenTransfersHookUsed(from, to, startTokenId, quantity);
     }
 
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,

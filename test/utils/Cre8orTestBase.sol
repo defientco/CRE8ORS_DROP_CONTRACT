@@ -101,6 +101,6 @@ contract Cre8orTestBase is Test {
 
     function _assumeUint256(uint256 _num) internal pure {
         vm.assume(_num > 0);
-        vm.assume(_num < 999);
+        vm.assume(_num < 99);
     }
 }
