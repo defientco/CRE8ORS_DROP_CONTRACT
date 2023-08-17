@@ -7,7 +7,7 @@ dotenv.config({
 
 export async function deployStaking() {
   console.log("deploying Staking");
-  const contractLocation = "src/utils/Cre8ingV2.sol:Cre8ingV2";
+  const contractLocation = "src/Cre8ing.sol:Cre8ing";
   const args = null;
   const contract = await deployAndVerify(contractLocation, args);
   const contractAddress = contract.deployed.deploy.deployedTo;
@@ -16,5 +16,3 @@ export async function deployStaking() {
   console.log("make sure to call setCre8ingOpen on core cre8ing");
   return contract.deployed;
 }
-
-await deployStaking();
