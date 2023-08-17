@@ -195,9 +195,11 @@ contract Cre8ingV2 is ICre8ingV2, Cre8orsAccessControl {
     /// @param _target The target address.
     /// @param tokenId The token ID to verify.
     modifier onlyApprovedOrOwner(address _target, uint256 tokenId) {
+        address nftOwner = ICre8ors(_target).ownerOf(tokenId);
+
         if (
-            ICre8ors(_target).ownerOf(tokenId) != msg.sender &&
-            ICre8ors(_target).getApproved(tokenId) != msg.sender
+            nftOwner != msg.sender &&
+            !ICre8ors(_target).isApprovedForAll(nftOwner, msg.sender)
         ) {
             revert IERC721Drop.Access_MissingOwnerOrApproved();
         }

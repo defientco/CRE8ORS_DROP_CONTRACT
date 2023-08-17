@@ -22,10 +22,20 @@ interface ICre8ingV2 {
     error Cre8ing_NotCre8ing(address, uint256 tokenId);
     /// @notice Cre8ing Closed
     error Cre8ing_Cre8ingClosed();
+    /// @notice Token Locked
+    error Cre8ing_Locked(uint256 tokenId);
 
     /////////////////////////////////////////////////
     /// FUNCTIONS
     /////////////////////////////////////////////////
+    /// @notice Toggles cre8ing status for multiple tokens.
+    /// @param _target The target address.
+    /// @param tokenIds Array of token IDs to toggle.
+    function toggleCre8ingTokens(
+        address _target,
+        uint256[] calldata tokenIds
+    ) external;
+
     /// @notice Cre8ing period
     function cre8ingPeriod(
         address,
