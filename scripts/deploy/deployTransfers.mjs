@@ -8,9 +8,7 @@ dotenv.config({
 export async function deployTransfers(cre8orsNftAddress) {
   console.log("deploying Transferv0.1 Hook");
   const contractLocation = "src/hooks/Transfersv0_1.sol:TransferHookv0_1";
-  const ERC6551Registry = "0x0000000000000000000000000000000000000000"; // https://docs.tokenbound.org/contracts/deployments#registry
-  const ERC6551Implementation = "0x0000000000000000000000000000000000000000"; // https://docs.tokenbound.org/contracts/deployments#account-implementation
-  const args = [cre8orsNftAddress, ERC6551Registry, ERC6551Implementation];
+  const args = [cre8orsNftAddress];
   const contract = await deployAndVerify(contractLocation, args);
   const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed transfer hook to ", contractAddress);

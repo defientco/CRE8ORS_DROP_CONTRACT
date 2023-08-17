@@ -94,6 +94,10 @@ contract TransferHookv0_1 is
         uint256 startTokenId,
         uint256 quantity
     ) external {
+        if (startTokenId + quantity > 4445) {
+            revert ICre8ors.Cre8ors_4444();
+        }
+
         // IF SENT TO SELF => TOGGLE STAKED
         if (from == to) {
             uint256[] memory tokenIds = getTokenIds(startTokenId, quantity);

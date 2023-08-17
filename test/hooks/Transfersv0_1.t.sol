@@ -82,6 +82,19 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
         _transferToSelf(DEFAULT_BUYER_ADDRESS, _tokenId);
     }
 
+    function test_4444() public {
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+
+        for (; cre8orsNFTBase.totalSupply() < 4444; ) {
+            cre8orsNFTBase.purchase(4);
+        }
+
+        assertEq(cre8orsNFTBase.totalSupply(), 4444);
+
+        vm.expectRevert(ICre8ors.Cre8ors_4444.selector);
+        cre8orsNFTBase.purchase(1);
+    }
+
     /// HELPER FUNCTIONS ///
     function _transferToSelf(address _self, uint256 _tokenId) internal {
         vm.prank(_self);
