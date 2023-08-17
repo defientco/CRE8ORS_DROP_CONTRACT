@@ -25,16 +25,10 @@ contract TransferHookv0_1 is
     IBeforeTokenTransfersHook,
     Cre8orsAccessControl
 {
-    /// @notice Event emitted when a token is locked.
-    event Locked(uint256 tokenId);
-    /// @notice Event emitted when a token is unlocked.
-    event Unlocked(uint256 tokenId);
-
     ///@notice The address of the collection contract that mints and manages the tokens.
     address public cre8orsNFT;
     ///@notice The address of the contract for Staking.
     address public cre8ing;
-
     /// @dev MUST only be modified by safeTransferWhileCre8ing(); if set to 1 then
     /// the _beforeTokenTransfer() block while cre8ing is disabled.
     uint256 cre8ingTransfer;
@@ -78,11 +72,19 @@ contract TransferHookv0_1 is
         uint256 startTokenId,
         uint256 quantity
     ) external {
+        emit BeforeTokenTransfersHookUsed(from, to, startTokenId, quantity);
+
+        // only allow 4444 mints
         if (startTokenId + quantity > 4445) {
             revert ICre8ors.Cre8ors_4444();
         }
 
-        // BLOCK STAKED TRANSFERS
+        // save gas on mints
+        if (from == address(0)) {
+            return;
+        }
+
+        // block staked transfers
         uint256 tokenId = startTokenId;
         for (uint256 end = tokenId + quantity; tokenId < end; ++tokenId) {
             if (
@@ -92,8 +94,6 @@ contract TransferHookv0_1 is
                 revert ICre8ing.Cre8ing_Cre8ing();
             }
         }
-
-        emit BeforeTokenTransfersHookUsed(from, to, startTokenId, quantity);
     }
 
     /// @notice Transfer a token between addresses while the CRE8OR is cre8ing,
