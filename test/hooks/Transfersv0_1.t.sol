@@ -5,51 +5,30 @@ pragma solidity ^0.8.15;
 import {DSTest} from "ds-test/test.sol";
 // interface imports
 import {ICre8ors} from "../../src/interfaces/ICre8ors.sol";
-import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
-import {IMinterUtilities} from "../../src/interfaces/IMinterUtilities.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 // contract imports
-import {Cre8ors} from "../../src/Cre8ors.sol";
 import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
-import {FriendsAndFamilyMinter} from "../../src/minter/FriendsAndFamilyMinter.sol";
-import {MinterUtilities} from "../../src/utils/MinterUtilities.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {TransferHookv0_1} from "../../src/hooks/Transfersv0_1.sol";
 
 contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
-    FriendsAndFamilyMinter public minter;
-    MinterUtilities public minterUtility;
     Cre8ing public cre8ingBase;
     TransferHookv0_1 transferHookv0_1;
-    address public familyMinter = address(0x1234567);
-
-    event Locked(uint256 tokenId);
-    event Unlocked(uint256 tokenId);
 
     uint64 public constant ONE_YEAR_DURATION = 365 days;
 
     function setUp() public {
+        // setup base cre8ors
         Cre8orTestBase.cre8orSetup();
-        minterUtility = new MinterUtilities(
-            address(cre8orsNFTBase),
-            50000000000000000,
-            100000000000000000,
-            150000000000000000
-        );
-
-        minter = new FriendsAndFamilyMinter(
-            address(cre8orsNFTBase),
-            address(minterUtility)
-        );
-
+        // setup hooks
         transferHookv0_1 = _setupTransferHook();
-
+        // setup staking
         cre8ingBase = new Cre8ing();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         transferHookv0_1.setCre8ing(address(cre8ingBase));
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
         vm.stopPrank();
-
+        // setup ERC6551
         _setupErc6551();
     }
 
@@ -93,36 +72,7 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
     }
 
-    function _expectLockedEmit(uint256 _tokenId) internal {
-        vm.expectEmit(true, true, true, true);
-        emit Locked(_tokenId);
-    }
-
-    function _expectUnlockedEmit(uint256 _tokenId) internal {
-        vm.expectEmit(true, true, true, true);
-        emit Unlocked(_tokenId);
-    }
-
     /// SETUP CONTRACT FUNCTIONS ///
-
-    function _setupMinter() internal {
-        bytes32 role = cre8orsNFTBase.MINTER_ROLE();
-        vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        cre8orsNFTBase.grantRole(role, address(minter));
-        cre8orsNFTBase.grantRole(
-            cre8orsNFTBase.MINTER_ROLE(),
-            address(cre8ingBase)
-        );
-        cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
-
-        assertTrue(
-            cre8orsNFTBase.hasRole(
-                cre8orsNFTBase.MINTER_ROLE(),
-                address(minter)
-            )
-        );
-        vm.stopPrank();
-    }
 
     function _setupTransferHook() internal returns (TransferHookv0_1) {
         transferHookv0_1 = new TransferHookv0_1(address(cre8orsNFTBase));
