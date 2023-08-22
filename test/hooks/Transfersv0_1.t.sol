@@ -10,6 +10,7 @@ import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
 import {Cre8ing} from "../../src/Cre8ing.sol";
 import {TransferHookv0_1} from "../../src/hooks/Transfersv0_1.sol";
+import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
 
 contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
     Cre8ing public cre8ingBase;
@@ -20,16 +21,33 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
     function setUp() public {
         // setup base cre8ors
         Cre8orTestBase.cre8orSetup();
-        // setup hooks
-        transferHookv0_1 = _setupTransferHook();
         // setup staking
         cre8ingBase = new Cre8ing();
+        // setup hooks
+        transferHookv0_1 = _setupTransferHook();
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
-        transferHookv0_1.setCre8ing(address(cre8ingBase));
         cre8ingBase.setCre8ingOpen(address(cre8orsNFTBase), true);
         vm.stopPrank();
         // setup ERC6551
         _setupErc6551();
+    }
+
+    function test_cre8ing_revert_Access_OnlyAdmin(address _newCre8ing) public {
+        _assertCre8ing(address(cre8ingBase));
+
+        vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
+        _setCre8ing(_newCre8ing);
+
+        _assertCre8ing(address(cre8ingBase));
+    }
+
+    function test_cre8ing(address _newCre8ing) public {
+        _assertCre8ing(address(cre8ingBase));
+
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        _setCre8ing(_newCre8ing);
+
+        _assertCre8ing(_newCre8ing);
     }
 
     function test_transferToSelf(uint256 _tokenId) public {
@@ -75,7 +93,10 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
     /// SETUP CONTRACT FUNCTIONS ///
 
     function _setupTransferHook() internal returns (TransferHookv0_1) {
-        transferHookv0_1 = new TransferHookv0_1(address(cre8orsNFTBase));
+        transferHookv0_1 = new TransferHookv0_1(
+            address(cre8orsNFTBase),
+            address(cre8ingBase)
+        );
         _setMinterRole(address(transferHookv0_1));
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
@@ -91,5 +112,13 @@ contract TransferHookv0_1Test is DSTest, Cre8orTestBase {
         vm.stopPrank();
 
         return transferHookv0_1;
+    }
+
+    function _assertCre8ing(address _cre8ing) internal {
+        assertEq(transferHookv0_1.cre8ing(), _cre8ing);
+    }
+
+    function _setCre8ing(address _newCre8ing) internal {
+        transferHookv0_1.setCre8ing(_newCre8ing);
     }
 }

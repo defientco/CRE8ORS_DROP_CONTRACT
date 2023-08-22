@@ -35,8 +35,10 @@ contract TransferHookv0_1 is
 
     /// @notice Initializes the contract with the address of the Cre8orsNFT contract.
     /// @param _cre8orsNFT The address of the Cre8orsNFT contract to be used.
-    constructor(address _cre8orsNFT) {
+    /// @param _cre8ing The address of the Staking contract to be used.
+    constructor(address _cre8orsNFT, address _cre8ing) {
         cre8orsNFT = _cre8orsNFT;
+        cre8ing = _cre8ing;
     }
 
     /// @notice Set the Cre8orsNFT contract address.
