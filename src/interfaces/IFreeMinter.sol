@@ -9,7 +9,7 @@ interface IFreeMinter {
     function mint(
         uint256[] calldata passportTokenIDs,
         address recipient
-    ) external;
+    ) external returns (uint256);
 
     function addDiscount(address[] calldata recipient) external;
 

@@ -61,20 +61,23 @@ contract FreeMinter is IFreeMinter {
         noDuplicates(passportTokenIDs)
         onlyTokenOwner(passportTokenIDs, recipient)
         hasFreeMint(passportTokenIDs, recipient)
+        returns (uint256)
     {
         uint256 totalQuantity = _getTotalMintQuantity(
             passportTokenIDs,
             recipient
         );
 
-        uint256[] memory _pfpTokenIds = _mint(recipient, totalQuantity);
-
-        _lockup(_pfpTokenIds);
+        uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(
+            recipient,
+            totalQuantity
+        );
 
         totalClaimed[recipient] += totalQuantity;
         _setpassportTokenIDsToClaimed(passportTokenIDs);
         // Reset discount for the recipient
         hasDiscount[recipient] = false;
+        return pfpTokenId;
     }
 
     /// @dev Grants a discount to the specified array of recipients, allowing them to mint tokens without paying the regular price.
@@ -101,44 +104,6 @@ contract FreeMinter is IFreeMinter {
     //////////////////////////////////////////
     ////////////Internal Functions////////////
     //////////////////////////////////////////
-
-    function _mint(
-        address recipient,
-        uint256 totalMintQuantity
-    ) internal returns (uint256[] memory _pfpTokenIds) {
-        uint256 pfpTokenId = ICre8ors(cre8orsNFT).adminMint(
-            recipient,
-            totalMintQuantity
-        );
-        _pfpTokenIds = new uint256[](totalMintQuantity);
-        uint256 startingTokenId = pfpTokenId - totalMintQuantity + 1;
-        for (uint256 i = 0; i < totalMintQuantity; ) {
-            _pfpTokenIds[i] = startingTokenId + i;
-            unchecked {
-                i++;
-            }
-        }
-        return _pfpTokenIds;
-    }
-
-    function _lockup(uint256[] memory _pfpTokenIds) internal {
-        ILockup lockup = ICre8ors(
-            IERC721ACH(cre8orsNFT).getHook(
-                IERC721ACH.HookType.BeforeTokenTransfers
-            )
-        ).cre8ing().lockUp(cre8orsNFT);
-        uint256 lockupDate = block.timestamp + 8 weeks;
-        uint256 unlockPrice = 0.15 ether;
-        bytes memory data = abi.encode(lockupDate, unlockPrice);
-        if (address(lockup) != address(0)) {
-            for (uint256 i = 0; i < _pfpTokenIds.length; ) {
-                lockup.setUnlockInfo(cre8orsNFT, _pfpTokenIds[i], data);
-                unchecked {
-                    i++;
-                }
-            }
-        }
-    }
 
     function _getTotalMintQuantity(
         uint256[] calldata passportTokenIDs,
