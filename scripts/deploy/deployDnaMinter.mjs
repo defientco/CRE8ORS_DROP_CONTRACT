@@ -19,3 +19,8 @@ export async function deployDnaMinter(_cre8orsNft, _dnaNft) {
   );
   return contract.deployed;
 }
+
+const GOERLI_CRE8ORS = "0x68C885f0954094C59847E6FeB252Fe5B4b0451Ba";
+const GOERLI_DNA = "0x603c50934b157776D8EbA39e628eE59Bf6230915";
+
+deployDnaMinter(GOERLI_CRE8ORS, GOERLI_DNA);
