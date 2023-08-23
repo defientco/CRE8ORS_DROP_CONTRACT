@@ -23,4 +23,7 @@ export async function deployTransfers(cre8orsNftAddress, stakingAddress) {
 
 const GOERLI_CRE8ORS = "0x68C885f0954094C59847E6FeB252Fe5B4b0451Ba";
 const GOERLI_STAKING = "0x0c0a5BE4119A5f121C5928eAE3f61d09Db3c4a7d";
-await deployTransfers(GOERLI_CRE8ORS, GOERLI_STAKING);
+
+const MAINNET_CRE8ORS = "0x8ddef0396d4b61fcbb0e4a821dfac52c011f79da";
+const MAINNET_STAKING = "0xF7bfF0B8E59143a39271a4cA1B2D8De65FF7E658";
+await deployTransfers(MAINNET_CRE8ORS, MAINNET_STAKING);
