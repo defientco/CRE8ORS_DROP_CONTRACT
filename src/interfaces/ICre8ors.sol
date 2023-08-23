@@ -17,6 +17,9 @@ import {ISubscription} from "../subscription/interfaces/ISubscription.sol";
 */
 /// @notice Interface for Cre8ors Drops contract
 interface ICre8ors is IERC721Drop, IERC721A {
+    /// @notice Error emitted when trying to mint more than 4444.
+    error Cre8ors_4444();
+
     function cre8ing() external view returns (ICre8ing);
 
     /// @notice Getter for last minted token ID (gets next token id and subtracts 1)

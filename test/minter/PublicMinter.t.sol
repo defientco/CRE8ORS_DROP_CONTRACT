@@ -237,8 +237,6 @@ contract PublicMinterTest is DSTest, Cre8orTestBase {
                 _carts
             ) < 8
         );
-        uint256 totalQuantity = IMinterUtilities(address(minterUtility))
-            .calculateTotalQuantity(_carts);
         uint256 totalPrice = IMinterUtilities(address(minterUtility))
             .calculateTotalCost(_carts);
 
