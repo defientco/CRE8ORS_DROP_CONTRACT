@@ -79,6 +79,25 @@ contract MinterUtilities is IMinterUtilities {
         return maxQuantity - totalMints;
     }
 
+    /// @dev Retrieves the quantity of items remaining that can be minted by the specified recipient.
+    /// @param freeMinter The address of the free minter contract.
+    /// @param recipient The recipient address for which the quantity is to be calculated.
+    /// @return The quantity of items that can be minted by the specified recipient.
+    function quantityLeft(
+        address freeMinter,
+        address recipient
+    ) external view returns (uint256) {
+        uint256 totalMints = ICre8ors(cre8orsNFT)
+            .mintedPerAddress(recipient)
+            .totalMints;
+        uint256 maxQuantity = maxAllowedQuantity(18);
+
+        if (maxQuantity < totalMints) {
+            return 0;
+        }
+        return maxQuantity - totalMints;
+    }
+
     /// @dev Calculates the total cost of all items in the given carts array.
     /// @param carts An array of Cart structs containing information about each item in the cart.
     /// @return The total cost of all items in the carts array.

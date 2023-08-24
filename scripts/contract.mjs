@@ -24,7 +24,8 @@ export async function deploy(contract, args = undefined) {
       '--rpc-url',
       process.env.ETH_RPC_URL,
       ...constructorArgs,
-      '--json'
+      '--json',
+      '--legacy'
     ].join(' ')
   );
   if (stderr) {
