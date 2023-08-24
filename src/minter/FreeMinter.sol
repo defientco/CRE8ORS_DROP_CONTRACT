@@ -4,7 +4,6 @@ pragma solidity ^0.8.15;
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
-import {ILockup} from "../interfaces/ILockup.sol";
 import {IFreeMinter} from "../interfaces/IFreeMinter.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
