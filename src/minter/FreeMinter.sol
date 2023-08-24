@@ -68,7 +68,7 @@ contract FreeMinter is IFreeMinter {
                 hasDiscount[recipient[i]] = true;
             }
             unchecked {
-                i += 1;
+                ++i;
             }
         }
     }
