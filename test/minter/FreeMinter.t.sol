@@ -45,28 +45,17 @@ contract FreeMinterTest is DSTest, StdUtils, Cre8orTestBase {
         for (uint256 i = 0; i < 4; i++) {
             tokenIds[i] = i + 1;
         }
-        address[] memory addresses = new address[](1);
-        addresses[0] = address(0x12345);
         cre8orsNFTBase = _setUpContracts();
         cre8ingBase = new Cre8ing();
         freeMinter = new FreeMinter({
             _cre8orsNFT: address(cre8orsNFTBase),
             _passportContractAddress: address(cre8orsPassport),
-            _usedPassportTokenIds: tokenIds,
-            _discountClaimedAddresses: addresses
+            _usedPassportTokenIds: tokenIds
         });
         subscription = _setupSubscription();
 
         transferHook = _setupTransferHook();
         ownerOfHook = _setupOwnerOfHook();
-    }
-
-    function testAlreadyClaimedQuantity() public {
-        assertEq(
-            freeMinter.totalClaimed(address(0x12345)),
-            5,
-            "should have claimed 5"
-        );
     }
 
     function testSuccessPassportFreeMint(address _buyer) public {

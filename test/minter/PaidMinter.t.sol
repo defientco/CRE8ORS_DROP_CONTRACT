@@ -56,8 +56,7 @@ contract PaidMinterTest is DSTest, Cre8orTestBase {
         freeMinter = new FreeMinter(
             address(cre8orsNFTBase),
             address(cre8orsPassport),
-            new uint256[](0),
-            new address[](0)
+            new uint256[](0)
         );
 
         cre8ingBase = new Cre8ing();
@@ -149,28 +148,6 @@ contract PaidMinterTest is DSTest, Cre8orTestBase {
         vm.prank(address(0x25));
         vm.expectRevert(IERC721Drop.Presale_MerkleNotApproved.selector);
         minter.mint{value: totalPrice}(address(0x25), _carts, item.proof);
-
-        // Subscription Asserts
-        _revertCaseAssertionsForSubscriptions();
-    }
-
-    function testRevertTooMuchQuantity() public {
-        _updateMerkleRoot();
-        uint256[] memory _carts = new uint256[](3);
-        _carts[0] = bound(_carts[0], 18, 28);
-        _carts[1] = bound(_carts[0], 18, 28);
-        _carts[2] = bound(_carts[0], 18, 28);
-        _setUpMinter();
-
-        MerkleData.MerkleEntry memory item;
-        item = merkleData.getTestSetByName("test-allowlist-minter").entries[0];
-        uint256 totalPrice = IMinterUtilities(address(minterUtility))
-            .calculateTotalCost(_carts);
-
-        vm.deal(item.user, totalPrice);
-        vm.prank(item.user);
-        vm.expectRevert(IERC721Drop.Purchase_TooManyForAddress.selector);
-        minter.mint{value: totalPrice}(item.user, _carts, item.proof);
 
         // Subscription Asserts
         _revertCaseAssertionsForSubscriptions();

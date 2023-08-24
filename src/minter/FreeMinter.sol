@@ -5,7 +5,6 @@ import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {ILockup} from "../interfaces/ILockup.sol";
-import {IMinterUtilities} from "../interfaces/IMinterUtilities.sol";
 import {IFreeMinter} from "../interfaces/IFreeMinter.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
@@ -19,17 +18,13 @@ contract FreeMinter is IFreeMinter {
     ///@notice The address of the passport contract.
     address public passportContractAddress;
 
-    ///@notice mapping of address to quantity of free mints claimed.
-    mapping(address => uint256) public totalClaimed;
-
     ///@notice Mapping to track whether an address has discount for free mint.
     mapping(address => bool) public hasDiscount;
 
     constructor(
         address _cre8orsNFT,
         address _passportContractAddress,
-        uint256[] memory _usedPassportTokenIds,
-        address[] memory _discountClaimedAddresses
+        uint256[] memory _usedPassportTokenIds
     ) {
         cre8orsNFT = _cre8orsNFT;
         passportContractAddress = _passportContractAddress;
@@ -37,19 +32,6 @@ contract FreeMinter is IFreeMinter {
         // set passports to have claimed a free mint
         for (uint256 i = 0; i < _usedPassportTokenIds.length; i++) {
             freeMintClaimed[_usedPassportTokenIds[i]] = true;
-        }
-
-        // set addresses to have claimed a free mint
-        for (uint256 i = 0; i < _usedPassportTokenIds.length; i++) {
-            address owner = IERC721A(_passportContractAddress).ownerOf(
-                _usedPassportTokenIds[i]
-            );
-            totalClaimed[owner]++;
-        }
-
-        // set addresses to have used discount
-        for (uint256 i = 0; i < _discountClaimedAddresses.length; i++) {
-            totalClaimed[_discountClaimedAddresses[i]]++;
         }
     }
 
@@ -73,7 +55,6 @@ contract FreeMinter is IFreeMinter {
             totalQuantity
         );
 
-        totalClaimed[recipient] += totalQuantity;
         _setpassportTokenIDsToClaimed(passportTokenIDs);
         // Reset discount for the recipient
         hasDiscount[recipient] = false;
@@ -114,14 +95,6 @@ contract FreeMinter is IFreeMinter {
             totalQuantity += 1;
         }
         return totalQuantity;
-    }
-
-    function _setExistingTokenIdsClaimed(
-        uint256[] memory _passportTokenIds
-    ) internal {
-        for (uint256 i = 0; i < _passportTokenIds.length; i++) {
-            freeMintClaimed[_passportTokenIds[i]] = true;
-        }
     }
 
     function _hasDuplicates(
