@@ -90,7 +90,7 @@ contract MinterUtilities is IMinterUtilities {
         uint256 totalMints = ICre8ors(cre8orsNFT)
             .mintedPerAddress(recipient)
             .totalMints;
-        uint256 maxQuantity = maxAllowedQuantity(4444);
+        uint256 maxQuantity = maxAllowedQuantity(18);
 
         if (maxQuantity < totalMints) {
             return 0;
