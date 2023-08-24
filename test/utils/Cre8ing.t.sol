@@ -2,16 +2,16 @@
 pragma solidity ^0.8.15;
 
 import "forge-std/Test.sol";
-import {Cre8ing} from "../src/Cre8ing.sol";
-import {ICre8ing} from "../src/interfaces/ICre8ing.sol";
-import {ILockup} from "../src/interfaces/ILockup.sol";
-import {Lockup} from "../src/utils/Lockup.sol";
-import {DummyMetadataRenderer} from "./utils/DummyMetadataRenderer.sol";
-import {IERC721Drop} from "../src/interfaces/IERC721Drop.sol";
-import {Strings} from "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
-import {Cre8orTestBase} from "./utils/Cre8orTestBase.sol";
-import {MinterAdminCheck} from "../src/minter/MinterAdminCheck.sol";
-import {TransferHook} from "../src/hooks/Transfers.sol";
+import {Cre8ing} from "../../src/Cre8ing.sol";
+import {ICre8ing} from "../../src/interfaces/ICre8ing.sol";
+import {ILockup} from "../../src/interfaces/ILockup.sol";
+import {Lockup} from "../../src/utils/Lockup.sol";
+import {DummyMetadataRenderer} from "./DummyMetadataRenderer.sol";
+import {IERC721Drop} from "../../src/interfaces/IERC721Drop.sol";
+import {Strings} from "../../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {Cre8orTestBase} from "./Cre8orTestBase.sol";
+import {MinterAdminCheck} from "../../src/minter/MinterAdminCheck.sol";
+import {TransferHook} from "../../src/hooks/Transfers.sol";
 import {IERC721ACH} from "ERC721H/interfaces/IERC721ACH.sol";
 
 contract Cre8ingTest is Test, Cre8orTestBase {

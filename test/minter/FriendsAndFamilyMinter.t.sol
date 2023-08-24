@@ -146,6 +146,34 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         assertTrue(!subscription.isSubscriptionValid(tokenId));
     }
 
+    function testSuccesfulAddDiscount_Array(
+        address _friendOrFamily1,
+        address _friendOrFamily2,
+        address _friendOrFamily3
+    ) public {
+        vm.assume(_friendOrFamily1 != address(0));
+        vm.assume(_friendOrFamily2 != address(0));
+        vm.assume(_friendOrFamily3 != address(0));
+
+        // Setup Minter
+        _setupMinter();
+
+        // Apply Discount
+        address[] memory recipients = new address[](3);
+        recipients[0] = _friendOrFamily1;
+        recipients[1] = _friendOrFamily2;
+        recipients[2] = _friendOrFamily3;
+
+        // Apply Discount
+        _addDiscount(recipients);
+
+        // ERC6551 setup
+        _setupErc6551();
+
+        // Asserts
+        assertTrue(minter.hasDiscount(_friendOrFamily1));
+    }
+
     function testRevertNoDiscount(address _buyer) public {
         // Setup Minter
         _setupMinter();
@@ -213,6 +241,17 @@ contract FriendsAndFamilyMinterTest is DSTest, Cre8orTestBase {
         vm.prank(DEFAULT_OWNER_ADDRESS);
         minter.addDiscount(_buyer);
         assertTrue(minter.hasDiscount(_buyer));
+    }
+
+    function _addDiscount(address[] memory _friends) internal {
+        for (uint256 i = 0; i < _friends.length; i++) {
+            assertTrue(!minter.hasDiscount(_friends[i]));
+        }
+        vm.prank(DEFAULT_OWNER_ADDRESS);
+        minter.addDiscount(_friends);
+        for (uint256 i = 0; i < _friends.length; i++) {
+            assertTrue(minter.hasDiscount(_friends[i]));
+        }
     }
 
     function _setMinterRole(address _assignee) internal {

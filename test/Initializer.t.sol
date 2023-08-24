@@ -124,7 +124,7 @@ contract InitializerTest is Test, Cre8orTestBase {
         assertTrue(isContract(_smartWallet));
     }
 
-    function _assumeAddress(address _normal) internal {
+    function _assumeAddress(address _normal) internal view {
         vm.assume(_normal != address(0));
         vm.assume(_normal != DEFAULT_OWNER_ADDRESS);
         vm.assume(_normal != address(initializer));

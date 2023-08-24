@@ -5,12 +5,10 @@ dotenv.config({
   path: `.env.${process.env.CHAIN}`,
 });
 
-export async function deployTransfers(cre8orsNftAddress) {
-  console.log("deploying Transfer Hook");
-  const contractLocation = "src/hooks/Transfers.sol:TransferHook";
-  const ERC6551Registry = "0x02101dfB77FDE026414827Fdc604ddAF224F0921"; // https://docs.tokenbound.org/contracts/deployments#registry
-  const ERC6551Implementation = "0x2D25602551487C3f3354dD80D76D54383A243358"; // https://docs.tokenbound.org/contracts/deployments#account-implementation
-  const args = [cre8orsNftAddress, ERC6551Registry, ERC6551Implementation];
+export async function deployTransfers(cre8orsNftAddress, stakingAddress) {
+  console.log("deploying Transferv0.1 Hook");
+  const contractLocation = "src/hooks/Transfersv0_1.sol:TransferHookv0_1";
+  const args = [cre8orsNftAddress, stakingAddress];
   const contract = await deployAndVerify(contractLocation, args);
   const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed transfer hook to ", contractAddress);
@@ -22,3 +20,10 @@ export async function deployTransfers(cre8orsNftAddress) {
   );
   return contract.deployed;
 }
+
+const GOERLI_CRE8ORS = "0x68C885f0954094C59847E6FeB252Fe5B4b0451Ba";
+const GOERLI_STAKING = "0x0c0a5BE4119A5f121C5928eAE3f61d09Db3c4a7d";
+
+const MAINNET_CRE8ORS = "0x8ddef0396d4b61fcbb0e4a821dfac52c011f79da";
+const MAINNET_STAKING = "0xF7bfF0B8E59143a39271a4cA1B2D8De65FF7E658";
+await deployTransfers(MAINNET_CRE8ORS, MAINNET_STAKING);
