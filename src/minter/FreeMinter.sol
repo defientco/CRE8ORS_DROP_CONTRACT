@@ -100,11 +100,17 @@ contract FreeMinter is IFreeMinter {
     function _hasDuplicates(
         uint[] calldata values
     ) internal pure returns (bool) {
-        for (uint i = 0; i < values.length; i++) {
-            for (uint j = i + 1; j < values.length; j++) {
+        for (uint i = 0; i < values.length; ) {
+            for (uint j = i + 1; j < values.length; ) {
                 if (values[i] == values[j]) {
                     return true;
                 }
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
             }
         }
         return false;
@@ -113,8 +119,11 @@ contract FreeMinter is IFreeMinter {
     function _setpassportTokenIDsToClaimed(
         uint256[] calldata passportTokenIDs
     ) internal {
-        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+        for (uint256 i = 0; i < passportTokenIDs.length; ) {
             freeMintClaimed[passportTokenIDs[i]] = true;
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -181,10 +190,13 @@ contract FreeMinter is IFreeMinter {
         uint256[] calldata passportTokenIDs
     ) internal view returns (bool) {
         bool hasPassportMint = false;
-        for (uint256 i = 0; i < passportTokenIDs.length; i++) {
+        for (uint256 i = 0; i < passportTokenIDs.length; ) {
             if (!freeMintClaimed[passportTokenIDs[i]]) {
                 hasPassportMint = true;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
         return hasPassportMint;

@@ -98,8 +98,11 @@ contract PaidMinter is IPaidMinter {
         uint256[] memory carts
     ) internal pure returns (uint256) {
         uint256 totalQuantity;
-        for (uint256 i = 0; i < carts.length; i++) {
+        for (uint256 i = 0; i < carts.length; ) {
             totalQuantity += carts[i];
+            unchecked {
+                ++i;
+            }
         }
         return totalQuantity;
     }
@@ -110,7 +113,7 @@ contract PaidMinter is IPaidMinter {
             IMinterUtilities(minterUtility).getTierInfo(),
             (IMinterUtilities.TierInfo[])
         );
-        for (uint256 i = 0; i < carts.length; i++) {
+        for (uint256 i = 0; i < carts.length; ) {
             if (i == 3 || carts[i] == 0) {
                 continue;
             }
@@ -129,6 +132,9 @@ contract PaidMinter is IPaidMinter {
                         lockUpDateAndPrice
                     );
                 tokenId++;
+            }
+            unchecked {
+                ++i;
             }
         }
     }
