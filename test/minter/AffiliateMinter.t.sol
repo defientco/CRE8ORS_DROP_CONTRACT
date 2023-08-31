@@ -58,15 +58,12 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
         uint256 _quantity,
         address recipient
     ) public {
-        _assumeReasonableNumber(_quantity);
+        _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
         _grantAffiliateMinterMinterRole();
 
-        vm.prank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.purchase(1);
-
         vm.expectRevert(AffiliateMinter.MissingSmartWallet.selector);
-        vm.prank(recipient);
         affiliateMinter.mint(recipient, 1, _quantity);
     }
 
@@ -74,7 +71,7 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
         uint256 _quantity,
         address recipient
     ) public {
-        _assumeReasonableNumber(_quantity);
+        _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
         _grantAffiliateMinterMinterRole();
         _setUpSmartWallet();
@@ -86,19 +83,17 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
                 correctPrice
             )
         );
-        vm.prank(recipient);
         affiliateMinter.mint(recipient, 1, _quantity);
     }
 
     function test_Mint_Success(uint256 _quantity, address recipient) public {
-        _assumeReasonableNumber(_quantity);
+        _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
         _grantAffiliateMinterMinterRole();
         _setUpSmartWallet();
         _setNewPrice(0.05 ether);
         uint256 correctPrice = (0.05 ether * _quantity);
-        vm.prank(recipient);
-        vm.deal(recipient, correctPrice);
+        vm.deal(msg.sender, correctPrice);
         affiliateMinter.mint{value: correctPrice}(recipient, 1, _quantity);
         assertEq(
             _quantity,
@@ -110,7 +105,7 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
         uint256 _quantity,
         address recipient
     ) public {
-        _assumeReasonableNumber(_quantity);
+        _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
         _grantAffiliateMinterMinterRole();
         _setUpSmartWallet();
@@ -119,22 +114,24 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
         uint256 correctPrice = (0.05 ether * _quantity);
         uint256 referralFeePaidOut = (correctPrice *
             affiliateMinter.referralFee()) / 100;
-        vm.prank(recipient);
-        vm.deal(recipient, correctPrice);
+
+        // verify no balance before referral payout
+        assertEq(referrer.balance, 0);
+
+        // mint with referral
+        vm.deal(msg.sender, correctPrice);
         affiliateMinter.mint{value: correctPrice}(recipient, 1, _quantity);
+
         assertEq(
             _quantity,
             cre8orsNFTBase.mintedPerAddress(recipient).totalMints
         );
-        assertEq(referralFeePaidOut, referrer.balance);
+        // verify referral fee paid
+        assertEq(referrer.balance, referralFeePaidOut);
         assertEq(
             correctPrice - referralFeePaidOut,
             address(cre8orsNFTBase).balance
         );
-    }
-
-    function _assumeReasonableNumber(uint256 _quantity) internal pure {
-        vm.assume(_quantity > 0 && _quantity < 18);
     }
 
     function _assumeReasonableBuyer(address _buyer) internal pure {
