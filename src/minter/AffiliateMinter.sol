@@ -4,6 +4,7 @@ import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
 import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 contract AffiliateMinter {
     address public erc6551Registry;
@@ -95,14 +96,6 @@ contract AffiliateMinter {
         );
     }
 
-    function isContract(address _addr) private returns (bool isContract) {
-        uint32 size;
-        assembly {
-            size := extcodesize(_addr)
-        }
-        return (size > 0);
-    }
-
     /**
      * @dev Modifier to ensure the caller is an admin.
      */
@@ -122,7 +115,7 @@ contract AffiliateMinter {
     }
     modifier onlySmartWallet(uint256 _cre8orsNumber) {
         address tba = _getTBA(_cre8orsNumber);
-        if (!isContract(tba)) {
+        if (!Address.isContract(tba)) {
             revert MissingSmartWallet();
         }
         _;
