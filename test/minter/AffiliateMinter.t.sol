@@ -21,7 +21,8 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
         affiliateMinter = new AffiliateMinter(
             address(cre8orsNFTBase),
             address(erc6551Registry),
-            address(erc6551Implementation)
+            address(erc6551Implementation),
+            20
         );
     }
 
