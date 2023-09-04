@@ -25,13 +25,13 @@ contract AffiliateMinter {
     error MissingSmartWallet();
     /// @notice Custom error to indicate the provided fee is invalid.
     error InvalidFee();
+    /// @notice Custom error to indicate the payment failed.
+    error PaymentFailed();
 
     /// @dev Emitted when an affiliate sale occurs.
     event AffiliateSale(
-        address indexed buyer,
         uint256 indexed cre8orsNumber,
-        uint256 indexed referralFeePaid,
-        uint256 quantityPurchased
+        uint256 indexed referralFeePaid
     );
 
     /**
@@ -63,35 +63,51 @@ contract AffiliateMinter {
         address to,
         uint256 referralCre8orNumber,
         uint256 quantity
-    )
-        external
-        payable
-        onlySmartWallet(referralCre8orNumber)
-        verifyCost(quantity)
-    {
-        // get smart wallet address
-        address referrer = _getTBA(referralCre8orNumber);
+    ) external payable {
+        // get smart wallet address for referrer
+        address referrer = IERC6551Registry(erc6551Registry).account(
+            erc6551AccountImplementation,
+            block.chainid,
+            cre8orsNft,
+            referralCre8orNumber,
+            0
+        );
+
+        // only if smart wallet has been set up
+        if (!Address.isContract(referrer)) {
+            revert MissingSmartWallet();
+        }
+
+        // verify price
+        uint256 publicSalePrice = ICre8ors(cre8orsNft)
+            .saleDetails()
+            .publicSalePrice;
+        if (msg.value < quantity * publicSalePrice) {
+            revert IERC721Drop.Purchase_WrongPrice(quantity * publicSalePrice);
+        }
 
         // calculate referral fee to be paid
         uint256 referralFeeAmount = (msg.value * referralFee) / 100;
 
         // pay referral fee
-        payable(referrer).call{value: referralFeeAmount}("");
+        (bool success, ) = payable(referrer).call{value: referralFeeAmount}("");
+        if (!success) {
+            revert PaymentFailed();
+        }
+
         // pay cre8ors
-        payable(address(cre8orsNft)).call{value: msg.value - referralFeeAmount}(
-            ""
-        );
+        (success, ) = payable(address(cre8orsNft)).call{
+            value: msg.value - referralFeeAmount
+        }("");
+        if (!success) {
+            revert PaymentFailed();
+        }
 
         // mint cre8ors
         ICre8ors(cre8orsNft).adminMint(to, quantity);
 
         // emit event
-        emit AffiliateSale(
-            to,
-            referralCre8orNumber,
-            referralFeeAmount,
-            quantity
-        );
+        emit AffiliateSale(referralCre8orNumber, referralFeeAmount);
     }
 
     /**
@@ -123,23 +139,6 @@ contract AffiliateMinter {
     }
 
     /**
-     * @dev Retrieves the Token Bound Account (TBA) for a given Cre8or number.
-     * @param _cre8orsNumber The Cre8or number to find the TBA for.
-     * @return tba The Token Bound Account.
-     */
-    function _getTBA(
-        uint256 _cre8orsNumber
-    ) internal view returns (address tba) {
-        tba = IERC6551Registry(erc6551Registry).account(
-            erc6551AccountImplementation,
-            block.chainid,
-            cre8orsNft,
-            _cre8orsNumber,
-            0
-        );
-    }
-
-    /**
      * @dev Modifier to ensure the caller is an admin.
      */
     modifier onlyAdmin() {
@@ -156,35 +155,6 @@ contract AffiliateMinter {
     modifier checkFee(uint256 _fee) {
         if (_fee > 100 || _fee < 0) {
             revert InvalidFee();
-        }
-        _;
-    }
-
-    /**
-     * @dev Ensures the operation is only performed by a valid smart wallet for the given Cre8or number.
-     * @param _cre8orsNumber Cre8or number used to determine the associated smart wallet.
-     */
-    modifier onlySmartWallet(uint256 _cre8orsNumber) {
-        address tba = _getTBA(_cre8orsNumber);
-        if (!Address.isContract(tba)) {
-            revert MissingSmartWallet();
-        }
-        _;
-    }
-
-    /**
-     * @dev Ensures that the sent value matches the expected cost for the NFT purchase.
-     * @param _quantity Quantity of NFTs being purchased.
-     */
-    modifier verifyCost(uint256 _quantity) {
-        if (
-            msg.value <
-            _quantity * ICre8ors(cre8orsNft).saleDetails().publicSalePrice
-        ) {
-            revert IERC721Drop.Purchase_WrongPrice(
-                _quantity *
-                    IERC721Drop(cre8orsNft).saleDetails().publicSalePrice
-            );
         }
         _;
     }
