@@ -5,10 +5,10 @@ dotenv.config({
   path: `.env.${process.env.CHAIN}`,
 });
 
-export async function deployTransfers(cre8orsNftAddress) {
+export async function deployTransfers() {
   console.log("deploying Transferv0.2 Hook");
   const contractLocation = "src/hooks/Transfersv0_2.sol:TransferHookv0_2";
-  const args = [cre8orsNftAddress];
+  const args = [];
   const contract = await deployAndVerify(contractLocation, args);
   const contractAddress = contract.deployed.deploy.deployedTo;
   console.log("deployed transfer hook to ", contractAddress);
@@ -18,6 +18,4 @@ export async function deployTransfers(cre8orsNftAddress) {
   return contract.deployed;
 }
 
-const GOERLI_CRE8ORS = "0x68C885f0954094C59847E6FeB252Fe5B4b0451Ba";
-const MAINNET_CRE8ORS = "0x8ddef0396d4b61fcbb0e4a821dfac52c011f79da";
-await deployTransfers(GOERLI_CRE8ORS);
+await deployTransfers();
