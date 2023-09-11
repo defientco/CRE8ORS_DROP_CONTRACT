@@ -58,7 +58,7 @@ contract TransferHookv0_2Test is DSTest, Cre8orTestBase {
     /// SETUP CONTRACT FUNCTIONS ///
 
     function _setupTransferHook() internal returns (TransferHookv0_2) {
-        hook = new TransferHookv0_2(address(cre8orsNFTBase));
+        hook = new TransferHookv0_2();
 
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         // set hook
