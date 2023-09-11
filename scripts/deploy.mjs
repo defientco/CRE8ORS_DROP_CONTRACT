@@ -32,10 +32,7 @@ export async function setupContracts() {
   const subscription = await deploySubscription(cre8orsAddress);
   const ownerOfHook = await deployOwnerOf();
   const staking = await deployStaking();
-  const transferHook = await deployTransfers(
-    cre8orsAddress,
-    staking.deploy.deployedTo
-  );
+  const transferHook = await deployTransfers();
   const lockup = await deployLockup();
   const passportAddress = "0x31E28672F704d6F8204e41Ec0B93EE2b1172558E";
 
