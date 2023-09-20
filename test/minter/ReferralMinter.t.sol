@@ -137,6 +137,7 @@ contract ReferralMinterTest is DSTest, Cre8orTestBase {
 
     function _assumeReasonableBuyer(address _buyer) internal pure {
         vm.assume(_buyer != address(0));
+        vm.assume(_buyer != DEFAULT_OWNER_ADDRESS);
     }
 
     function _grantReferralMinterMinterRole() internal {
