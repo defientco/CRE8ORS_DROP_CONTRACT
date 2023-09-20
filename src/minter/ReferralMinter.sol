@@ -7,6 +7,14 @@ import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol"
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
+ ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
+██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
+╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
+ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
+*/
+/**
  * @title ReferralMinter
  * @notice This contract allows for minting Cre8ors NFTs through referral links.
  * Referrals get a referral fee for any sales they help generate.
