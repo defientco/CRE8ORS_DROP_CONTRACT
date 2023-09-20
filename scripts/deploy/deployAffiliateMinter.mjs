@@ -5,14 +5,14 @@ dotenv.config({
   path: `.env.${process.env.CHAIN}`,
 });
 
-export async function deployAffiliateMinter(
+export async function deployReferralMinter(
   _cre8orAddress,
   _erc6551Registry,
   _erc6551AccountImplementation,
   _referralFee
 ) {
-  console.log("deploying affiliate minter");
-  const contractLocation = "src/minter/AffiliateMinter.sol:AffiliateMinter";
+  console.log("deploying referral minter");
+  const contractLocation = "src/minter/ReferralMinter.sol:ReferralMinter";
   const args = [
     _cre8orAddress,
     _erc6551Registry,
@@ -21,7 +21,7 @@ export async function deployAffiliateMinter(
   ];
   const contract = await deployAndVerify(contractLocation, args);
   const contractAddress = contract.deployed.deploy.deployedTo;
-  console.log("deployed affiliate minter to ", contractAddress);
+  console.log("deployed referral minter to ", contractAddress);
   console.log(
     "make sure to call grantRole with MINTER_ROLE on cre8ors contract"
   );
@@ -34,7 +34,7 @@ const GOERLI_ERC6551_IMPLEMENTATION =
   "0x2d25602551487c3f3354dd80d76d54383a243358";
 const GOERLI_REFERRAL_FEE = 20;
 
-deployAffiliateMinter(
+deployReferralMinter(
   GOERLI_CRE8ORS,
   GOERLI_ERC6551_REGISTRY,
   GOERLI_ERC6551_IMPLEMENTATION,

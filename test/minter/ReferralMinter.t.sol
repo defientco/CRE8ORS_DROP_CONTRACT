@@ -9,16 +9,16 @@ import {ERC6551Registry} from "lib/ERC6551/src/ERC6551Registry.sol";
 import {Account} from "lib/tokenbound/src/Account.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 import {Cre8orTestBase} from "../utils/Cre8orTestBase.sol";
-import {AffiliateMinter} from "../../src/minter/AffiliateMinter.sol";
+import {ReferralMinter} from "../../src/minter/ReferralMinter.sol";
 import "forge-std/console.sol";
 
-contract AffiliateMinterTest is DSTest, Cre8orTestBase {
-    AffiliateMinter affiliateMinter;
+contract ReferralMinterTest is DSTest, Cre8orTestBase {
+    ReferralMinter referralMinter;
 
     function setUp() public {
         Cre8orTestBase.cre8orSetup();
         _setupErc6551();
-        affiliateMinter = new AffiliateMinter(
+        referralMinter = new ReferralMinter(
             address(cre8orsNFTBase),
             address(erc6551Registry),
             address(erc6551Implementation),
@@ -33,26 +33,26 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
 
     function test_setErc6551Registry_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        affiliateMinter.setRegistryAddress(address(erc6551Registry));
+        referralMinter.setRegistryAddress(address(erc6551Registry));
     }
 
     function test_setErc6551Implementation_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        affiliateMinter.setAccountImplementationAddress(
+        referralMinter.setAccountImplementationAddress(
             address(erc6551Implementation)
         );
     }
 
     function test_setReferralFee_revert_Access_OnlyAdmin() public {
         vm.expectRevert(IERC721Drop.Access_OnlyAdmin.selector);
-        affiliateMinter.setReferralFee(20);
+        referralMinter.setReferralFee(20);
     }
 
     function test_setInvalidFee_revertInvalidFee(uint256 _fee) public {
         vm.assume(_fee > 100 || _fee < 0);
         vm.prank(DEFAULT_OWNER_ADDRESS);
-        vm.expectRevert(AffiliateMinter.InvalidFee.selector);
-        affiliateMinter.setReferralFee(_fee);
+        vm.expectRevert(ReferralMinter.InvalidFee.selector);
+        referralMinter.setReferralFee(_fee);
     }
 
     function test_Mint_revertMissingSmartWallet(
@@ -61,11 +61,11 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
     ) public {
         _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
-        _grantAffiliateMinterMinterRole();
+        _grantReferralMinterMinterRole();
 
         cre8orsNFTBase.purchase(1);
-        vm.expectRevert(AffiliateMinter.MissingSmartWallet.selector);
-        affiliateMinter.mint(recipient, 1, _quantity);
+        vm.expectRevert(ReferralMinter.MissingSmartWallet.selector);
+        referralMinter.mint(recipient, 1, _quantity);
     }
 
     function test_Mint_revertWrongPrice(
@@ -74,7 +74,7 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
     ) public {
         _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
-        _grantAffiliateMinterMinterRole();
+        _grantReferralMinterMinterRole();
         _setUpSmartWallet();
         _setNewPrice(0.05 ether);
         uint256 correctPrice = (0.05 ether * _quantity);
@@ -84,18 +84,18 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
                 correctPrice
             )
         );
-        affiliateMinter.mint(recipient, 1, _quantity);
+        referralMinter.mint(recipient, 1, _quantity);
     }
 
     function test_Mint_Success(uint256 _quantity, address recipient) public {
         _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
-        _grantAffiliateMinterMinterRole();
+        _grantReferralMinterMinterRole();
         _setUpSmartWallet();
         _setNewPrice(0.05 ether);
         uint256 correctPrice = (0.05 ether * _quantity);
         vm.deal(msg.sender, correctPrice);
-        affiliateMinter.mint{value: correctPrice}(recipient, 1, _quantity);
+        referralMinter.mint{value: correctPrice}(recipient, 1, _quantity);
         assertEq(
             _quantity,
             cre8orsNFTBase.mintedPerAddress(recipient).totalMints
@@ -108,20 +108,20 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
     ) public {
         _assumeUint256(_quantity);
         _assumeReasonableBuyer(recipient);
-        _grantAffiliateMinterMinterRole();
+        _grantReferralMinterMinterRole();
         _setUpSmartWallet();
         _setNewPrice(0.05 ether);
         address referrer = getTBA(1);
         uint256 correctPrice = (0.05 ether * _quantity);
         uint256 referralFeePaidOut = (correctPrice *
-            affiliateMinter.referralFee()) / 100;
+            referralMinter.referralFee()) / 100;
 
         // verify no balance before referral payout
         assertEq(referrer.balance, 0);
 
         // mint with referral
         vm.deal(msg.sender, correctPrice);
-        affiliateMinter.mint{value: correctPrice}(recipient, 1, _quantity);
+        referralMinter.mint{value: correctPrice}(recipient, 1, _quantity);
 
         assertEq(
             _quantity,
@@ -139,11 +139,11 @@ contract AffiliateMinterTest is DSTest, Cre8orTestBase {
         vm.assume(_buyer != address(0));
     }
 
-    function _grantAffiliateMinterMinterRole() internal {
+    function _grantReferralMinterMinterRole() internal {
         vm.startPrank(DEFAULT_OWNER_ADDRESS);
         cre8orsNFTBase.grantRole(
             cre8orsNFTBase.MINTER_ROLE(),
-            address(affiliateMinter)
+            address(referralMinter)
         );
         vm.stopPrank();
     }

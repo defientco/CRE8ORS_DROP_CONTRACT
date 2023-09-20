@@ -7,11 +7,11 @@ import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol"
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
- * @title AffiliateMinter
- * @notice This contract allows for minting Cre8ors NFTs through affiliate links.
- * Affiliates get a referral fee for any sales they help generate.
+ * @title ReferralMinter
+ * @notice This contract allows for minting Cre8ors NFTs through referral links.
+ * Referrals get a referral fee for any sales they help generate.
  */
-contract AffiliateMinter {
+contract ReferralMinter {
     /// @notice Address of the ERC6551Registry contract.
     address public erc6551Registry;
     /// @notice Address of the ERC6551AccountImplementation contract.
@@ -28,8 +28,8 @@ contract AffiliateMinter {
     /// @notice Custom error to indicate the payment failed.
     error PaymentFailed();
 
-    /// @dev Emitted when an affiliate sale occurs.
-    event AffiliateSale(
+    /// @dev Emitted when an referral sale occurs.
+    event ReferralSale(
         uint256 indexed cre8orsNumber,
         uint256 indexed referralFeePaid
     );
@@ -39,7 +39,7 @@ contract AffiliateMinter {
      * @param _cre8orsNft Address of the Cre8ors NFT contract.
      * @param _erc6551Registry Address of the ERC6551Registry contract.
      * @param _erc6551AccountImplementation Address of the ERC6551AccountImplementation contract.
-     * @param _referralFee Initial referral fee percentage (between 0 and 100) for the affiliate program.
+     * @param _referralFee Initial referral fee percentage (between 0 and 100) for the referral program.
      */
     constructor(
         address _cre8orsNft,
@@ -107,7 +107,7 @@ contract AffiliateMinter {
         ICre8ors(cre8orsNft).adminMint(to, quantity);
 
         // emit event
-        emit AffiliateSale(referralCre8orNumber, referralFeeAmount);
+        emit ReferralSale(referralCre8orNumber, referralFeeAmount);
     }
 
     /**
