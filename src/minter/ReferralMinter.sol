@@ -7,7 +7,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  * @title ReferralMinter
- * @notice This contract allows for minting Cre8ors NFTs through referral links.
+ * @notice This contract allows for minting NFTs through referral links.
  * Referrals get a referral fee for any sales they help generate.
  */
 contract ReferralMinter {
@@ -15,12 +15,12 @@ contract ReferralMinter {
     address public erc6551Registry;
     /// @notice Address of the ERC6551AccountImplementation contract.
     address public erc6551AccountImplementation;
-    /// @notice Address of the Cre8ors NFT contract.
-    address public cre8orsNft;
+    /// @notice Address of the NFT contract.
+    address public nft;
     /// @notice Referral fee in percentage (0 to 100).
     uint256 public referralFee;
 
-    /// @notice Custom error to indicate that the smart wallet associated with the Cre8or number doesn't exist.
+    /// @notice Custom error to indicate that the smart wallet associated with the tokenId doesn't exist.
     error MissingSmartWallet();
     /// @notice Custom error to indicate the provided fee is invalid.
     error InvalidFee();
@@ -29,46 +29,46 @@ contract ReferralMinter {
 
     /// @dev Emitted when an referral sale occurs.
     event ReferralSale(
-        uint256 indexed cre8orsNumber,
+        uint256 indexed tokenId,
         uint256 indexed referralFeePaid
     );
 
     /**
      * @dev Sets the initial state of the contract.
-     * @param _cre8orsNft Address of the Cre8ors NFT contract.
+     * @param _nft Address of the NFT contract.
      * @param _erc6551Registry Address of the ERC6551Registry contract.
      * @param _erc6551AccountImplementation Address of the ERC6551AccountImplementation contract.
      * @param _referralFee Initial referral fee percentage (between 0 and 100) for the referral program.
      */
     constructor(
-        address _cre8orsNft,
+        address _nft,
         address _erc6551Registry,
         address _erc6551AccountImplementation,
         uint256 _referralFee
     ) checkFee(_referralFee) {
-        cre8orsNft = _cre8orsNft;
+        nft = _nft;
         erc6551Registry = _erc6551Registry;
         erc6551AccountImplementation = _erc6551AccountImplementation;
         referralFee = _referralFee;
     }
 
     /**
-     * @notice Allows minting of Cre8ors NFTs with referral fee distribution.
+     * @notice Allows minting of NFTs with referral fee distribution.
      * @param to Recipient of the minted NFTs.
-     * @param referralCre8orNumber Cre8or number used for referral.
+     * @param referralId token ID used for referral.
      * @param quantity Quantity of NFTs to mint.
      */
     function mint(
         address to,
-        uint256 referralCre8orNumber,
+        uint256 referralId,
         uint256 quantity
     ) external payable {
         // get smart wallet address for referrer
         address referrer = IERC6551Registry(erc6551Registry).account(
             erc6551AccountImplementation,
             block.chainid,
-            cre8orsNft,
-            referralCre8orNumber,
+            nft,
+            referralId,
             0
         );
 
@@ -78,7 +78,7 @@ contract ReferralMinter {
         }
 
         // verify price
-        uint256 publicSalePrice = IERC721Drop(cre8orsNft)
+        uint256 publicSalePrice = IERC721Drop(nft)
             .saleDetails()
             .publicSalePrice;
         if (msg.value < quantity * publicSalePrice) {
@@ -94,19 +94,19 @@ contract ReferralMinter {
             revert PaymentFailed();
         }
 
-        // pay cre8ors
-        (success, ) = payable(address(cre8orsNft)).call{
+        // pay base mint fee
+        (success, ) = payable(address(nft)).call{
             value: msg.value - referralFeeAmount
         }("");
         if (!success) {
             revert PaymentFailed();
         }
 
-        // mint cre8ors
-        IERC721Drop(cre8orsNft).adminMint(to, quantity);
+        // mint nft
+        IERC721Drop(nft).adminMint(to, quantity);
 
         // emit event
-        emit ReferralSale(referralCre8orNumber, referralFeeAmount);
+        emit ReferralSale(referralId, referralFeeAmount);
     }
 
     /**
@@ -141,7 +141,7 @@ contract ReferralMinter {
      * @dev Modifier to ensure the caller is an admin.
      */
     modifier onlyAdmin() {
-        if (!IERC721Drop(cre8orsNft).isAdmin(msg.sender)) {
+        if (!IERC721Drop(nft).isAdmin(msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
         }
 
