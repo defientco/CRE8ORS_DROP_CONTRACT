@@ -1,19 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 import {IERC721A} from "lib/ERC721A/contracts/interfaces/IERC721A.sol";
-import {ICre8ors} from "../interfaces/ICre8ors.sol";
 import {IERC721Drop} from "../interfaces/IERC721Drop.sol";
 import {IERC6551Registry} from "lib/ERC6551/src/interfaces/IERC6551Registry.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-/**
- ██████╗██████╗ ███████╗ █████╗  ██████╗ ██████╗ ███████╗
-██╔════╝██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔════╝
-██║     ██████╔╝█████╗  ╚█████╔╝██║   ██║██████╔╝███████╗
-██║     ██╔══██╗██╔══╝  ██╔══██╗██║   ██║██╔══██╗╚════██║
-╚██████╗██║  ██║███████╗╚█████╔╝╚██████╔╝██║  ██║███████║
- ╚═════╝╚═╝  ╚═╝╚══════╝ ╚════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝                                                       
-*/
 /**
  * @title ReferralMinter
  * @notice This contract allows for minting Cre8ors NFTs through referral links.
@@ -87,7 +78,7 @@ contract ReferralMinter {
         }
 
         // verify price
-        uint256 publicSalePrice = ICre8ors(cre8orsNft)
+        uint256 publicSalePrice = IERC721Drop(cre8orsNft)
             .saleDetails()
             .publicSalePrice;
         if (msg.value < quantity * publicSalePrice) {
@@ -112,7 +103,7 @@ contract ReferralMinter {
         }
 
         // mint cre8ors
-        ICre8ors(cre8orsNft).adminMint(to, quantity);
+        IERC721Drop(cre8orsNft).adminMint(to, quantity);
 
         // emit event
         emit ReferralSale(referralCre8orNumber, referralFeeAmount);
@@ -150,7 +141,7 @@ contract ReferralMinter {
      * @dev Modifier to ensure the caller is an admin.
      */
     modifier onlyAdmin() {
-        if (!ICre8ors(cre8orsNft).isAdmin(msg.sender)) {
+        if (!IERC721Drop(cre8orsNft).isAdmin(msg.sender)) {
             revert IERC721Drop.Access_OnlyAdmin();
         }
 
